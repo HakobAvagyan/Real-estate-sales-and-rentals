@@ -1,13 +1,13 @@
-package org.example.realestatesalesandrentals;
+package org.example.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RealEstateSalesAndRentalsApplication {
+public class AppApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RealEstateSalesAndRentalsApplication.class, args);
+        SpringApplication.run(AppApplication.class, args);
     }
 
 }
