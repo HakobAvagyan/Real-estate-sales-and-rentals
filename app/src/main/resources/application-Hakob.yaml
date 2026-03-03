@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: rent-sell
+  liquibase:
+    change-log: classpath:/db/master.xml
+    enabled: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/rent_sell
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Root}
+
+
+
