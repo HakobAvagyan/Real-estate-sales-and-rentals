@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<span th:if="${msg} != null">
+  <span style="color: red" th:text="${msg}"></span>
+</span>
+<br>
+
+      <h1>Register</h1>
+
+<form method="post" action="/register" enctype="multipart/form-data">
+  <input type="text" name="name" placeholder="Name"><br>
+  <input type="text" name="surname" placeholder="Surname"><br>
+  <input type="email" name="email" placeholder="Email"><br>
+  <input type="tel" name="phone" placeholder="Phone"><br>
+  <input type="password" name="password" placeholder="Password"><br>
+  <input type="text" name="passportDetails" placeholder="Passport Detail"><br>
+  <input type="file" name="pic"><br>
+  <input type="radio" name="role" value="ADMIN">Admin
+  <input type="radio" name="role" value="MANAGER">Manager
+  <input type="radio" name="role" value="USER">User
+  <input type="radio" name="role" value="CUSTOMER">Customer
+  <br>
+  <input type="submit" value="Register">
+</form>
+</body>
+</html>
