@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+<h1>Welcome <span th:text="${currentUser.name}  +' ' +  ${currentUser.surname}"></span> to the Home Page!</h1>
+
+<h1>User</h1>
+
+<table>
+    <tr>
+        <th>Picture</th>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Passport details</th>
+        <th>Role</th>
+        <th>Date</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="user : ${users}">
+        <td>
+            <img th:if="${user.getPicName() != null && !user.getPicName().equals('')}" width="200"
+                 th:src="@{/image/get(pic=${user.picName})}">
+            <img th:if="${user.getPicName() == null || user.getPicName().equals('')}" width="200"
+                 th:src="@{/image/img.png}">
+        </td>
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.surname}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.phone}"></td>
+        <td th:text="${user.passportDetails}"></td>
+        <td th:text="${user.role}"></td>
+        <td th:text="${user.createdAt}"></td>
+        <td>
+            <a th:href="@{/update(id=${user.id})}">Update</a> |
+            <a th:href="@{/delete(id=${user.id})}">Delete</a>
+        </td>
+    </tr>
+</table>
+<br>
+
+<a href="/logout">Logout</a>
+</body>
+</html>
