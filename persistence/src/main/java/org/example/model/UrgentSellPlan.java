@@ -5,8 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,26 +13,26 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "comments")
-public class Comment {
+@Table(name = "urgent_sell_plane")
+public class UrgentSellPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    @Column(name = "duration_days")
+    private int durationDays;
 
     @Column(name = "created_at")
     private LocalDate createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "property_id")
-    private Property property;
+    @Column(name = "is_active")
+    private boolean isActive;
+
+    @Column(name = "update_at")
+    private LocalDate updateAt;
 }

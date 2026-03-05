@@ -1,7 +1,8 @@
 package org.example.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,23 +10,22 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.enums.Region;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "currency")
-public class Currency {
+@Table(name = "location")
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String code;
+    @Enumerated(EnumType.STRING)
+    private Region region;
 
-    private String name;
-
-    private String symbol;
-
-    @Column(name = "exchange_rate")
-    private String exchangeRate;
+    private String city;
+    private String district;
+    private String street;
 }

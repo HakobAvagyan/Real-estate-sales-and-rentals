@@ -15,26 +15,22 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "comments")
-public class Comment {
+@Table(name = "property_images")
+public class PropertyImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    @ManyToOne
+    @JoinColumn(name = "property_id", nullable = false)
+    private Property property;
+
+    @Column(name = "images_url", nullable = false)
+    private String imagesUrl;
 
     @Column(name = "created_at")
     private LocalDate createdAt;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "property_id")
-    private Property property;
 }

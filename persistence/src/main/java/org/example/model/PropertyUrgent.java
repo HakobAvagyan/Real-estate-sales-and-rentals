@@ -15,26 +15,36 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "comments")
-public class Comment {
+@Table(name = "property_urgent")
+public class PropertyUrgent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    @ManyToOne
+    @JoinColumn(name = "property_id", nullable = false)
+    private Property property;
+
+    @ManyToOne
+    @JoinColumn(name = "urgent_sell_plan_id", nullable = false)
+    private UrgentSellPlan urgentSellPlan;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @Column(name = "created_at")
     private LocalDate createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "property_id")
-    private Property property;
+    @JoinColumn(name = "payment_id", nullable = false)
+    private Payment payment;
 }
