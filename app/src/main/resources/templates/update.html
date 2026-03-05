@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update User details</title>
+</head>
+<body>
+
+<h1>Update User details</h1>
+
+<form method="post" action="/update" enctype="multipart/form-data">
+  <input type="hidden" name="id" th:value="${user.id}">
+  <input type="text" name="name" th:value="${user.name}"><br>
+  <input type="text" name="surname" th:value="${user.surname}"><br>
+  <input type="email" name="email" th:value="${user.email}"><br>
+  <input type="tel" name="phone" th:value="${user.phone}"><br>
+  <input type="password" name="password" th:value="${user.password}"><br>
+  <input type="text" name="passportDetails" th:value="${user.passportDetails}"><br>
+  <input type="file" name="pic">
+
+  <div th:if="${user.picName != null}">
+    <input id="remove" type="checkbox" name="remove" value="true">
+    <label for="remove">Remove Profile Picture</label>
+  </div>
+
+
+  <input type="hidden" name="role" th:value="${user.role}"><span th:text="${user.role}"></span>
+  <br>
+  <input type="submit" value="Edit">
+</form>
+
+<br><a href="/home">Back to User list</a>
+</body>
+</html>

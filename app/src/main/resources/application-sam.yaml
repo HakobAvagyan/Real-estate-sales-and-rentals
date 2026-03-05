@@ -7,13 +7,4 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/rent_sell
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Root}
-
-system:
-  upload:
-    images:
-      directory:
-        path: /Users/admin/IdeaProjects/Real-estate-sales-and-rentals/app/upload-images/
-
-
-
+    password: ${DB_PASSWORD:root} 
