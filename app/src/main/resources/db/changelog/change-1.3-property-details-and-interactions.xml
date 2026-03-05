@@ -78,7 +78,7 @@
             <column name="created_at" type="date"><constraints nullable="false"/></column>
         </createTable>
 
-        <createTable tableName="meassage_chat">
+        <createTable tableName="message_chat">
             <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
             <column name="conversation_id" type="int"><constraints nullable="false" foreignKeyName="msg_conv_FK" referencedTableName="conversation" referencedColumnNames="id"/></column>
             <column name="user_send_id" type="int"><constraints nullable="false" foreignKeyName="msg_user_FK" referencedTableName="user" referencedColumnNames="id"/></column>

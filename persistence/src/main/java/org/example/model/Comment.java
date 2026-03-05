@@ -21,7 +21,7 @@ public class Comment {
     private String comment;
 
     @Column(name = "created_at")
-    private LocalDate createdAt;
+    private LocalDate createdAt = LocalDate.now();
 
     @ManyToOne
     @JoinColumn(name = "user_id")
