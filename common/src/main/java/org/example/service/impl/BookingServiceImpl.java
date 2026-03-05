@@ -17,13 +17,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking save(Booking booking) {
-        if (bookingRepository.existsOverlapping(
-                booking.getProperty().getId(),
-                booking.getId(),
-                booking.getStartDate(),
-                booking.getEndDate())) {
-            throw new IllegalArgumentException("Booking dates overlap with an existing booking for the same property.");
-        }
+//        if (bookingRepository.existsOverlapping(
+//                booking.getProperty().getId(),
+//                booking.getId(),
+//                booking.getStartDate(),
+//                booking.getEndDate())) {
+//            throw new IllegalArgumentException("Booking dates overlap with an existing booking for the same property.");
+//        }
         return bookingRepository.save(booking);
     }
 

@@ -18,9 +18,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment save(Comment comment) {
-        if (comment.getCreatedAt() == null) {
-            comment.setCreatedAt(LocalDate.now());
-        }
         return commentRepository.save(comment);
     }
 
