@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.enums.PaymentStatus;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,8 +21,8 @@ public class Payment {
 
     private BigDecimal amount;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
+//    @Enumerated(EnumType.STRING)
+//    private PaymentStatus status;
 
     @Column(name = "paid_at")
     private LocalDate paidAt;

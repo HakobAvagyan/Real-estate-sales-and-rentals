@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.enums.PropertyStatus;
-import org.example.model.enums.PropertyType;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -48,14 +45,14 @@ public class Property {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
-
-    @Enumerated(EnumType.STRING)
-    private PropertyStatus status;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    private PropertyType propertyType;
+//    @ManyToOne
+//    @JoinColumn(name = "location_id", nullable = false)
+//    private Location location;
+//
+//    @Enumerated(EnumType.STRING)
+//    private PropertyStatus status;
+//
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "type")
+//    private PropertyType propertyType;
 }
