@@ -1,9 +1,21 @@
 package org.example.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.enums.PropertyStatus;
+import org.example.model.enums.PropertyType;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -45,14 +57,14 @@ public class Property {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
-//    @ManyToOne
-//    @JoinColumn(name = "location_id", nullable = false)
-//    private Location location;
-//
-//    @Enumerated(EnumType.STRING)
-//    private PropertyStatus status;
-//
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "type")
-//    private PropertyType propertyType;
+    @ManyToOne
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
+
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private PropertyType propertyType;
 }

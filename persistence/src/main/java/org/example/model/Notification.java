@@ -1,36 +1,36 @@
 package org.example.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.enums.NotificationType;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "property_images")
-public class PropertyImage {
+@Entity
+@Table(name = "notification")
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "property_id", nullable = false)
-    private Property property;
+    @ManyToOne()
+    private User user;
 
-    @Column(name = "images_url", nullable = false)
-    private String imagesUrl;
+    private String message;
 
-    @Column(name = "created_at")
-    private LocalDate createdAt;
+    private String title;
+
+    private NotificationType type;
+
+    private Date createdAt;
 }
