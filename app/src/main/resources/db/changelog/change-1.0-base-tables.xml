@@ -38,7 +38,7 @@
             <column name="code" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="name" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="symbol" type="varchar(255)"><constraints nullable="false"/></column>
-            <column name="exchange_rate" type="varchar(255)"><constraints nullable="false"/></column>
+            <column name="exchange_rate" type="decimal"><constraints nullable="false"/></column>
         </createTable>
 
         <createTable tableName="urgent_sell_plane">
