@@ -2,22 +2,35 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+<main class="layout">
+    <section class="panel">
+        <h1 class="headline">Real Estate Sales and Rentals</h1>
+        <p class="subline">Sign in to manage listings, clients, and team activity.</p>
 
-<span th:if="${msg} != null">
-      <span style="color: yellow" th:text="${msg}"></span>
-</span>
+        <div class="alert alert-warn" th:if="${msg} != null" th:text="${msg}"></div>
 
-<h1>Hi everyone</h1>
-
-<h1>Login</h1>
-<form method="post" th:action="@{/login}">
-    <input type="email" name="email" placeholder="Email"><br>
-    <input type="password" name="password" placeholder="Password"><br>
-    <input type="submit" value="Login">
-</form>
-<a href="/register">Register</a>
+        <form method="post" th:action="@{/login}">
+            <div class="grid">
+                <div class="field row-full">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="field row-full">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password" placeholder="Enter password" required>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Login</button>
+                <a class="btn btn-ghost" th:href="@{/register}">Register</a>
+            </div>
+        </form>
+    </section>
+</main>
 </body>
 </html>
