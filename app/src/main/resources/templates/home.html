@@ -2,49 +2,65 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Welcome <span th:text="${currentUser.name}  +' ' +  ${currentUser.surname}"></span> to the Home Page!</h1>
+<main class="layout">
+    <section class="panel welcome">
+        <h1 class="headline">
+            Welcome,
+            <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
+        </h1>
+        <p class="subline">Manage user accounts and profile information from this dashboard.</p>
+        <div class="actions">
+            <a class="btn btn-ghost" href="/logout">Logout</a>
+        </div>
+    </section>
 
-<h1>User</h1>
-
-<table>
-    <tr>
-        <th>Picture</th>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Surname</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Passport details</th>
-        <th>Role</th>
-        <th>Date</th>
-        <th>Action</th>
-    </tr>
-    <tr th:each="user : ${users}">
-        <td>
-            <img th:if="${user.getPicName() != null && !user.getPicName().equals('')}" width="200"
-                 th:src="@{/image/get(pic=${user.picName})}">
-            <img th:if="${user.getPicName() == null || user.getPicName().equals('')}" width="200"
-                 th:src="@{/image/img.png}">
-        </td>
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.name}"></td>
-        <td th:text="${user.surname}"></td>
-        <td th:text="${user.email}"></td>
-        <td th:text="${user.phone}"></td>
-        <td th:text="${user.passportDetails}"></td>
-        <td th:text="${user.role}"></td>
-        <td th:text="${user.createdAt}"></td>
-        <td>
-            <a th:href="@{/update(id=${user.id})}">Update</a> |
-            <a th:href="@{/delete(id=${user.id})}">Delete</a>
-        </td>
-    </tr>
-</table>
-<br>
-
-<a href="/logout">Logout</a>
+    <section class="panel">
+        <h2 class="headline">User Directory</h2>
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Picture</th>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Passport Details</th>
+                    <th>Role</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+                <tr th:each="user : ${users}">
+                    <td>
+                        <img class="avatar"
+                             th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
+                             th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
+                        <img class="avatar"
+                             th:if="${user.getPicName() == null || user.getPicName().equals('')}"
+                             th:src="@{/image/img.png}" alt="Default user photo">
+                    </td>
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.surname}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phone}"></td>
+                    <td th:text="${user.passportDetails}"></td>
+                    <td th:text="${user.role}"></td>
+                    <td th:text="${user.createdAt}"></td>
+                    <td>
+                        <a class="link-inline" th:href="@{/update(id=${user.id})}">Update</a>
+                        <span> | </span>
+                        <a class="link-inline" th:href="@{/delete(id=${user.id})}">Delete</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </section>
+</main>
 </body>
 </html>
