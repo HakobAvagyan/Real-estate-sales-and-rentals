@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "meassage_chat")
+@Table(name = "message_chat")
 public class MessageChat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
