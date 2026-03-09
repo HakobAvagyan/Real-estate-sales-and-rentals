@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-@Component
+
 public class AdPlanMapper {
-    public AdPlanDto toDto(AdPlan entity) {
+    public static AdPlanDto toDto(AdPlan entity) {
         if (entity == null) return null;
 
         AdPlanDto dto = new AdPlanDto();
@@ -19,7 +19,7 @@ public class AdPlanMapper {
         return dto;
     }
 
-    public AdPlan toEntity(AdPlanDto dto) {
+    public static AdPlan toEntity(AdPlanDto dto) {
         if (dto == null) return null;
 
         AdPlan entity = new AdPlan();

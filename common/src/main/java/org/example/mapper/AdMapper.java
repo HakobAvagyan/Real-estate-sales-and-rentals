@@ -6,9 +6,9 @@ import org.example.model.AdPlan;
 import org.example.model.User;
 import org.springframework.stereotype.Component;
 
-@Component
+
 public class AdMapper {
-    public AdDto toDto(Ad entity) {
+    public static AdDto toDto(Ad entity) {
         if (entity == null) return null;
         AdDto dto = new AdDto();
         dto.setId(entity.getId());
@@ -20,7 +20,7 @@ public class AdMapper {
         return dto;
     }
 
-    public Ad toEntity(AdDto dto) {
+    public static Ad toEntity(AdDto dto) {
         if (dto == null) {
             return null;
         }
