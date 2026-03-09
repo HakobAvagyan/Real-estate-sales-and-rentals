@@ -24,6 +24,13 @@ public class AdPlanServiceImpl implements AdPlanService {
         AdPlan saved = adPlanRepository.save(entity);
         return AdPlanMapper.toDto(saved);
     }
+    
+    @Override
+    public AdPlanDto update(AdPlanDto dto) {
+        AdPlan entity = AdPlanMapper.toEntity(dto);
+        AdPlan updated = adPlanRepository.save(entity);
+        return AdPlanMapper.toDto(updated);
+    }
 
     @Override
     public List<AdPlanDto> getAll() {

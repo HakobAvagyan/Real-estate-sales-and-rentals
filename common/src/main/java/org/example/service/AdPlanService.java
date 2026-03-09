@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface AdPlanService {
     AdPlanDto create(AdPlanDto dto);
+    AdPlanDto update(AdPlanDto dto);
     List<AdPlanDto> getAll();
     AdPlanDto getById(int id);
     void delete(int id);

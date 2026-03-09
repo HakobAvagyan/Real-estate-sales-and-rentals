@@ -2,7 +2,6 @@ package org.example.mapper;
 
 import org.example.dto.AdPlanDto;
 import org.example.model.AdPlan;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
