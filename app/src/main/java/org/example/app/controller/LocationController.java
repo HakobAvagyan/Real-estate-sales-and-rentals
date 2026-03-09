@@ -23,7 +23,7 @@ public class LocationController {
 
     @PostMapping("/locations/add")
     public String addLocation(LocationDto locationDto, ModelMap modelMap) {
-        locationService.create(locationDto);
+        locationService.save(locationDto);
         modelMap.addAttribute("locations", locationService.getAll());
         return "locations";
     }

@@ -1,7 +1,9 @@
 package org.example.service;
 
 
-import org.example.model.User;
+import org.example.dto.UserRegisterDto;
+import org.example.dto.UserRequestDto;
+import org.example.model.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -9,18 +11,20 @@ import java.util.Optional;
 
 public interface UserService {
 
-    Optional<User> findByEmail(String username);
+    Optional<UserRegisterDto> findByEmail(String username);
 
-    User save(User user, MultipartFile file);
+    UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
 
-    List<User> findAll();
+    List<UserRequestDto> findAll();
 
-    void save(User user);
+    UserRegisterDto save(UserRegisterDto userRegisterDto);
 
     void deleteById(int id);
 
-    Optional<User> findById(int id);
+    Optional<UserRegisterDto> findById(int id);
 
-    User update(User user);
+    UserRegisterDto update(UserRegisterDto userRegisterDto);
+
+    List<UserRequestDto> findAllByRole(Role role);
 
 }

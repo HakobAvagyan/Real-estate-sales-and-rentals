@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+      <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="layout">
+    <section class="panel">
+        <h1 class="headline">Real Estate Sales and Rentals</h1>
+        <p class="subline">Sign in to manage listings, clients, and team activity.</p>
+
+        <div class="alert alert-warn" th:if="${msg} != null" th:text="${msg}"></div>
+
+        <form method="post" th:action="@{/login}">
+            <div class="grid">
+                <div class="field row-full">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="field row-full">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password" placeholder="Enter password" required>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Login</button>
+                <a class="btn btn-ghost" th:href="@{/home}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
