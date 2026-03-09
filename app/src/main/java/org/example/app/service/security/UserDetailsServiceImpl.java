@@ -2,6 +2,8 @@ package org.example.app.service.security;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.UserRegisterDto;
+import org.example.mapper.UserRegisterMapper;
 import org.example.model.User;
 import org.example.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +19,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with e-mail: " + username));
 
+        UserRegisterDto userRegisterDto = userService.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+        User user = UserRegisterMapper.toUser(userRegisterDto);
         return new SpringUser(user);
     }
 }

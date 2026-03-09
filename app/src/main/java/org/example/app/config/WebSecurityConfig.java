@@ -22,16 +22,17 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/login", "/","/loginPage", "/register", "/css/**", "/js/**", "/image/**").permitAll()
+                                .requestMatchers("/login", "/","/loginPage", "/home", "/register", "/css/**", "/js/**", "/image/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/manager/**").hasAuthority("MANAGER")
                                 .requestMatchers("/user/**").hasAuthority("USER")
-                                .requestMatchers("/home").hasAnyAuthority("ADMIN", "USER", "MANAGER", "CUSTOMER")
+                                .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
+//                                .requestMatchers("/home").hasAnyAuthority("ADMIN", "USER", "MANAGER", "CUSTOMER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->
                         form
-                                .loginPage("/loginPage")
+                                .loginPage("/home")
                                 .loginProcessingUrl("/login")
                                 .usernameParameter("email")
                                 .failureUrl("/loginPage?msg=User not found")

@@ -1,7 +1,12 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.UserRegisterDto;
+import org.example.dto.UserRequestDto;
+import org.example.mapper.UserRegisterMapper;
+import org.example.mapper.UserRequestMapper;
 import org.example.model.User;
+import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,38 +28,42 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public Optional<User> findByEmail(String username) {
-        return userRepository.findByEmail(username);
+    public Optional<UserRegisterDto> findByEmail(String username) {
+        return userRepository.findByEmail(username).map(UserRegisterMapper::toUserRegisterDto);
     }
 
     @Override
-    public User save(User user, MultipartFile multipartFile) {
+    public UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile multipartFile) {
         if (multipartFile != null && !multipartFile.isEmpty()) {
             String fileName = System.currentTimeMillis() + "_" + multipartFile.getOriginalFilename();
             File file = new File(imageDirectoryPath + fileName);
 
             try {
                 multipartFile.transferTo(file);
-                user.setPicName(fileName);
+                userRegisterDto.setPicName(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            userRepository.findById(user.getId())
-                    .ifPresent(productOptional -> user.setPicName(productOptional.getPicName()));
+            userRepository.findById(userRegisterDto.getId())
+                    .ifPresent(productOptional -> userRegisterDto.setPicName(productOptional.getPicName()));
         }
-        return userRepository.save(user);
+        User user = UserRegisterMapper.toUser(userRegisterDto);
+        User savedUser = userRepository.save(user);
+        return UserRegisterMapper.toUserRegisterDto(savedUser);
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserRequestDto> findAll() {
+        return userRepository.findAll().stream().map(UserRequestMapper::toUserRequestDto).toList();
     }
 
 
     @Override
-    public void save(User user) {
-        userRepository.save(user);
+    public UserRegisterDto save(UserRegisterDto userRegisterDto) {
+        User user = UserRegisterMapper.toUser(userRegisterDto);
+        User savedUser = userRepository.save(user);
+        return UserRegisterMapper.toUserRegisterDto(savedUser);
     }
 
     @Override
@@ -63,13 +72,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findById(int id) {
-        return userRepository.findById(id);
+    public Optional<UserRegisterDto> findById(int id) {
+        return userRepository.findById(id).map(UserRegisterMapper::toUserRegisterDto);
     }
 
 
     @Override
-    public User update(User user) {
-        return userRepository.save(user);
+    public UserRegisterDto update(UserRegisterDto userRegisterDto) {
+        User user = UserRegisterMapper.toUser(userRegisterDto);
+        User savedUser = userRepository.save(user);
+        return UserRegisterMapper.toUserRegisterDto(savedUser);
+    }
+
+    @Override
+    public List<UserRequestDto> findAllByRole(Role role) {
+        return userRepository.findAllByRole(role).stream().map(UserRequestMapper::toUserRequestDto).toList();
     }
 }
