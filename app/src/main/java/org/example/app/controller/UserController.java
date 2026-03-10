@@ -98,7 +98,7 @@ public class UserController {
     public String register(@ModelAttribute UserRegisterDto registeredUser,
                            @RequestParam(value = "pic") MultipartFile multipartFile) {
         if (userService.findByEmail(registeredUser.getEmail()).isPresent()) {
-            return "redirect:/register?msg=Username already exists!";
+            return "redirect:/register?msg=Email already exists!";
         }
         registeredUser.setPassword(passwordEncoder.encode(registeredUser.getPassword()));
         userService.save(registeredUser, multipartFile);

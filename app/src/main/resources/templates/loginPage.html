@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Login Page</title>
-      <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <main class="layout">
     <section class="panel">
-        <h1 class="headline">Real Estate Sales and Rentals</h1>
-        <p class="subline">Sign in to manage listings, clients, and team activity.</p>
+        <h1 class="headline">Sign In</h1>
+        <p class="subline">Manage listings, clients, and team activity.</p>
 
         <div class="alert alert-warn" th:if="${msg} != null" th:text="${msg}"></div>
 

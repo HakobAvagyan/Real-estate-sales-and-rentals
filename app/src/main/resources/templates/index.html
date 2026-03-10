@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+<main class="layout">
+    <section class="panel">
+        <div class="hero">
+            <span class="icon">🏡</span>
+            <h1 class="headline">Real Estate Hub</h1>
+            <p class="subline">Sales and rentals platform for professionals.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="/loginPage">Sign In</a>
+                <a class="btn btn-ghost" href="/register">Create Account</a>
+            </div>
+        </div>
+    </section>
+</main>
 </body>
 </html>
