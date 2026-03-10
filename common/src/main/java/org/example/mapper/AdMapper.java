@@ -4,7 +4,6 @@ import org.example.dto.AdDto;
 import org.example.model.Ad;
 import org.example.model.AdPlan;
 import org.example.model.User;
-import org.springframework.stereotype.Component;
 
 
 public class AdMapper {
