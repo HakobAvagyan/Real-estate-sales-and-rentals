@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Real Estate Hub</title>
+    <title>Add Manager | Real Estate Hub</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <main class="layout">
     <section class="panel">
-        <h1 class="headline">Create Account</h1>
-        <p class="subline">Add your profile to access platform operations.</p>
+        <h1 class="headline">Add Manager</h1>
+        <p class="subline">Create a new manager account with platform access.</p>
 
-        <div class="alert alert-error" th:if="${msg} != null" th:text="${msg}"></div>
-
-        <form method="post" action="/register" enctype="multipart/form-data">
+        <form method="post" action="/admin/add/manager" enctype="multipart/form-data">
             <div class="grid">
                 <div class="field">
                     <label for="name">Name</label>
@@ -44,17 +42,10 @@
                     <label for="pic">Profile Picture</label>
                     <input id="pic" type="file" name="pic">
                 </div>
-                <div class="field row-full">
-                    <label>Role</label>
-                    <div class="role-group">
-                        <label class="role-option"><input type="radio" name="role" value="USER"> User</label>
-                        <label class="role-option"><input type="radio" name="role" value="CUSTOMER"> Customer</label>
-                    </div>
-                </div>
             </div>
             <div class="actions">
-                <button class="btn btn-primary" type="submit">Register</button>
-                <a class="btn btn-ghost" href="/">Back to Login</a>
+                <button class="btn btn-primary" type="submit">Add Manager</button>
+                <a class="btn btn-ghost" href="/admin/home">Back to Dashboard</a>
             </div>
         </form>
     </section>

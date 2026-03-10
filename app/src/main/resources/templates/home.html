@@ -8,57 +8,15 @@
 </head>
 <body>
 <main class="layout">
-    <section class="panel welcome">
-        <h1 class="headline">
-            Welcome,
-            <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
-        </h1>
-        <p class="subline">Manage user accounts and profile information from this dashboard.</p>
-        <div class="actions">
-            <a class="btn btn-ghost" href="/logout">Logout</a>
-        </div>
-    </section>
-
     <section class="panel">
-        <h2 class="headline">User Directory</h2>
-        <div class="table-wrap">
-            <table>
-                <tr>
-                    <th>Picture</th>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Passport Details</th>
-                    <th>Role</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-                <tr th:each="user : ${users}">
-                    <td>
-                        <img class="avatar"
-                             th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
-                             th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
-                        <img class="avatar"
-                             th:if="${user.getPicName() == null || user.getPicName().equals('')}"
-                             th:src="@{/image/img.png}" alt="Default user photo">
-                    </td>
-                    <td th:text="${user.id}"></td>
-                    <td th:text="${user.name}"></td>
-                    <td th:text="${user.surname}"></td>
-                    <td th:text="${user.email}"></td>
-                    <td th:text="${user.phone}"></td>
-                    <td th:text="${user.passportDetails}"></td>
-                    <td th:text="${user.role}"></td>
-                    <td th:text="${user.createdAt}"></td>
-                    <td>
-                        <a class="link-inline" th:href="@{/update(id=${user.id})}">Update</a>
-                        <span> | </span>
-                        <a class="link-inline" th:href="@{/delete(id=${user.id})}">Delete</a>
-                    </td>
-                </tr>
-            </table>
+        <div class="hero">
+            <span class="icon">🏠</span>
+            <h1 class="headline">Our Properties</h1>
+            <p class="subline">Browse available real estate listings for sale and rent.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="/loginPage">Sign In</a>
+                <a class="btn btn-ghost" href="/register">Register</a>
+            </div>
         </div>
     </section>
 </main>

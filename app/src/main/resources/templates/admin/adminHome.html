@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="layout">
+
+    <section class="panel welcome">
+        <div class="nav">
+            <div>
+                <h1 class="headline">
+                    Welcome, <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
+                </h1>
+                <p class="subline" style="margin-bottom:0">Admin Dashboard</p>
+            </div>
+            <div class="actions" style="margin-top:0">
+                <a class="btn btn-ghost btn-sm" href="/admin/add/manager">+ Add Manager</a>
+                <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel wide">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">User Directory</h2>
+                <p class="subline" style="margin-bottom:0">All registered accounts on the platform.</p>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Passport</th>
+                    <th>Role</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td>
+                        <img class="avatar"
+                             th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
+                             th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
+                        <img class="avatar"
+                             th:if="${user.getPicName() == null || user.getPicName().equals('')}"
+                             th:src="@{/image/img.png}" alt="Default photo">
+                    </td>
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.surname}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.phone}"></td>
+                    <td th:text="${user.passportDetails}"></td>
+                    <td><span class="badge" th:text="${user.role}"></span></td>
+                    <td th:text="${user.createdAt}"></td>
+                    <td>
+                        <a class="link-inline" th:href="@{/update(id=${user.id})}">Edit</a>
+                        <span>·</span>
+                        <a class="link-inline danger" th:href="@{/delete(id=${user.id})}">Delete</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>
