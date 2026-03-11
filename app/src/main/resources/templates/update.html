@@ -45,10 +45,7 @@
           <input id="pic" type="file" name="pic">
         </div>
         <div class="field row-full" th:if="${user.picName != null}">
-          <label class="role-option" for="remove">
-            <input id="remove" type="checkbox" name="remove" value="true">
-            Remove profile picture
-          </label>
+          <a th:href="@{/remove/user/picture(id=${user.id})}">Remove profile picture</a>
         </div>
         <div class="field row-full">
           <label>Role</label>

@@ -10,6 +10,7 @@ import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private String imageDirectoryPath;
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Optional<UserRegisterDto> findByEmail(String username) {
@@ -49,6 +51,7 @@ public class UserServiceImpl implements UserService {
                     .ifPresent(productOptional -> userRegisterDto.setPicName(productOptional.getPicName()));
         }
         User user = UserRegisterMapper.toUser(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         return UserRegisterMapper.toUserRegisterDto(savedUser);
     }
@@ -62,6 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserRegisterDto save(UserRegisterDto userRegisterDto) {
         User user = UserRegisterMapper.toUser(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         return UserRegisterMapper.toUserRegisterDto(savedUser);
     }
@@ -80,6 +84,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserRegisterDto update(UserRegisterDto userRegisterDto) {
         User user = UserRegisterMapper.toUser(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         return UserRegisterMapper.toUserRegisterDto(savedUser);
     }

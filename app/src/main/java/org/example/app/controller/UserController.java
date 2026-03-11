@@ -3,9 +3,9 @@ package org.example.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.UserRegisterDto;
 import org.example.dto.UserRequestDto;
+import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
 import org.example.service.UserService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-
 
     @GetMapping("/admin/home")
     public String adminHomePage(ModelMap modelMap) {
@@ -67,17 +65,8 @@ public class UserController {
 
     @PostMapping("/update")
     public String editUser(@ModelAttribute UserRegisterDto user,
-                           @RequestParam(value = "pic") MultipartFile multipartFile,
-                           @RequestParam(value = "remove", required = false) String remove
-    ) {
-        if ("true".equals(remove)) {
-            user.setPicName(null);
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userService.update(user);
-        } else {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userService.save(user, multipartFile);
-        }
+                           @RequestParam(value = "pic") MultipartFile multipartFile) {
+        userService.save(user, multipartFile);
         return "redirect:/home";
 
     }
@@ -98,9 +87,8 @@ public class UserController {
     public String register(@ModelAttribute UserRegisterDto registeredUser,
                            @RequestParam(value = "pic") MultipartFile multipartFile) {
         if (userService.findByEmail(registeredUser.getEmail()).isPresent()) {
-            return "redirect:/register?msg=Email already exists!";
+            return "redirect:/register?msg=" + ErrorCode.USER_ALREADY_REGISTERED.format(registeredUser.getEmail());
         }
-        registeredUser.setPassword(passwordEncoder.encode(registeredUser.getPassword()));
         userService.save(registeredUser, multipartFile);
         return "redirect:/loginPage";
     }
@@ -117,7 +105,6 @@ public class UserController {
         if (userService.findByEmail(manager.getEmail()).isPresent()) {
             return "redirect:/admin/add/manager?msg=Username already exists!";
         }
-        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
         manager.setRole(Role.MANAGER);
         userService.save(manager, multipartFile);
         return "redirect:/home";
