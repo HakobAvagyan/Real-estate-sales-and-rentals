@@ -1,7 +1,6 @@
-package org.example.app.service;
+package org.example.model;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.User;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
