@@ -6,8 +6,10 @@ spring:
     enabled: true
   datasource:
     url: jdbc:mysql://localhost:3306/rent_sell
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Root}
-
-
-
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:1234}
+system:
+  upload:
+    images:
+      directory:
+        path: C:\Users\ExpertBook\OneDrive\Рабочий стол\Real-estate-sales-and-rentals\app\upload-images\
