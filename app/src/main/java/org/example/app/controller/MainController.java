@@ -32,21 +32,12 @@ public class MainController {
             return "home";
         }
         switch (userPrincipal.getUser().getRole()){
-            case Role.ADMIN -> {
-                return "redirect:/admin/home";
-            }
-            case Role.USER -> {
-                return "redirect:/user/home";
-            }
-            case Role.MANAGER -> {
-                    return "redirect:/manager/home";
-            }
-            case Role.CUSTOMER ->  {
-                return "redirect:/customer/home";
-            }
-            default -> {;
-                return "home";
-            }
+            case Role.ADMIN: return "redirect:/admin/home";
+            case Role.USER: return "redirect:/user/home";
+            case Role.MANAGER: return "redirect:/manager/home";
+            case Role.CUSTOMER: return "redirect:/customer/home";
+            default: return "home";
+
         }
 
     }

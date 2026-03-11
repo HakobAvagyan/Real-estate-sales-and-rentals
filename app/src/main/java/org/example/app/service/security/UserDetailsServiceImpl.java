@@ -3,6 +3,8 @@ package org.example.app.service.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.UserRegisterDto;
+import org.example.exception.BusinessException;
+import org.example.exception.ErrorCode;
 import org.example.mapper.UserRegisterMapper;
 import org.example.model.User;
 import org.example.service.UserService;
@@ -21,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserRegisterDto userRegisterDto = userService.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND,username ));
         User user = UserRegisterMapper.toUser(userRegisterDto);
         return new SpringUser(user);
     }
