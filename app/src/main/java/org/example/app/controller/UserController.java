@@ -1,7 +1,9 @@
 package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.User;
+import org.example.dto.UserRegisterDto;
+import org.example.dto.UserRequestDto;
+import org.example.model.enums.Role;
 import org.example.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -22,11 +24,28 @@ public class UserController {
     private final UserService userService;
 
 
-    @GetMapping("/home")
-    public String homePage(ModelMap modelMap) {
-        List<User> userList = userService.findAll();
+    @GetMapping("/admin/home")
+    public String adminHomePage(ModelMap modelMap) {
+        List<UserRequestDto> userList = userService.findAll();
         modelMap.addAttribute("users", userList);
-        return "home";
+        return "admin/adminHome";
+    }
+
+    @GetMapping("/user/home")
+    public String userHomePage() {
+        return "user/userHome";
+    }
+
+    @GetMapping("/manager/home")
+    public String managerHomePage(ModelMap modelMap) {
+        List<UserRequestDto> userList = userService.findAllByRole(Role.USER);
+        modelMap.addAttribute("users", userList);
+        return "manager/managerHome";
+    }
+
+    @GetMapping("/customer/home")
+    public String customerHomePage() {
+        return "customer/customerHome";
     }
 
     @GetMapping("/delete")
@@ -47,15 +66,17 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public String editUser(@ModelAttribute User user,
+    public String editUser(@ModelAttribute UserRegisterDto user,
                            @RequestParam(value = "pic") MultipartFile multipartFile,
-                           @RequestParam(value = "remove" , required = false) String remove
+                           @RequestParam(value = "remove", required = false) String remove
     ) {
-        if("true".equals(remove)) {
+        if ("true".equals(remove)) {
             user.setPicName(null);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             userService.update(user);
-        }else  {
-            userService.save(user,multipartFile);
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userService.save(user, multipartFile);
         }
         return "redirect:/home";
 
@@ -64,7 +85,7 @@ public class UserController {
     @GetMapping("/loginPage")
     public String loginPage(@RequestParam(required = false) String msg, ModelMap modelMap) {
         modelMap.addAttribute("msg", msg);
-        return "index";
+        return "loginPage";
     }
 
     @GetMapping("/register")
@@ -74,16 +95,32 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute User registeredUser,
+    public String register(@ModelAttribute UserRegisterDto registeredUser,
                            @RequestParam(value = "pic") MultipartFile multipartFile) {
         if (userService.findByEmail(registeredUser.getEmail()).isPresent()) {
-            return "redirect:/register?msg=Username already exists!";
+            return "redirect:/register?msg=Email already exists!";
         }
         registeredUser.setPassword(passwordEncoder.encode(registeredUser.getPassword()));
         userService.save(registeredUser, multipartFile);
         return "redirect:/loginPage";
     }
 
+    @GetMapping("/admin/add/manager")
+    public String addManagerPage(@RequestParam(required = false) String msg, ModelMap modelMap) {
+        modelMap.addAttribute("msg", msg);
+        return "admin/addManager";
+    }
 
+    @PostMapping("/admin/add/manager")
+    public String addManager(@ModelAttribute UserRegisterDto manager,
+                             @RequestParam(value = "pic") MultipartFile multipartFile) {
+        if (userService.findByEmail(manager.getEmail()).isPresent()) {
+            return "redirect:/admin/add/manager?msg=Username already exists!";
+        }
+        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
+        manager.setRole(Role.MANAGER);
+        userService.save(manager, multipartFile);
+        return "redirect:/home";
+    }
 
 }
