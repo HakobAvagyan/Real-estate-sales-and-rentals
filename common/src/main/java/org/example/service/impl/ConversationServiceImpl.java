@@ -5,11 +5,13 @@
 //import org.example.model.MessageChat;
 //import org.example.model.User;
 //import org.example.repository.ConversationRepository;
+//import org.example.repository.MessageChatRepository;
 //import org.example.service.ConversationService;
 //import org.example.service.UserService;
 //import org.springframework.stereotype.Service;
 //
 //import java.time.LocalDate;
+//import java.time.LocalDateTime;
 //import java.util.List;
 //
 //@Service
@@ -45,7 +47,7 @@
 //
 //    @Override
 //    public MessageChat sendMessage(MessageChat message) {
-//        message.setCreatedAt(LocalDate.now());
+//        message.setCreatedAt(LocalDateTime.now());
 //        message.setRead(false);
 //        return messageChatRepository.save(message);
 //    }
