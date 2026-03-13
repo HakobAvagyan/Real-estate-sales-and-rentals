@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.dto.LocationDto;
+import org.example.dto.location.LocationDto;
 import org.example.model.enums.Region;
 
 import java.util.List;

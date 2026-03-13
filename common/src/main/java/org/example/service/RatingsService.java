@@ -1,22 +1,22 @@
 package org.example.service;
 
 
-import org.example.model.Ratings;
+import org.example.dto.ratings.RatingsDto;
 
 import java.util.Optional;
 
 public interface RatingsService {
 
-    Optional<Ratings> findById(Integer id);
+    Optional<RatingsDto> findById(Integer id);
 
-    Optional<Ratings> findByUserId(Integer userId);
+    Optional<RatingsDto> findByUserId(Integer userId);
 
-    Optional<Ratings> findByPropertyId(Integer propertyId);
+    Optional<RatingsDto> findByPropertyId(Integer propertyId);
 
-    void save(Ratings ratings);
+    RatingsDto save(RatingsDto ratingsDto);
 
     void deleteById(Integer id);
 
-    Ratings update(Ratings ratings);
+    RatingsDto update(RatingsDto ratingsDto);
 
 }

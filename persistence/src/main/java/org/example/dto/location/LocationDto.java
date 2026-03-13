@@ -1,11 +1,9 @@
-package org.example.dto;
+package org.example.dto.location;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.example.model.enums.Region;
 
-@Getter
-@Setter
+@Data
 public class LocationDto {
 
     private int id;

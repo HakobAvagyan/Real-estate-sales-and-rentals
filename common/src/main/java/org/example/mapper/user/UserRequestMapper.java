@@ -1,6 +1,6 @@
-package org.example.mapper;
+package org.example.mapper.user;
 
-import org.example.dto.UserRequestDto;
+import org.example.dto.user.UserRequestDto;
 import org.example.model.User;
 
 public class UserRequestMapper {
@@ -19,6 +19,8 @@ public class UserRequestMapper {
         userRequestDto.setPicName(user.getPicName());
         userRequestDto.setRole(user.getRole());
         userRequestDto.setCreatedAt(user.getCreatedAt());
+        userRequestDto.setBirthDate(user.getBirthDate());
+        userRequestDto.setGender(user.getGender());
 
         return userRequestDto;
     }
@@ -37,6 +39,8 @@ public class UserRequestMapper {
         user.setPicName(userRequestDto.getPicName());
         user.setRole(userRequestDto.getRole());
         user.setCreatedAt(userRequestDto.getCreatedAt());
+        user.setBirthDate(userRequestDto.getBirthDate());
+        user.setGender(userRequestDto.getGender());
 
         return user;
     }

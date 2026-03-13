@@ -1,8 +1,8 @@
 package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.UserRegisterDto;
-import org.example.dto.UserRequestDto;
+import org.example.dto.user.UserRegisterDto;
+import org.example.dto.user.UserRequestDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
 import org.example.service.UserService;
@@ -36,7 +36,7 @@ public class UserController {
 
     @GetMapping("/manager/home")
     public String managerHomePage(ModelMap modelMap) {
-        List<UserRequestDto> userList = userService.findAllByRole(Role.USER);
+        List<UserRequestDto> userList = userService.findAllByRoleIn(List.of(Role.USER, Role.CUSTOMER));
         modelMap.addAttribute("users", userList);
         return "manager/managerHome";
     }

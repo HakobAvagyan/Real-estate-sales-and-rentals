@@ -42,6 +42,8 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Passport</th>
+                    <th>BirthDate</th>
+                    <th>Gender</th>
                     <th>Role</th>
                     <th>Registered</th>
                     <th>Actions</th>
@@ -63,6 +65,8 @@
                     <td th:text="${user.email}"></td>
                     <td th:text="${user.phone}"></td>
                     <td th:text="${user.passportDetails}"></td>
+                    <td th:text="${user.birthDate}"></td>
+                    <td th:text="${user.gender}"></td>
                     <td><span class="badge" th:text="${user.role}"></span></td>
                     <td th:text="${user.createdAt}"></td>
                     <td>
