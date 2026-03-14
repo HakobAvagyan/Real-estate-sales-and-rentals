@@ -3,6 +3,7 @@ package org.example.service;
 
 import org.example.dto.UserRegisterDto;
 import org.example.dto.UserRequestDto;
+import org.example.model.User;
 import org.example.model.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,4 +28,7 @@ public interface UserService {
 
     List<UserRequestDto> findAllByRole(Role role);
 
+    boolean verifyUser(String email, String verifyCode);
+
+    Optional<User> findByUsername(String username);
 }
