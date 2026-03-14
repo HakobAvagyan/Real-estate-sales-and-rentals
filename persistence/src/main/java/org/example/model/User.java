@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.enums.Gender;
 import org.example.model.enums.Role;
 
 import java.time.LocalDate;
@@ -33,6 +34,11 @@ public class User {
     private String picName;
     private boolean isBlocked = false;
     private LocalDate createdAt =  LocalDate.now();
+    private LocalDate birthDate;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 }

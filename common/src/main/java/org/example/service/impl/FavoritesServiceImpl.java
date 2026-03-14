@@ -1,6 +1,8 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.favorites.FavoritesDto;
+import org.example.mapper.favorites.FavoritesMapper;
 import org.example.model.Favorites;
 import org.example.repository.FavoritesRepository;
 import org.example.service.FavoritesService;
@@ -15,23 +17,25 @@ public class FavoritesServiceImpl implements FavoritesService {
     private final FavoritesRepository favoritesRepository;
 
     @Override
-    public Optional<Favorites> findById(Integer id) {
-        return favoritesRepository.findById(id);
+    public Optional<FavoritesDto> findById(Integer id) {
+        return favoritesRepository.findById(id).map(FavoritesMapper::toFavoritesDto);
     }
 
     @Override
-    public Optional<Favorites> findByUserId(Integer userId) {
-        return favoritesRepository.findByUserId(userId);
+    public Optional<FavoritesDto> findByUserId(Integer userId) {
+        return favoritesRepository.findByUserId(userId).map(FavoritesMapper::toFavoritesDto);
     }
 
     @Override
-    public Optional<Favorites> findByPropertyId(Integer propertyId) {
-        return favoritesRepository.findByPropertyId(propertyId);
+    public Optional<FavoritesDto> findByPropertyId(Integer propertyId) {
+        return favoritesRepository.findByPropertyId(propertyId).map(FavoritesMapper::toFavoritesDto);
     }
 
     @Override
-    public void save(Favorites favorites) {
+    public FavoritesDto save(FavoritesDto favoritesDto) {
+        Favorites favorites = FavoritesMapper.toFavorites(favoritesDto);
         favoritesRepository.save(favorites);
+        return FavoritesMapper.toFavoritesDto(favorites);
     }
 
     @Override
@@ -40,7 +44,9 @@ public class FavoritesServiceImpl implements FavoritesService {
     }
 
     @Override
-    public Favorites update(Favorites favorites) {
-        return favoritesRepository.save(favorites);
+    public FavoritesDto update(FavoritesDto favoritesDto) {
+        Favorites favorites = FavoritesMapper.toFavorites(favoritesDto);
+        favoritesRepository.save(favorites);
+        return FavoritesMapper.toFavoritesDto(favorites);
     }
 }

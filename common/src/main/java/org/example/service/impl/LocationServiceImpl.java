@@ -1,8 +1,8 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.LocationDto;
-import org.example.mapper.LocationMapper;
+import org.example.dto.location.LocationDto;
+import org.example.mapper.location.LocationMapper;
 import org.example.model.Location;
 import org.example.model.enums.Region;
 import org.example.repository.LocationRepository;

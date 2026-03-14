@@ -1,20 +1,21 @@
 package org.example.service;
 
-import org.example.model.Favorites;
+import org.example.dto.favorites.FavoritesDto;
+
 import java.util.Optional;
 
 public interface FavoritesService {
 
-    Optional<Favorites> findById(Integer id);
+    Optional<FavoritesDto> findById(Integer id);
 
-    Optional<Favorites> findByUserId(Integer userId);
+    Optional<FavoritesDto> findByUserId(Integer userId);
 
-    Optional<Favorites> findByPropertyId(Integer propertyId);
+    Optional<FavoritesDto> findByPropertyId(Integer propertyId);
 
-    void save(Favorites favorites);
+    FavoritesDto save(FavoritesDto favoritesDto);
 
     void deleteById(Integer id);
 
-    Favorites update(Favorites favorites);
+    FavoritesDto update(FavoritesDto favoritesDto);
 
 }

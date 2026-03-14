@@ -1,7 +1,7 @@
 package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.mapper.UserRegisterMapper;
+import org.example.mapper.user.UserRegisterMapper;
 import org.example.model.User;
 import org.example.service.UserService;
 import org.springframework.stereotype.Controller;

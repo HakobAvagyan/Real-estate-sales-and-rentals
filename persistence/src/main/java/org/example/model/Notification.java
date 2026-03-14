@@ -1,6 +1,8 @@
 package org.example.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.model.enums.NotificationType;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -30,7 +32,8 @@ public class Notification {
 
     private String title;
 
+    @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    private Date createdAt;
+    private LocalDate createdAt;
 }

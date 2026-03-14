@@ -1,6 +1,6 @@
-package org.example.mapper;
+package org.example.mapper.location;
 
-import org.example.dto.LocationDto;
+import org.example.dto.location.LocationDto;
 import org.example.model.Location;
 
 public class LocationMapper {
