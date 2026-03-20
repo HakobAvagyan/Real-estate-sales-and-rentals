@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -105,5 +106,30 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAllByRoleIn(roles).stream().map(UserRequestMapper::toUserRequestDto).toList();
     }
 
+
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+
+    @Override
+    public boolean verifyUser(String email, String verifyCode) {
+        Optional<User> user = userRepository.findByUsername(email);
+        if (user.isPresent() && user.get().getVerificationCode() != null
+                && user.get().getVerificationCode().equals(verifyCode)) {
+            user.get().setVerificationCode(null);
+            user.get().setEnabled(true);
+            userRepository.save(user.get());
+            return true;
+        }
+        return false;
+    }
+
+    private String generateVerificationCode() {
+        int code = random.nextInt(1000, 9999);
+        return String.valueOf(code);
+    }
 
 }
