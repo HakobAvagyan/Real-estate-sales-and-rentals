@@ -1,6 +1,8 @@
 package org.example.service;
 
 
+import org.example.dto.user.UserRegisterDto;
+import org.example.dto.user.UserRequestDto;
 import org.example.dto.UserRegisterDto;
 import org.example.dto.UserRequestDto;
 import org.example.model.User;
@@ -14,6 +16,8 @@ public interface UserService {
 
     Optional<UserRegisterDto> findByEmail(String username);
 
+    Optional<UserRegisterDto> changePassword(String email, String password);
+
     UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
 
     List<UserRequestDto> findAll();
@@ -26,7 +30,7 @@ public interface UserService {
 
     UserRegisterDto update(UserRegisterDto userRegisterDto);
 
-    List<UserRequestDto> findAllByRole(Role role);
+    List<UserRequestDto> findAllByRoleIn(List<Role> roles);
 
     boolean verifyUser(String email, String verifyCode);
 

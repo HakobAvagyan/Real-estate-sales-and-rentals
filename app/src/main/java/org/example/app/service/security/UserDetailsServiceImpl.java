@@ -2,10 +2,10 @@ package org.example.app.service.security;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.UserRegisterDto;
+import org.example.dto.user.UserRegisterDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
-import org.example.mapper.UserRegisterMapper;
+import org.example.mapper.user.UserRegisterMapper;
 import org.example.model.User;
 import org.example.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;

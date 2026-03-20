@@ -12,4 +12,5 @@ public interface CommentService {
     List<Comment> findAllByUserId(int userId);
     Optional<Comment> findById(int id);
     List<Comment> findAllCommentsForSeller(int userId);
+    List<Comment> findAll();
 }

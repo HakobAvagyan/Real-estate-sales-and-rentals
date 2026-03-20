@@ -1,6 +1,6 @@
-package org.example.mapper;
+package org.example.mapper.user;
 
-import org.example.dto.UserRegisterDto;
+import org.example.dto.user.UserRegisterDto;
 import org.example.model.User;
 
 public class UserRegisterMapper {
@@ -21,6 +21,8 @@ public class UserRegisterMapper {
         userRegisterDto.setRole(user.getRole());
         userRegisterDto.setBlocked(user.isBlocked());
         userRegisterDto.setCreatedAt(user.getCreatedAt());
+        userRegisterDto.setBirthDate(user.getBirthDate());
+        userRegisterDto.setGender(user.getGender());
         return userRegisterDto;
     }
 
@@ -40,6 +42,8 @@ public class UserRegisterMapper {
         user.setRole(userRegisterDto.getRole());
         user.setBlocked(userRegisterDto.isBlocked());
         user.setCreatedAt(userRegisterDto.getCreatedAt());
+        user.setBirthDate(userRegisterDto.getBirthDate());
+        user.setGender(userRegisterDto.getGender());
         return user;
     }
 

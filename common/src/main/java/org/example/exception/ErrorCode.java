@@ -6,8 +6,9 @@ public enum ErrorCode {
     AD_PLAN_NOT_FOUND("Ad plan not found with id: %d"),
     USER_LOGIN_NOT_FOUND("Email or password is not true"),
     USER_NOT_FOUND_BY_EMAIL("User not found with email: %s"),
-    USER_ALREADY_REGISTERED("User already registered with email: %s"),;
-
+    USER_ALREADY_REGISTERED("User already registered with email: %s"),
+    PASSWORD_CHANGED_SUCCESSFULLY("Password changed successfully for email: %s"),
+    PASSWORD_CHANGE_FAILED("Password change failed for email: %s");
 
 
     private final String message;

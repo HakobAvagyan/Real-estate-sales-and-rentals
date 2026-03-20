@@ -1,13 +1,12 @@
-package org.example.dto;
+package org.example.dto.user;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import org.example.model.enums.Gender;
 import org.example.model.enums.Role;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
 public class UserRequestDto {
 
     private int id;
@@ -18,5 +17,7 @@ public class UserRequestDto {
     private String passportDetails;
     private String picName;
     private Role role;
+    private LocalDate birthDate;
+    private Gender gender;
     private LocalDate createdAt;
 }

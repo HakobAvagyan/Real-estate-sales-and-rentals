@@ -1,6 +1,8 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.ratings.RatingsDto;
+import org.example.mapper.ratings.RatingsMapper;
 import org.example.model.Ratings;
 import org.example.repository.RatingsRepository;
 import org.example.service.RatingsService;
@@ -15,23 +17,25 @@ public class RatingsServiceImpl implements RatingsService {
     private  final RatingsRepository ratingsRepository;
 
     @Override
-    public Optional<Ratings> findById(Integer id) {
-        return ratingsRepository.findById(id);
+    public Optional<RatingsDto> findById(Integer id) {
+        return ratingsRepository.findById(id).map(RatingsMapper::toRatingsDto);
     }
 
     @Override
-    public Optional<Ratings> findByUserId(Integer userId) {
-        return ratingsRepository.findByUserId(userId);
+    public Optional<RatingsDto> findByUserId(Integer userId) {
+        return ratingsRepository.findByUserId(userId).map(RatingsMapper::toRatingsDto);
     }
 
     @Override
-    public Optional<Ratings> findByPropertyId(Integer propertyId) {
-        return ratingsRepository.findByPropertyId(propertyId);
+    public Optional<RatingsDto> findByPropertyId(Integer propertyId) {
+        return ratingsRepository.findByPropertyId(propertyId).map(RatingsMapper::toRatingsDto);
     }
 
     @Override
-    public void save(Ratings ratings) {
-        ratingsRepository.save(ratings);
+    public RatingsDto save(RatingsDto ratings) {
+        Ratings ratingsEntity = RatingsMapper.toRatings(ratings);
+        ratingsRepository.save(ratingsEntity);
+        return RatingsMapper.toRatingsDto(ratingsEntity);
     }
 
     @Override
@@ -40,7 +44,9 @@ public class RatingsServiceImpl implements RatingsService {
     }
 
     @Override
-    public Ratings update(Ratings ratings) {
-        return ratingsRepository.save(ratings);
+    public RatingsDto update(RatingsDto ratings) {
+        Ratings ratingsEntity = RatingsMapper.toRatings(ratings);
+        ratingsRepository.save(ratingsEntity);
+        return RatingsMapper.toRatingsDto(ratingsEntity);
     }
 }

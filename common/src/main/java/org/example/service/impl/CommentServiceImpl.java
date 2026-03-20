@@ -6,7 +6,6 @@ import org.example.repository.CommentRepository;
 import org.example.service.CommentService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,5 +43,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Comment> findAllCommentsForSeller(int userId) {
         return commentRepository.findAllCommentsForUserAsSeller(userId);
+    }
+    @Override
+    public List<Comment> findAll() {
+        return commentRepository.findAll();
     }
 }

@@ -1,10 +1,10 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.UserRegisterDto;
-import org.example.dto.UserRequestDto;
-import org.example.mapper.UserRegisterMapper;
-import org.example.mapper.UserRequestMapper;
+import org.example.dto.user.UserRegisterDto;
+import org.example.dto.user.UserRequestDto;
+import org.example.mapper.user.UserRegisterMapper;
+import org.example.mapper.user.UserRequestMapper;
 import org.example.model.User;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
@@ -26,7 +26,6 @@ public class UserServiceImpl implements UserService {
 
     @Value("${system.upload.images.directory.path}")
     private String imageDirectoryPath;
-    private final Random random = new Random();
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -34,6 +33,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserRegisterDto> findByEmail(String username) {
         return userRepository.findByEmail(username).map(UserRegisterMapper::toUserRegisterDto);
+    }
+
+    @Override
+    public Optional<UserRegisterDto> changePassword(String email, String password) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
+            user.setPassword(passwordEncoder.encode(password));
+            User savedUser = userRepository.save(user);
+            return Optional.of(UserRegisterMapper.toUserRegisterDto(savedUser));
+        }
+        return Optional.empty();
+
     }
 
     @Override
@@ -86,15 +97,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserRegisterDto update(UserRegisterDto userRegisterDto) {
         User user = UserRegisterMapper.toUser(userRegisterDto);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         return UserRegisterMapper.toUserRegisterDto(savedUser);
     }
 
     @Override
-    public List<UserRequestDto> findAllByRole(Role role) {
-        return userRepository.findAllByRole(role).stream().map(UserRequestMapper::toUserRequestDto).toList();
+    public List<UserRequestDto> findAllByRoleIn(List<Role> roles) {
+        return userRepository.findAllByRoleIn(roles).stream().map(UserRequestMapper::toUserRequestDto).toList();
     }
+
+
 
     @Override
     public Optional<User> findByUsername(String username) {
@@ -105,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean verifyUser(String email, String verifyCode) {
         Optional<User> user = userRepository.findByUsername(email);
-        if (user.isPresent() && user.get().getVerificationCode() != null 
+        if (user.isPresent() && user.get().getVerificationCode() != null
                 && user.get().getVerificationCode().equals(verifyCode)) {
             user.get().setVerificationCode(null);
             user.get().setEnabled(true);

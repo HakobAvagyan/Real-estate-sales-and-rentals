@@ -42,7 +42,6 @@ public class MainController {
             case Role.MANAGER: return "redirect:/manager/home";
             case Role.CUSTOMER: return "redirect:/customer/home";
             default: return "home";
-
         }
 
     }
