@@ -21,6 +21,7 @@ public class UserRequestMapper {
         userRequestDto.setCreatedAt(user.getCreatedAt());
         userRequestDto.setBirthDate(user.getBirthDate());
         userRequestDto.setGender(user.getGender());
+        userRequestDto.setBlocked(user.isBlocked());
 
         return userRequestDto;
     }
@@ -41,6 +42,7 @@ public class UserRequestMapper {
         user.setCreatedAt(userRequestDto.getCreatedAt());
         user.setBirthDate(userRequestDto.getBirthDate());
         user.setGender(userRequestDto.getGender());
+        user.setBlocked(userRequestDto.isBlocked());
 
         return user;
     }

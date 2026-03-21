@@ -34,6 +34,13 @@ public class User {
     private String picName;
     private boolean isBlocked = false;
     private LocalDate createdAt =  LocalDate.now();
+    private LocalDate birthDate;
+    private String verificationCode;
+    private boolean enabled;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 }

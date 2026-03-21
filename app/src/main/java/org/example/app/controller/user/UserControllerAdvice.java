@@ -1,4 +1,4 @@
-package org.example.app.controller;
+package org.example.app.controller.user;
 
 import org.example.app.service.security.SpringUser;
 import org.example.model.User;

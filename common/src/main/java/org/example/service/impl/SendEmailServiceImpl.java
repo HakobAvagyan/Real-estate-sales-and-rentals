@@ -21,7 +21,7 @@ public class SendEmailServiceImpl implements SendMailService {
     private final TemplateEngine templateEngine;
 
     public SendEmailServiceImpl(JavaMailSender emailSender,
-                            @Qualifier("emailTemplateEngine") TemplateEngine templateEngine) {
+                                @Qualifier("emailTemplateEngine") TemplateEngine templateEngine) {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
     }
@@ -46,14 +46,14 @@ public class SendEmailServiceImpl implements SendMailService {
 
         final MimeMessage mimeMessage = emailSender.createMimeMessage();
         final MimeMessageHelper message =
-                new MimeMessageHelper(mimeMessage, false, "UTF-8"); // true = multipart
+                new MimeMessageHelper(mimeMessage, true, "UTF-8");
         message.setSubject("Please verify your email address");
         message.setFrom("java2026java@gmail.com");
         message.setTo(to);
 
 
-        final String htmlContent = templateEngine.process("verificationMailTemplate", ctx);
-        message.setText(htmlContent, true); // true = isHtml
+        final String htmlContent = templateEngine.process("verificationMail", ctx);
+        message.setText(htmlContent, true);
 
         emailSender.send(mimeMessage);
 

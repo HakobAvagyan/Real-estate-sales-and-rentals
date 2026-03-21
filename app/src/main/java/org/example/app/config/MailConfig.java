@@ -26,7 +26,7 @@ public class MailConfig {
         final ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setOrder(Integer.valueOf(1));
         templateResolver.setResolvablePatterns(Collections.singleton("*"));
-        templateResolver.setPrefix("templates/mail/");
+        templateResolver.setPrefix("templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
