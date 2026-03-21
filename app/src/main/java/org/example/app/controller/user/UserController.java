@@ -1,4 +1,4 @@
-package org.example.app.controller;
+package org.example.app.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.user.UserRegisterDto;
@@ -49,6 +49,15 @@ public class UserController {
     @GetMapping("/delete")
     public String deleteUser(@RequestParam("id") int id) {
         userService.deleteById(id);
+        return "redirect:/loginPage";
+    }
+
+    @GetMapping("/blocked")
+    public String blockedUser(@RequestParam("id") int id) {
+        userService.findById(id).ifPresent(user -> {
+            user.setBlocked(!user.isBlocked());
+            userService.save(user);
+        });
         return "redirect:/home";
     }
 
@@ -66,8 +75,8 @@ public class UserController {
     @PostMapping("/update")
     public String editUser(@ModelAttribute UserRegisterDto user,
                            @RequestParam(value = "pic") MultipartFile multipartFile) {
-        userService.save(user, multipartFile);
-        return "redirect:/home";
+        userService.update(user,multipartFile);
+        return "redirect:/personalPage?id=" + user.getId();
 
     }
 
@@ -89,8 +98,9 @@ public class UserController {
         if (userService.findByEmail(registeredUser.getEmail()).isPresent()) {
             return "redirect:/register?msg=" + ErrorCode.USER_ALREADY_REGISTERED.format(registeredUser.getEmail());
         }
+        registeredUser.setBlocked(true);
         userService.save(registeredUser, multipartFile);
-        return "redirect:/loginPage";
+        return "redirect:/verify?email=" + registeredUser.getEmail();
     }
 
     @GetMapping("/admin/add/manager")
@@ -103,11 +113,30 @@ public class UserController {
     public String addManager(@ModelAttribute UserRegisterDto manager,
                              @RequestParam(value = "pic") MultipartFile multipartFile) {
         if (userService.findByEmail(manager.getEmail()).isPresent()) {
-            return "redirect:/admin/add/manager?msg=Username already exists!";
+            return "redirect:/admin/add/manager?msg="  + ErrorCode.USER_ALREADY_REGISTERED.format(manager.getEmail());
         }
         manager.setRole(Role.MANAGER);
+        manager.setBlocked(true);
         userService.save(manager, multipartFile);
-        return "redirect:/home";
+        return "redirect:/verify?email=" + manager.getEmail();
+    }
+
+    @GetMapping("/verify")
+    public String verifyUserPage(@RequestParam("email") String email, ModelMap modelMap) {
+        modelMap.addAttribute("email", email);
+        return "verifyUser";
+    }
+
+    @PostMapping("/verify")
+    public String verifyUser(@RequestParam("email") String email, @RequestParam("verifyCode") String verifyCode) {
+        boolean isVerified = userService.verifyUser(email, verifyCode);
+        if (isVerified) {
+            userService.findByEmail(email).ifPresent(user -> {;
+                userService.save(user);
+            });
+            return "redirect:/loginPage?msg=User verified successfully, pls Login!";
+        }
+        return "redirect:/loginPage?msg=Verification code is invalid!";
     }
 
 }

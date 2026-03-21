@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Personal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="table-wrap">
+    <p>Photo</p>
+    <div class="table-responsive">
+        <img class="avatar"
+             th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
+             th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
+        <img class="avatar"
+             th:if="${user.getPicName() == null || user.getPicName().equals('')}"
+             th:src="@{/image/img.png}" alt="Default photo">
+    </div>
+    <p>Name</p>
+    <p th:text="${user.name}"></p>
+    <p>Surname</p>
+    <p th:text="${user.surname}"></p>
+    <p>Email</p>
+    <p th:text="${user.email}"></p>
+    <p>Birthday</p>
+    <p th:text="${user.birthDate}"></p>
+    <p>Phone</p>
+    <p th:text="${user.phone}"></p>
+    <p>Passport Details</p>
+    <p th:text="${user.passportDetails}"></p>
+    <p>Role</p>
+    <p th:text="${user.role}"></p>
+    <p>Registered</p>
+    <p th:text="${user.createdAt}"></p>
+
+    <a th:href="@{/update(id=${user.id})}">Change my profile data</a><br>
+    <a class="link-inline danger" th:href="@{/delete(id=${user.id})}"
+       th:if="${user.getRole() != role}">Delete</a><br>
+    <a class="btn btn-ghost" href="/home">Back to User List</a><br>
+
+    <a th:href="@{/verify/password(email=${user.email})}">Change password</a>
+
+
+</div>
+</body>
+</html>

@@ -19,5 +19,6 @@ public class UserRequestDto {
     private Role role;
     private LocalDate birthDate;
     private Gender gender;
+    private boolean isBlocked;
     private LocalDate createdAt;
 }

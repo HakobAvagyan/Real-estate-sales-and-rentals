@@ -8,9 +8,9 @@ public enum ErrorCode {
     USER_NOT_FOUND_BY_EMAIL("User not found with email: %s"),
     USER_ALREADY_REGISTERED("User already registered with email: %s"),
     PASSWORD_CHANGED_SUCCESSFULLY("Password changed successfully for email: %s"),
-    PASSWORD_CHANGE_FAILED("Password change failed for email: %s");
-
-
+    PASSWORD_CHANGE_FAILED("Password change failed for email: %s"),
+    PROFILE_IS_BLOCKED("Profile is blocked for email: %s"),
+    OLD_PASSWORD_IS_INCORRECT("Old password is incorrect");
     private final String message;
 
 
