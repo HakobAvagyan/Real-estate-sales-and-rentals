@@ -2,33 +2,12 @@ package org.example.mapper.location;
 
 import org.example.dto.location.LocationDto;
 import org.example.model.Location;
+import org.mapstruct.Mapper;
 
-public class LocationMapper {
+@Mapper(componentModel = "spring")
+public interface LocationMapper {
 
-    public static LocationDto toLocationDto(Location location) {
-        if (location == null) {
-            return null;
-        }
-        LocationDto locationDto = new LocationDto();
-        locationDto.setId(location.getId());
-        locationDto.setRegion(location.getRegion());
-        locationDto.setCity(location.getCity());
-        locationDto.setDistrict(location.getDistrict());
-        locationDto.setStreet(location.getStreet());
-        return locationDto;
-    }
+    LocationDto toLocationDto(Location location);
 
-    public static Location toLocation(LocationDto locationDto) {
-        if (locationDto == null) {
-            return null;
-        }
-        Location location = new Location();
-        location.setId(locationDto.getId());
-        location.setRegion(locationDto.getRegion());
-        location.setCity(locationDto.getCity());
-        location.setDistrict(locationDto.getDistrict());
-        location.setStreet(locationDto.getStreet());
-        return location;
-    }
-
+    Location toLocation(LocationDto locationDto);
 }

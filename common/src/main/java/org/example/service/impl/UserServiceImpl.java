@@ -37,11 +37,14 @@ public class UserServiceImpl implements UserService {
     private final SendMailService sendMailService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserRegisterMapper userRegisterMapper;
+    private final UserRequestMapper userRequestMapper;
+    private final UserChangePasswordMapper userChangePasswordMapper;
     private final Random random = new Random();
 
     @Override
     public Optional<UserRegisterDto> findByEmail(String username) {
-        return userRepository.findByEmail(username).map(UserRegisterMapper::toUserRegisterDto);
+        return userRepository.findByEmail(username).map(userRegisterMapper::toUserRegisterDto);
     }
 
     @Override
@@ -49,7 +52,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
         user.setPassword(passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
-        return Optional.of(UserChangePasswordMapper.toUserChangePasswordDto(savedUser));
+        return Optional.of(userChangePasswordMapper.toUserChangePasswordDto(savedUser));
     }
 
     @Override
@@ -60,7 +63,7 @@ public class UserServiceImpl implements UserService {
             sendMailService.sendVerificationMailHtml(user.getEmail(),verificationCode);
             user.setVerificationCode(verificationCode);
             userRepository.save(user);
-            return Optional.of(UserChangePasswordMapper.toUserChangePasswordDto(user));
+            return Optional.of(userChangePasswordMapper.toUserChangePasswordDto(user));
         } catch (MessagingException e) {
             e.printStackTrace();
             return Optional.empty();
@@ -92,7 +95,7 @@ public class UserServiceImpl implements UserService {
             userRepository.findById(userRegisterDto.getId())
                     .ifPresent(productOptional -> userRegisterDto.setPicName(productOptional.getPicName()));
         }
-        User user = UserRegisterMapper.toUser(userRegisterDto);
+        User user = userRegisterMapper.toUser(userRegisterDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String verificationCode = generateVerificationCode();
         try {
@@ -102,21 +105,21 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         User savedUser = userRepository.save(user);
-        return UserRegisterMapper.toUserRegisterDto(savedUser);
+        return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 
 
     @Override
     public List<UserRequestDto> findAll() {
-        return userRepository.findAll().stream().map(UserRequestMapper::toUserRequestDto).toList();
+        return userRepository.findAll().stream().map(userRequestMapper::toUserRequestDto).toList();
     }
 
 
     @Override
     public UserRegisterDto save(UserRegisterDto userRegisterDto) {
-        User user = UserRegisterMapper.toUser(userRegisterDto);
+        User user = userRegisterMapper.toUser(userRegisterDto);
         User savedUser = userRepository.save(user);
-        return UserRegisterMapper.toUserRegisterDto(savedUser);
+        return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 
     @Override
@@ -126,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserRegisterDto> findById(int id) {
-        return userRepository.findById(id).map(UserRegisterMapper::toUserRegisterDto);
+        return userRepository.findById(id).map(userRegisterMapper::toUserRegisterDto);
     }
 
 
@@ -151,12 +154,12 @@ public class UserServiceImpl implements UserService {
             }
         }
         User savedUser = userRepository.save(existingUser);
-        return UserRegisterMapper.toUserRegisterDto(savedUser);
+        return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 
     @Override
     public List<UserRequestDto> findAllByRoleIn(List<Role> roles) {
-        return userRepository.findAllByRoleIn(roles).stream().map(UserRequestMapper::toUserRequestDto).toList();
+        return userRepository.findAllByRoleIn(roles).stream().map(userRequestMapper::toUserRequestDto).toList();
     }
 
     @Override

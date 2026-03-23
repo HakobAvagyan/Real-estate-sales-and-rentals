@@ -15,27 +15,28 @@ import java.util.Optional;
 public class FavoritesServiceImpl implements FavoritesService {
 
     private final FavoritesRepository favoritesRepository;
+    private final FavoritesMapper favoritesMapper;
 
     @Override
     public Optional<FavoritesDto> findById(Integer id) {
-        return favoritesRepository.findById(id).map(FavoritesMapper::toFavoritesDto);
+        return favoritesRepository.findById(id).map(favoritesMapper::toFavoritesDto);
     }
 
     @Override
     public Optional<FavoritesDto> findByUserId(Integer userId) {
-        return favoritesRepository.findByUserId(userId).map(FavoritesMapper::toFavoritesDto);
+        return favoritesRepository.findByUserId(userId).map(favoritesMapper::toFavoritesDto);
     }
 
     @Override
     public Optional<FavoritesDto> findByPropertyId(Integer propertyId) {
-        return favoritesRepository.findByPropertyId(propertyId).map(FavoritesMapper::toFavoritesDto);
+        return favoritesRepository.findByPropertyId(propertyId).map(favoritesMapper::toFavoritesDto);
     }
 
     @Override
     public FavoritesDto save(FavoritesDto favoritesDto) {
-        Favorites favorites = FavoritesMapper.toFavorites(favoritesDto);
+        Favorites favorites = favoritesMapper.toFavorites(favoritesDto);
         favoritesRepository.save(favorites);
-        return FavoritesMapper.toFavoritesDto(favorites);
+        return favoritesMapper.toFavoritesDto(favorites);
     }
 
     @Override
@@ -45,8 +46,8 @@ public class FavoritesServiceImpl implements FavoritesService {
 
     @Override
     public FavoritesDto update(FavoritesDto favoritesDto) {
-        Favorites favorites = FavoritesMapper.toFavorites(favoritesDto);
+        Favorites favorites = favoritesMapper.toFavorites(favoritesDto);
         favoritesRepository.save(favorites);
-        return FavoritesMapper.toFavoritesDto(favorites);
+        return favoritesMapper.toFavoritesDto(favorites);
     }
 }

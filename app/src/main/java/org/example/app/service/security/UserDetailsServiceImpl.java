@@ -18,13 +18,14 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserService userService;
+    private final UserRegisterMapper userRegisterMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserRegisterDto userRegisterDto = userService.findByEmail(username)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND,username ));
-        User user = UserRegisterMapper.toUser(userRegisterDto);
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, username));
+        User user = userRegisterMapper.toUser(userRegisterDto);
         return new SpringUser(user);
     }
 }

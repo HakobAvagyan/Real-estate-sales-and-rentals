@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.AdPlanDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
-import org.example.mapper.AdPlanMapper;
+import org.example.mapper.ad.AdPlanMapper;
 import org.example.model.AdPlan;
 import org.example.repository.AdPlanRepository;
 import org.example.service.AdPlanService;
@@ -17,32 +17,33 @@ import java.util.List;
 public class AdPlanServiceImpl implements AdPlanService {
 
     private final AdPlanRepository adPlanRepository;
+    private final AdPlanMapper adPlanMapper;
 
     @Override
     public AdPlanDto create(AdPlanDto dto) {
-        AdPlan entity = AdPlanMapper.toEntity(dto);
+        AdPlan entity = adPlanMapper.toEntity(dto);
         AdPlan saved = adPlanRepository.save(entity);
-        return AdPlanMapper.toDto(saved);
+        return adPlanMapper.toDto(saved);
     }
     
     @Override
     public AdPlanDto update(AdPlanDto dto) {
-        AdPlan entity = AdPlanMapper.toEntity(dto);
+        AdPlan entity = adPlanMapper.toEntity(dto);
         AdPlan updated = adPlanRepository.save(entity);
-        return AdPlanMapper.toDto(updated);
+        return adPlanMapper.toDto(updated);
     }
 
     @Override
     public List<AdPlanDto> getAll() {
         return adPlanRepository.findAll().stream()
-                .map(AdPlanMapper::toDto)
+                .map(adPlanMapper::toDto)
                 .toList();
     }
 
     @Override
     public AdPlanDto getById(int id) {
         return adPlanRepository.findById(id)
-                .map(AdPlanMapper::toDto)
+                .map(adPlanMapper::toDto)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AD_PLAN_NOT_FOUND, id));
     }
 

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.AdDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
-import org.example.mapper.AdMapper;
+import org.example.mapper.ad.AdMapper;
 import org.example.model.Ad;
 import org.example.repository.AdRepository;
 import org.example.service.AdService;
@@ -16,27 +16,29 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
+
     private final AdRepository adRepository;
+    private final AdMapper adMapper;
 
     @Override
     @Transactional
     public AdDto createAd(AdDto dto) {
-        Ad ad = AdMapper.toEntity(dto);
+        Ad ad = adMapper.toEntity(dto);
         Ad saveAd = adRepository.save(ad);
-        return AdMapper.toDto(saveAd);
+        return adMapper.toDto(saveAd);
     }
 
     @Override
     public List<AdDto> getAllAds() {
         return adRepository.findAll().stream()
-                .map(AdMapper::toDto)
+                .map(adMapper::toDto)
                 .toList();
     }
 
     @Override
     public AdDto getAdById(int id) {
         return adRepository.findById(id)
-                .map(AdMapper::toDto)
+                .map(adMapper::toDto)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AD_NOT_FOUND, id));
     }
 
@@ -49,9 +51,7 @@ public class AdServiceImpl implements AdService {
     public List<AdDto> getAdsByUserId(int userId) {
         return adRepository.findAll().stream()
                 .filter(ad -> ad.getUser() != null && ad.getUser().getId() == userId)
-                .map(AdMapper::toDto)
+                .map(adMapper::toDto)
                 .toList();
     }
-
-
 }

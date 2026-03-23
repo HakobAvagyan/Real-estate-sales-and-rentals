@@ -36,7 +36,7 @@ public class User {
     private LocalDate createdAt =  LocalDate.now();
     private LocalDate birthDate;
     private String verificationCode;
-    private boolean enabled;
+    private Boolean enabled;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

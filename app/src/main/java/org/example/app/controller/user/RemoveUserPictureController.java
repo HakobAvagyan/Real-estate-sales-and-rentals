@@ -14,13 +14,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class RemoveUserPictureController {
 
     private final UserService userService;
+    private final UserRegisterMapper userRegisterMapper;
 
     @GetMapping("/remove/user/picture")
     public String removeUserPicture(@RequestParam("id") int id) {
-        User user = UserRegisterMapper.toUser(userService.findById(id).orElse(null));
+        User user = userRegisterMapper.toUser(userService.findById(id).orElse(null));
         if (user != null) {
             user.setPicName(null);
-            userService.save(UserRegisterMapper.toUserRegisterDto(user));
+            userService.save(userRegisterMapper.toUserRegisterDto(user));
         }
         return "redirect:/update?id=" + id;
     }

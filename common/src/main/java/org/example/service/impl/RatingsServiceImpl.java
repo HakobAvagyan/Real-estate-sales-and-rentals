@@ -14,28 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RatingsServiceImpl implements RatingsService {
 
-    private  final RatingsRepository ratingsRepository;
+    private final RatingsRepository ratingsRepository;
+    private final RatingsMapper ratingsMapper;
 
     @Override
     public Optional<RatingsDto> findById(Integer id) {
-        return ratingsRepository.findById(id).map(RatingsMapper::toRatingsDto);
+        return ratingsRepository.findById(id).map(ratingsMapper::toRatingsDto);
     }
 
     @Override
     public Optional<RatingsDto> findByUserId(Integer userId) {
-        return ratingsRepository.findByUserId(userId).map(RatingsMapper::toRatingsDto);
+        return ratingsRepository.findByUserId(userId).map(ratingsMapper::toRatingsDto);
     }
 
     @Override
     public Optional<RatingsDto> findByPropertyId(Integer propertyId) {
-        return ratingsRepository.findByPropertyId(propertyId).map(RatingsMapper::toRatingsDto);
+        return ratingsRepository.findByPropertyId(propertyId).map(ratingsMapper::toRatingsDto);
     }
 
     @Override
     public RatingsDto save(RatingsDto ratings) {
-        Ratings ratingsEntity = RatingsMapper.toRatings(ratings);
+        Ratings ratingsEntity = ratingsMapper.toRatings(ratings);
         ratingsRepository.save(ratingsEntity);
-        return RatingsMapper.toRatingsDto(ratingsEntity);
+        return ratingsMapper.toRatingsDto(ratingsEntity);
     }
 
     @Override
@@ -45,8 +46,8 @@ public class RatingsServiceImpl implements RatingsService {
 
     @Override
     public RatingsDto update(RatingsDto ratings) {
-        Ratings ratingsEntity = RatingsMapper.toRatings(ratings);
+        Ratings ratingsEntity = ratingsMapper.toRatings(ratings);
         ratingsRepository.save(ratingsEntity);
-        return RatingsMapper.toRatingsDto(ratingsEntity);
+        return ratingsMapper.toRatingsDto(ratingsEntity);
     }
 }

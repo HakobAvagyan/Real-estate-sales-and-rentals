@@ -2,31 +2,12 @@ package org.example.mapper.favorites;
 
 import org.example.dto.favorites.FavoritesDto;
 import org.example.model.Favorites;
+import org.mapstruct.Mapper;
 
-public class FavoritesMapper {
+@Mapper(componentModel = "spring")
+public interface FavoritesMapper {
 
-    public static FavoritesDto toFavoritesDto(Favorites favorites) {
-        if (favorites == null) {
-            return null;
-        }
-        FavoritesDto favoritesDto = new FavoritesDto();
-        favoritesDto.setId(favorites.getId());
-        favoritesDto.setProperty(favorites.getProperty());
-        favoritesDto.setUser(favorites.getUser());
-        favoritesDto.setCreatedAt(favorites.getCreatedAt());
-        return favoritesDto;
-    }
+    FavoritesDto toFavoritesDto(Favorites favorites);
 
-    public static Favorites toFavorites(FavoritesDto favoritesDto) {
-        if (favoritesDto == null) {
-            return null;
-        }
-        Favorites favorites = new Favorites();
-        favorites.setId(favoritesDto.getId());
-        favorites.setProperty(favoritesDto.getProperty());
-        favorites.setUser(favoritesDto.getUser());
-        favorites.setCreatedAt(favoritesDto.getCreatedAt());
-        return favorites;
-    }
-
+    Favorites toFavorites(FavoritesDto favoritesDto);
 }

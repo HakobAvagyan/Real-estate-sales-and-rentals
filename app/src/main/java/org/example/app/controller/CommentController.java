@@ -2,7 +2,7 @@ package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CommentDto;
-import org.example.mapper.CommentMapper;
+import org.example.mapper.comment.CommentMapper;
 import org.example.service.CommentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CommentController {
 
     private final CommentService commentService;
+    private final CommentMapper commentMapper;
 
     @GetMapping("/comments")
     public String getComments(ModelMap modelMap) {
@@ -28,7 +29,7 @@ public class CommentController {
         commentDto.setComment(comment);
         commentDto.setUserId(userId);
         commentDto.setPropertyId(propertyId);
-        commentService.save(CommentMapper.toEntity(commentDto));
+        commentService.save(commentMapper.toEntity(commentDto));
         return "redirect:/comments/by-property?propertyId=" + propertyId;
     }
 
