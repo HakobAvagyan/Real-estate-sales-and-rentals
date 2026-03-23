@@ -14,11 +14,9 @@ public interface UserService {
 
     Optional<UserRegisterDto> findByEmail(String username);
 
-    Optional<UserChangePasswordDto> changePassword(String email, String password);
+    Optional<UserChangePasswordDto> changePassword(String email, String oldPassword, String newPassword);
 
     Optional<UserChangePasswordDto> changePasswordByEmail(String email);
-
-    boolean checkOldPassword(String oldPassword, String email);
 
     UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
 

@@ -32,11 +32,10 @@ public class User {
     private String password;
     private String passportDetails;
     private String picName;
-    private boolean isBlocked = false;
+    private boolean isBlocked;
     private LocalDate createdAt =  LocalDate.now();
     private LocalDate birthDate;
     private String verificationCode;
-    private Boolean enabled;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

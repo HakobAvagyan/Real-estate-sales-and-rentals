@@ -48,9 +48,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserChangePasswordDto> changePassword(String email, String password) {
+    public Optional<UserChangePasswordDto> changePassword(String email, String oldPassword, String newPassword) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
-        user.setPassword(passwordEncoder.encode(password));
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException(ErrorCode.OLD_PASSWORD_IS_INCORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
         return Optional.of(userChangePasswordMapper.toUserChangePasswordDto(savedUser));
     }
@@ -69,16 +72,6 @@ public class UserServiceImpl implements UserService {
             return Optional.empty();
         }
     }
-
-    @Override
-    public boolean checkOldPassword(String oldPassword, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BusinessException(ErrorCode.OLD_PASSWORD_IS_INCORRECT);
-        }
-        return true;
-    }
-
 
     @Override
     public UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile multipartFile) {
