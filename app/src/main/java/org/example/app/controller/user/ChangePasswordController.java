@@ -57,7 +57,7 @@ public class ChangePasswordController {
     public String verifyUserPage(@RequestParam("email") String email, ModelMap modelMap) {
         userService.changePasswordByEmail(email);
         modelMap.addAttribute("email", email);
-        return "changePassword/chnagePasswordByVerifycationCode";
+        return "changePassword/changePasswordByVerificationCode ";
     }
 
     @PostMapping("/verify/password")

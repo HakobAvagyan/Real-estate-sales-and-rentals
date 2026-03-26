@@ -12,7 +12,8 @@ public enum ErrorCode {
     PROFILE_IS_BLOCKED("Profile is blocked for email: %s"),
     OLD_PASSWORD_IS_INCORRECT("Old password is incorrect"),
     VERIFICATION_FAILED("Verification failed for email: %s"),
-    TRY_AGAIN("Try again something went wrong");
+    TRY_AGAIN("Try again something went wrong"),
+    PASSWORDS_DO_NOT_MATCH("Passwords do not match with email: %s");
     private final String message;
 
 

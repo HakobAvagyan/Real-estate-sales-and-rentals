@@ -78,16 +78,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<ResetPasswordRequest> resetPassword(String email, String code, String newPassword, String newConfirmPassword) {
-        Optional<UserRegisterDto> byEmail = findByEmail(email);
-        byEmail.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
-        boolean verified = verifyUser(email, code);
-        if (verified && newPassword.equals(newConfirmPassword) ) {
-            byEmail.get().setPassword(passwordEncoder.encode(newPassword));
-            save(byEmail.get());
-            return Optional.of(userResetPasswordMapper.toUserResetPasswordDto(userRepository.findByEmail(email).get()));
-        } else {
-            throw new BusinessException(ErrorCode.VERIFICATION_FAILED,email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
+
+        if (!verifyUser(email, code)) {
+            throw new BusinessException(ErrorCode.VERIFICATION_FAILED, email);
         }
+
+        if (!newPassword.equals(newConfirmPassword)) {
+            throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        User savedUser = userRepository.save(user);
+        return Optional.of(userResetPasswordMapper.toUserResetPasswordDto(savedUser));
     }
 
     @Override
