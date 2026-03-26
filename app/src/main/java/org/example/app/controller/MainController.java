@@ -2,7 +2,7 @@ package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.example.app.service.security.SpringUser;
+import org.example.service.security.SpringUser;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
 import org.example.service.UserService;
