@@ -1,14 +1,14 @@
 package org.example.mapper.user;
 
-import org.example.dto.user.UserChangePasswordDto;
+import org.example.dto.user.ResetPasswordRequest;
 import org.example.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserChangePasswordMapper {
+public interface UserResetPasswordMapper {
 
-    UserChangePasswordDto toUserChangePasswordDto(User user);
+    ResetPasswordRequest toUserResetPasswordDto(User user);
 
-    User toUser(UserChangePasswordDto userChangePasswordDto);
+    User toUser(ResetPasswordRequest resetPasswordRequest);
 }

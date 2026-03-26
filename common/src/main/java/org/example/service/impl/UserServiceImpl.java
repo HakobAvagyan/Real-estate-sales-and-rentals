@@ -2,14 +2,16 @@ package org.example.service.impl;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.user.UserChangePasswordDto;
+import org.example.dto.user.ChangePasswordRequest;
+import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserRequestDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
-import org.example.mapper.user.UserChangePasswordMapper;
+import org.example.mapper.user.ChangePasswordRequestMapper;
 import org.example.mapper.user.UserRegisterMapper;
 import org.example.mapper.user.UserRequestMapper;
+import org.example.mapper.user.UserResetPasswordMapper;
 import org.example.model.User;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
@@ -39,7 +41,8 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRegisterMapper userRegisterMapper;
     private final UserRequestMapper userRequestMapper;
-    private final UserChangePasswordMapper userChangePasswordMapper;
+    private final UserResetPasswordMapper userResetPasswordMapper;
+    private final ChangePasswordRequestMapper changePasswordRequestMapper;
     private final Random random = new Random();
 
     @Override
@@ -48,28 +51,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserChangePasswordDto> changePassword(String email, String oldPassword, String newPassword) {
+    public Optional<ChangePasswordRequest> changePassword(String email, String oldPassword, String newPassword) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new BusinessException(ErrorCode.OLD_PASSWORD_IS_INCORRECT);
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
-        return Optional.of(userChangePasswordMapper.toUserChangePasswordDto(savedUser));
+        return Optional.of(changePasswordRequestMapper.toChangePasswordRequestDto(savedUser));
     }
 
     @Override
-    public Optional<UserChangePasswordDto> changePasswordByEmail(String email) {
+    public Optional<ChangePasswordRequest> changePasswordByEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
         String verificationCode = generateVerificationCode();
         try {
             sendMailService.sendVerificationMailHtml(user.getEmail(),verificationCode);
             user.setVerificationCode(verificationCode);
             userRepository.save(user);
-            return Optional.of(userChangePasswordMapper.toUserChangePasswordDto(user));
+            return Optional.of(changePasswordRequestMapper.toChangePasswordRequestDto(user));
         } catch (MessagingException e) {
             e.printStackTrace();
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<ResetPasswordRequest> resetPassword(String email, String code, String newPassword, String newConfirmPassword) {
+        Optional<UserRegisterDto> byEmail = findByEmail(email);
+        byEmail.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
+        boolean verified = verifyUser(email, code);
+        if (verified && newPassword.equals(newConfirmPassword) ) {
+            byEmail.get().setPassword(passwordEncoder.encode(newPassword));
+            save(byEmail.get());
+            return Optional.of(userResetPasswordMapper.toUserResetPasswordDto(userRepository.findByEmail(email).get()));
+        } else {
+            throw new BusinessException(ErrorCode.VERIFICATION_FAILED,email);
         }
     }
 

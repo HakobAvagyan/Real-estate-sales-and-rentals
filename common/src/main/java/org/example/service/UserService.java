@@ -1,7 +1,8 @@
 package org.example.service;
 
 
-import org.example.dto.user.UserChangePasswordDto;
+import org.example.dto.user.ChangePasswordRequest;
+import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserRequestDto;
 import org.example.model.enums.Role;
@@ -14,9 +15,11 @@ public interface UserService {
 
     Optional<UserRegisterDto> findByEmail(String username);
 
-    Optional<UserChangePasswordDto> changePassword(String email, String oldPassword, String newPassword);
+    Optional<ChangePasswordRequest> changePassword(String email, String oldPassword, String newPassword);
 
-    Optional<UserChangePasswordDto> changePasswordByEmail(String email);
+    Optional<ChangePasswordRequest> changePasswordByEmail(String email);
+
+    Optional<ResetPasswordRequest> resetPassword(String email, String code, String newPassword, String newConfirmPassword);
 
     UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
 

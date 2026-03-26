@@ -1,5 +1,6 @@
 package org.example.app.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserRequestDto;
@@ -8,6 +9,7 @@ import org.example.model.enums.Role;
 import org.example.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,8 +95,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute UserRegisterDto registeredUser,
-                           @RequestParam(value = "pic") MultipartFile multipartFile) {
+    public String register(@Valid @ModelAttribute UserRegisterDto registeredUser,
+                           @RequestParam(value = "pic") MultipartFile multipartFile,
+                           BindingResult errors) {
+        if (errors.hasErrors()) {
+            return "redirect:/register?msg=" + ErrorCode.TRY_AGAIN.format(registeredUser.getEmail());
+        }
         if (userService.findByEmail(registeredUser.getEmail()).isPresent()) {
             return "redirect:/register?msg=" + ErrorCode.USER_ALREADY_REGISTERED.format(registeredUser.getEmail());
         }
