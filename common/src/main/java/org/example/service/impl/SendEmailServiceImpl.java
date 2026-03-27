@@ -1,8 +1,8 @@
 package org.example.service.impl;
 
-import org.example.service.SendMailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.example.service.SendMailService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

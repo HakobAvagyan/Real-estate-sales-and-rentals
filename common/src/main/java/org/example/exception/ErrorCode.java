@@ -10,7 +10,10 @@ public enum ErrorCode {
     PASSWORD_CHANGED_SUCCESSFULLY("Password changed successfully for email: %s"),
     PASSWORD_CHANGE_FAILED("Password change failed for email: %s"),
     PROFILE_IS_BLOCKED("Profile is blocked for email: %s"),
-    OLD_PASSWORD_IS_INCORRECT("Old password is incorrect");
+    OLD_PASSWORD_IS_INCORRECT("Old password is incorrect"),
+    VERIFICATION_FAILED("Verification failed for email: %s"),
+    TRY_AGAIN("Try again something went wrong"),
+    PASSWORDS_DO_NOT_MATCH("Passwords do not match with email: %s");
     private final String message;
 
 

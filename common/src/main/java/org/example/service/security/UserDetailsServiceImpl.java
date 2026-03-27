@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserRegisterDto userRegisterDto = userService.findByEmail(username)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, username));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, username));
         User user = userRegisterMapper.toUser(userRegisterDto);
         return new SpringUser(user);
     }

@@ -1,12 +1,11 @@
 package org.example.app.controller.ad;
 
-import org.springframework.stereotype.Controller;
-
 import lombok.RequiredArgsConstructor;
 import org.example.dto.AdPlanDto;
 import org.example.service.AdPlanService;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
