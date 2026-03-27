@@ -1,5 +1,4 @@
-package org.example.app.service.security;
-
+package org.example.service.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.user.UserRegisterDto;
