@@ -29,6 +29,7 @@ public class CommentController {
         commentDto.setComment(comment);
         commentDto.setUserId(userId);
         commentDto.setPropertyId(propertyId);
+        /// TODO: validation and error handling from test conflict 2
         commentService.save(commentMapper.toEntity(commentDto));
         return "redirect:/comments/by-property?propertyId=" + propertyId;
     }
