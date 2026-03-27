@@ -28,6 +28,7 @@ public class CommentController {
         CommentDto commentDto = new CommentDto();
         commentDto.setComment(comment);
         commentDto.setUserId(userId);
+        /// TODO: validation and error handling
         commentDto.setPropertyId(propertyId);
         commentService.save(commentMapper.toEntity(commentDto));
         return "redirect:/comments/by-property?propertyId=" + propertyId;
