@@ -27,6 +27,8 @@ public enum NotificationType {
     PROFILE_PASSWORD_CHANGED_NOTIFICATION("Dear %s %s,\n" +
                     "Your password has been changed successfully.\n" +
                     "If you did not request this change, please contact our support team immediately."),
+    PROFILE_PASSWORD_RESET_NOTIFICATION("Dear %s %s,\n" +
+            "Your password has been reset successfully.\n"),
 
 
     PROPERTY_APPROVED_NOTIFICATION("Congratulations, %s %s!\n" +

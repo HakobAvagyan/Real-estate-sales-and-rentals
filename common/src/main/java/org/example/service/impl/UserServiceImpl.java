@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.notification.NotificationDto;
 import org.example.dto.user.ChangePasswordRequest;
 import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
@@ -13,8 +14,10 @@ import org.example.mapper.user.UserRegisterMapper;
 import org.example.mapper.user.UserRequestMapper;
 import org.example.mapper.user.UserResetPasswordMapper;
 import org.example.model.User;
+import org.example.model.enums.NotificationType;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
+import org.example.service.NotificationService;
 import org.example.service.SendMailService;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final UserRequestMapper userRequestMapper;
     private final UserResetPasswordMapper userResetPasswordMapper;
     private final ChangePasswordRequestMapper changePasswordRequestMapper;
+    private final NotificationService notificationService;
     private final Random random = new Random();
 
     @Override
@@ -58,6 +62,13 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
+
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setUser(savedUser);
+        notificationDto.setTitle("You changed your password successfully!");
+        notificationDto.setMessage(NotificationType.PROFILE_PASSWORD_CHANGED_NOTIFICATION.format(savedUser.getName(),savedUser.getSurname()));
+        notificationService.save(notificationDto);
+
         return Optional.of(changePasswordRequestMapper.toChangePasswordRequestDto(savedUser));
     }
 
@@ -91,6 +102,13 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
+
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setUser(savedUser);
+        notificationDto.setTitle("You reset your password successfully!");
+        notificationDto.setMessage(NotificationType.PROFILE_PASSWORD_RESET_NOTIFICATION.format(savedUser.getName(),savedUser.getSurname()));
+        notificationService.save(notificationDto);
+
         return Optional.of(userResetPasswordMapper.toUserResetPasswordDto(savedUser));
     }
 
@@ -119,6 +137,13 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         User savedUser = userRepository.save(user);
+
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setUser(savedUser);
+        notificationDto.setTitle("You registered successfully!");
+        notificationDto.setMessage(NotificationType.USER_REGISTERED_NOTIFICATION.format(savedUser.getName(),savedUser.getSurname()));
+        notificationService.save(notificationDto);
+
         return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 
@@ -138,7 +163,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(int id) {
-        userRepository.deleteById(id);
+        userRepository.findById(id).ifPresent(user -> {
+            userRepository.deleteById(user.getId());
+        });
+    }
+
+    @Override
+    public void blockedUserById(int id) {
+        userRepository.findById(id).ifPresent(user -> {
+            boolean blocked = user.isBlocked();
+            user.setBlocked(!blocked);
+            User save = userRepository.save(user);
+            NotificationDto notificationDto = new NotificationDto();
+            notificationDto.setUser(save);
+            if (!blocked) {
+                notificationDto.setTitle("Your profile blocked!");
+                notificationDto.setMessage(NotificationType.PROFILE_BLOCKED_NOTIFICATION.format(save.getName(),save.getSurname()));
+            }else {
+                notificationDto.setTitle("Your profile unblocked!");
+                notificationDto.setMessage(NotificationType.PROFILE_UNBLOCKED_NOTIFICATION.format(save.getName(),save.getSurname()));
+            }
+            notificationService.save(notificationDto);
+        });
     }
 
     @Override
@@ -168,6 +214,13 @@ public class UserServiceImpl implements UserService {
             }
         }
         User savedUser = userRepository.save(existingUser);
+
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setUser(savedUser);
+        notificationDto.setTitle("You update your profile successfully!");
+        notificationDto.setMessage(NotificationType.PROFILE_UPDATE_NOTIFICATION.format(savedUser.getName(),savedUser.getSurname()));
+        notificationService.save(notificationDto);
+
         return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 

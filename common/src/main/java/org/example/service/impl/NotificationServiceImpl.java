@@ -1,32 +1,38 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.notification.NotificationDto;
+import org.example.mapper.notification.CreateNotificationMapper;
 import org.example.model.Notification;
 import org.example.repository.NotificationRepository;
 import org.example.service.NotificationService;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
+
     private final NotificationRepository notificationRepository;
+    private final CreateNotificationMapper createNotificationMapper;
 
 
     @Override
-    public Optional<Notification> findById(Integer id) {
-        return notificationRepository.findById(id);
+    public NotificationDto findById(Integer id) {
+            return createNotificationMapper.toDto(notificationRepository.findById(id).get());
+    }
+
+
+    @Override
+    public void save(NotificationDto notification) {
+        notificationRepository.save(createNotificationMapper.toNotification(notification));
     }
 
     @Override
-    public Optional<Notification> findByUserId(Integer userId) {
-        return notificationRepository.findByUserId(userId);
-    }
+    public List<Notification> getAllNotificationsByUserId(Integer userId) {
+        return notificationRepository.findAllByUserId(userId);
 
-    @Override
-    public void save(Notification notification) {
-        notificationRepository.save(notification);
     }
 
     @Override
@@ -34,8 +40,4 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.deleteById(id);
     }
 
-    @Override
-    public Notification update(Notification notification) {
-        return notificationRepository.save(notification);
-    }
 }

@@ -1,7 +1,7 @@
 package org.example.app.controller.user;
 
-import org.example.service.security.SpringUser;
 import org.example.model.User;
+import org.example.service.security.SpringUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
