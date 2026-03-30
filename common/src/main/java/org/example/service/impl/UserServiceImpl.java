@@ -3,7 +3,7 @@ package org.example.service.impl;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.notification.NotificationDto;
+import org.example.dto.notification.NotificationResponseDto;
 import org.example.dto.user.ChangePasswordRequest;
 import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
@@ -64,11 +64,11 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
 
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setUser(savedUser);
-        notificationDto.setTitle("You changed your password successfully!");
-        notificationDto.setMessage(NotificationType.PROFILE_PASSWORD_CHANGED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
-        notificationService.save(notificationDto);
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You changed your password successfully!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_PASSWORD_CHANGED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
 
         return Optional.of(changePasswordRequestMapper.toChangePasswordRequestDto(savedUser));
     }
@@ -104,11 +104,11 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
 
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setUser(savedUser);
-        notificationDto.setTitle("You reset your password successfully!");
-        notificationDto.setMessage(NotificationType.PROFILE_PASSWORD_RESET_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
-        notificationService.save(notificationDto);
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You reset your password successfully!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_PASSWORD_RESET_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
 
         return Optional.of(userResetPasswordMapper.toUserResetPasswordDto(savedUser));
     }
@@ -139,11 +139,11 @@ public class UserServiceImpl implements UserService {
         }
         User savedUser = userRepository.save(user);
 
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setUser(savedUser);
-        notificationDto.setTitle("You registered successfully!");
-        notificationDto.setMessage(NotificationType.USER_REGISTERED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
-        notificationService.save(notificationDto);
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You registered successfully!");
+        notificationResponseDto.setMessage(NotificationType.USER_REGISTERED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
 
         return userRegisterMapper.toUserRegisterDto(savedUser);
     }
@@ -216,11 +216,11 @@ public class UserServiceImpl implements UserService {
         }
         User savedUser = userRepository.save(existingUser);
 
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setUser(savedUser);
-        notificationDto.setTitle("You update your profile successfully!");
-        notificationDto.setMessage(NotificationType.PROFILE_UPDATE_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
-        notificationService.save(notificationDto);
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You update your profile successfully!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_UPDATE_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
 
         return userRegisterMapper.toUserRegisterDto(savedUser);
     }

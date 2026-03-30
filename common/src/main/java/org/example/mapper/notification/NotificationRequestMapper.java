@@ -1,15 +1,14 @@
 package org.example.mapper.notification;
 
-import org.example.dto.notification.NotificationDto;
+import org.example.dto.notification.NotificationRequestDto;
 import org.example.model.Notification;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface CreateNotificationMapper {
+public interface NotificationRequestMapper {
 
-    Notification toNotification(NotificationDto dto);
+    Notification toNotification(NotificationRequestDto dto);
 
-    NotificationDto toDto(Notification notification);
-
+    NotificationRequestDto toDto(Notification notification);
 }

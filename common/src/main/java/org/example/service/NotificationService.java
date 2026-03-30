@@ -1,20 +1,20 @@
 package org.example.service;
 
-import org.example.dto.notification.NotificationDto;
-import org.example.model.Notification;
+import org.example.dto.notification.NotificationRequestDto;
+import org.example.dto.notification.NotificationResponseDto;
 import org.example.model.User;
 
 import java.util.List;
 
 public interface NotificationService {
 
-    NotificationDto findById(Integer id);
+    NotificationRequestDto findById(Integer id, Integer userId);
 
-    void save(NotificationDto createNotificationDto);
+    void save(NotificationResponseDto createNotificationResponseDto);
 
-    List<Notification> getAllNotificationsByUserId(Integer userId);
+    List<NotificationRequestDto> getAllNotificationsByUserId(Integer userId);
 
-    void deleteById(Integer id);
+    void deleteById(Integer id,Integer userId);
 
     void notifyUserUnblocked(User user);
 

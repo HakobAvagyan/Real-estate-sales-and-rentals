@@ -13,7 +13,8 @@ public enum ErrorCode {
     OLD_PASSWORD_IS_INCORRECT("Old password is incorrect"),
     VERIFICATION_FAILED("Verification failed for email: %s"),
     TRY_AGAIN("Try again something went wrong"),
-    PASSWORDS_DO_NOT_MATCH("Passwords do not match with email: %s");
+    PASSWORDS_DO_NOT_MATCH("Passwords do not match with email: %s"),
+    NOTIFICATION_NOT_FOUND("Notification not found with id: %d");
     private final String message;
 
 

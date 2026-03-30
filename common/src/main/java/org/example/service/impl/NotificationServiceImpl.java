@@ -1,8 +1,12 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.notification.NotificationDto;
-import org.example.mapper.notification.CreateNotificationMapper;
+import org.example.dto.notification.NotificationRequestDto;
+import org.example.dto.notification.NotificationResponseDto;
+import org.example.exception.BusinessException;
+import org.example.exception.ErrorCode;
+import org.example.mapper.notification.NotificationRequestMapper;
+import org.example.mapper.notification.NotificationResponseMapper;
 import org.example.model.Notification;
 import org.example.model.User;
 import org.example.model.enums.NotificationType;
@@ -17,47 +21,59 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final CreateNotificationMapper createNotificationMapper;
+    private final NotificationResponseMapper notificationResponseMapper;
+    private final NotificationRequestMapper notificationRequestMapper;
 
 
     @Override
-    public NotificationDto findById(Integer id) {
-            return createNotificationMapper.toDto(notificationRepository.findById(id).get());
+    public NotificationRequestDto findById(Integer id, Integer userId) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND,id));
+
+        if(notification.getUser().getId() != userId){
+            throw new BusinessException(ErrorCode.TRY_AGAIN);
+        }
+
+        return notificationRequestMapper.toDto(notification);
     }
 
 
     @Override
-    public void save(NotificationDto notification) {
-        notificationRepository.save(createNotificationMapper.toNotification(notification));
+    public void save(NotificationResponseDto notification) {
+        notificationRepository.save(notificationResponseMapper.toNotification(notification));
     }
 
     @Override
-    public List<Notification> getAllNotificationsByUserId(Integer userId) {
-        return notificationRepository.findAllByUserId(userId);
-
+    public List<NotificationRequestDto> getAllNotificationsByUserId(Integer userId) {
+        return notificationRepository.findAllByUserId(userId).stream()
+                .map(notificationRequestMapper::toDto)
+                .toList();
     }
 
     @Override
-    public void deleteById(Integer id) {
+    public void deleteById(Integer id, Integer userId) {
+        if(notificationRepository.findById(id).get().getUser().getId() != userId){
+            throw new BusinessException(ErrorCode.TRY_AGAIN);
+        }
         notificationRepository.deleteById(id);
     }
 
     @Override
     public void notifyUserUnblocked(User user) {
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setUser(user);
-        notificationDto.setTitle("Your profile blocked!");
-        notificationDto.setMessage(NotificationType.PROFILE_BLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
-        notificationRepository.save(createNotificationMapper.toNotification(notificationDto));
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(user);
+        notificationResponseDto.setTitle("Your profile blocked!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_BLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
+        notificationRepository.save(notificationResponseMapper.toNotification(notificationResponseDto));
     }
 
     @Override
     public void notifyUserBlocked(User user) {
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setUser(user);
-        notificationDto.setTitle("Your profile unblocked!");
-        notificationDto.setMessage(NotificationType.PROFILE_UNBLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
-        notificationRepository.save(createNotificationMapper.toNotification(notificationDto));
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(user);
+        notificationResponseDto.setTitle("Your profile unblocked!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_UNBLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
+        notificationRepository.save(notificationResponseMapper.toNotification(notificationResponseDto));
     }
 
 }

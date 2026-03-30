@@ -1,7 +1,8 @@
 package org.example.app.controller.notifications;
 
 import lombok.AllArgsConstructor;
-import org.example.dto.notification.NotificationDto;
+import org.example.dto.notification.NotificationRequestDto;
+import org.example.dto.notification.NotificationResponseDto;
 import org.example.mapper.user.UserRegisterMapper;
 import org.example.model.Notification;
 import org.example.model.User;
@@ -27,21 +28,21 @@ public class NotificationsController {
 
     @GetMapping("/notifications")
     public String getNotifications(ModelMap modelMap) {
-        List<Notification> allNotificationsByUserId = notificationService.getAllNotificationsByUserId(getCurrentUser().getId());
+        List<NotificationRequestDto> allNotificationsByUserId = notificationService.getAllNotificationsByUserId(getCurrentUser().getId());
         modelMap.addAttribute("notifications", allNotificationsByUserId);
         return "notification/notification";
     }
 
     @GetMapping("/notifications/{id}")
     public String getOwnNotifications(@PathVariable int id, ModelMap modelMap) {
-        NotificationDto byId = notificationService.findById(id);
+        NotificationRequestDto byId = notificationService.findById(id, getCurrentUser().getId());
         modelMap.addAttribute("notification", byId);
         return "notification/ownNotification";
     }
 
     @GetMapping("/notifications/{id}/delete")
     public String removeNotification(@PathVariable int id) {
-        notificationService.deleteById(id);
+        notificationService.deleteById(id,getCurrentUser().getId());
         return "redirect:/notifications";
     }
 

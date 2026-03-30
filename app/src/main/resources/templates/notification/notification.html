@@ -23,7 +23,7 @@
 </section>
 <div th:each="notification : ${notifications}">
   <a th:href="@{/notifications/{id}(id=${notification.id})}" th:text="${notification.title}"></a>
-  <p th:text="${notification.createdAt}"></p>
+  <p th:text="${#temporals.format(notification.createdAt, 'yyyy-MM-dd')}"></p>
   <a th:href="@{/notifications/{id}/delete(id=${notification.id})}">Delete this notification</a>
 </div>
 </body>
