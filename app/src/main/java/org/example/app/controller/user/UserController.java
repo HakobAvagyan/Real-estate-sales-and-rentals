@@ -57,7 +57,7 @@ public class UserController {
 
     @GetMapping("/blocked")
     public String blockedUser(@RequestParam("id") int id) {
-        userService.blockedUserById(id);
+        userService.toggleUserBlockStatus(id);
         return "redirect:/home";
     }
 

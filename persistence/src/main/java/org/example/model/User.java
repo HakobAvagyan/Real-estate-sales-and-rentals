@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.example.model.enums.Gender;
 import org.example.model.enums.Role;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user")
+@ToString(exclude = "notifications")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

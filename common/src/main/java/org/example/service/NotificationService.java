@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dto.notification.NotificationDto;
 import org.example.model.Notification;
+import org.example.model.User;
 
 import java.util.List;
 
@@ -15,4 +16,7 @@ public interface NotificationService {
 
     void deleteById(Integer id);
 
+    void notifyUserUnblocked(User user);
+
+    void notifyUserBlocked(User user);
 }

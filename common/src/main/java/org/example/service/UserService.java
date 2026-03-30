@@ -29,7 +29,7 @@ public interface UserService {
 
     void deleteById(int id);
 
-    void blockedUserById(int id);
+    void toggleUserBlockStatus(int id);
 
     Optional<UserRegisterDto> findById(int id);
 

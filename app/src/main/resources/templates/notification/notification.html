@@ -22,9 +22,9 @@
   </div>
 </section>
 <div th:each="notification : ${notifications}">
-  <a th:href="@{/myOwnNotification(id=${notification.id})}" th:text="${notification.title}"></a>
+  <a th:href="@{/notifications/{id}(id=${notification.id})}" th:text="${notification.title}"></a>
   <p th:text="${notification.createdAt}"></p>
-  <a th:href="@{/removeMyNotification(id=${notification.id})}">Delete this notification</a>
+  <a th:href="@{/notifications/{id}/delete(id=${notification.id})}">Delete this notification</a>
 </div>
 </body>
 </html>
