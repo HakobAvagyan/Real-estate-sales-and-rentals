@@ -92,7 +92,6 @@
             <column name="user_id" type="int"><constraints nullable="false" foreignKeyName="notif_user_FK" referencedTableName="user" referencedColumnNames="id"/></column>
             <column name="message" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="title" type="varchar(255)"><constraints nullable="false"/></column>
-            <column name="type" type="enum('PROPERTY_APPROVED','PROPERTY_REJECTED','NEW_COMMENT','NEW_RATING','NEW_CHAT_MESSAGE','GENERAL')"><constraints nullable="false"/></column>
             <column name="created_at" type="date"><constraints nullable="false"/></column>
         </createTable>
 

@@ -1,7 +1,9 @@
 package org.example.service.impl;
 
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.notification.NotificationResponseDto;
 import org.example.dto.user.ChangePasswordRequest;
 import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
@@ -13,8 +15,10 @@ import org.example.mapper.user.UserRegisterMapper;
 import org.example.mapper.user.UserRequestMapper;
 import org.example.mapper.user.UserResetPasswordMapper;
 import org.example.model.User;
+import org.example.model.enums.NotificationType;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
+import org.example.service.NotificationService;
 import org.example.service.SendMailService;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +47,7 @@ public class UserServiceImpl implements UserService {
     private final UserRequestMapper userRequestMapper;
     private final UserResetPasswordMapper userResetPasswordMapper;
     private final ChangePasswordRequestMapper changePasswordRequestMapper;
+    private final NotificationService notificationService;
     private final Random random = new Random();
 
     @Override
@@ -58,6 +63,13 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
+
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You changed your password successfully!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_PASSWORD_CHANGED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
+
         return Optional.of(changePasswordRequestMapper.toChangePasswordRequestDto(savedUser));
     }
 
@@ -66,7 +78,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
         String verificationCode = generateVerificationCode();
         try {
-            sendMailService.sendVerificationMailHtml(user.getEmail(),verificationCode);
+            sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
             user.setVerificationCode(verificationCode);
             userRepository.save(user);
             return Optional.of(changePasswordRequestMapper.toChangePasswordRequestDto(user));
@@ -91,6 +103,13 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         User savedUser = userRepository.save(user);
+
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You reset your password successfully!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_PASSWORD_RESET_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
+
         return Optional.of(userResetPasswordMapper.toUserResetPasswordDto(savedUser));
     }
 
@@ -113,12 +132,19 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String verificationCode = generateVerificationCode();
         try {
-            sendMailService.sendVerificationMailHtml(user.getEmail(),verificationCode);
+            sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
             user.setVerificationCode(verificationCode);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
         User savedUser = userRepository.save(user);
+
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You registered successfully!");
+        notificationResponseDto.setMessage(NotificationType.USER_REGISTERED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
+
         return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 
@@ -138,7 +164,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(int id) {
-        userRepository.deleteById(id);
+        userRepository.findById(id).ifPresent(user -> {
+            userRepository.deleteById(user.getId());
+        });
+    }
+
+    @Override
+    @Transactional
+    public void toggleUserBlockStatus(int id) {
+                userRepository.findById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id));
+
+        boolean isNowBlocked = !user.isBlocked();
+        user.setBlocked(isNowBlocked);
+
+        userRepository.save(user);
+
+        if (isNowBlocked) {
+            notificationService.notifyUserBlocked(user);
+        } else {
+            notificationService.notifyUserUnblocked(user);
+        }
     }
 
     @Override
@@ -168,6 +215,13 @@ public class UserServiceImpl implements UserService {
             }
         }
         User savedUser = userRepository.save(existingUser);
+
+        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
+        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setTitle("You update your profile successfully!");
+        notificationResponseDto.setMessage(NotificationType.PROFILE_UPDATE_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationResponseDto);
+
         return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 

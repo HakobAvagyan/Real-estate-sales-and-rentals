@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Notifications</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<section class="panel welcome">
+  <div class="nav">
+    <div>
+      <h1 class="headline">
+        Welcome, <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
+        to your Notification section
+      </h1>
+    </div>
+    <div class="actions" style="margin-top:0">
+      <a class="btn btn-ghost btn-sm" th:href="@{/home}">Back</a>
+      <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
+    </div>
+  </div>
+</section>
+<div th:each="notification : ${notifications}">
+  <a th:href="@{/notifications/{id}(id=${notification.id})}" th:text="${notification.title}"></a>
+  <p th:text="${#temporals.format(notification.createdAt, 'yyyy-MM-dd')}"></p>
+  <a th:href="@{/notifications/{id}/delete(id=${notification.id})}">Delete this notification</a>
+</div>
+</body>
+</html>

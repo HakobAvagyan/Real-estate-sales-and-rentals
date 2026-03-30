@@ -29,6 +29,8 @@ public interface UserService {
 
     void deleteById(int id);
 
+    void toggleUserBlockStatus(int id);
+
     Optional<UserRegisterDto> findById(int id);
 
     UserRegisterDto update(UserRegisterDto userRegisterDto, MultipartFile file);

@@ -51,15 +51,13 @@ public class UserController {
     @GetMapping("/delete")
     public String deleteUser(@RequestParam("id") int id) {
         userService.deleteById(id);
-        return "redirect:/loginPage";
+
+        return "redirect:/logout";
     }
 
     @GetMapping("/blocked")
     public String blockedUser(@RequestParam("id") int id) {
-        userService.findById(id).ifPresent(user -> {
-            user.setBlocked(!user.isBlocked());
-            userService.save(user);
-        });
+        userService.toggleUserBlockStatus(id);
         return "redirect:/home";
     }
 
@@ -116,7 +114,7 @@ public class UserController {
     }
 
     @PostMapping("/admin/add/manager")
-    public String addManager(@ModelAttribute UserRegisterDto manager,
+    public String addManager(@Valid @ModelAttribute UserRegisterDto manager,
                              @RequestParam(value = "pic") MultipartFile multipartFile) {
         if (userService.findByEmail(manager.getEmail()).isPresent()) {
             return "redirect:/admin/add/manager?msg="  + ErrorCode.USER_ALREADY_REGISTERED.format(manager.getEmail());
