@@ -23,8 +23,6 @@ public class MainController {
     @Value("${system.upload.images.directory.path}")
     private String imageDirectoryPath;
 
-    private final UserService userService;
-
     @GetMapping("/")
     public String mainPage() {
         return "redirect:/home";

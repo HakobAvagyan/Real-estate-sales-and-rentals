@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class NotificationRequestDto {
 
     private Integer id;
-    private User user;
+    private int userId;
     private String message;
     private String title;
     private LocalDateTime createdAt;

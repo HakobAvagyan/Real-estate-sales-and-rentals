@@ -14,7 +14,8 @@ public enum ErrorCode {
     VERIFICATION_FAILED("Verification failed for email: %s"),
     TRY_AGAIN("Try again something went wrong"),
     PASSWORDS_DO_NOT_MATCH("Passwords do not match with email: %s"),
-    NOTIFICATION_NOT_FOUND("Notification not found with id: %d");
+    NOTIFICATION_NOT_FOUND("Notification not found with id: %d"),
+    USER_NOT_AUTHENTICATED("User not authenticated");
     private final String message;
 
 

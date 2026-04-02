@@ -1,6 +1,6 @@
-package org.example.app.controller.notifications;
+package org.example.controller.notification;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.dto.notification.NotificationRequestDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
@@ -11,42 +11,39 @@ import org.example.service.UserService;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
-@AllArgsConstructor
-public class NotificationsController {
+@RestController
+@RequestMapping("/api/notifications")
+@RequiredArgsConstructor
+public class RestNotificationController {
 
     private final NotificationService notificationService;
     private final UserService userService;
     private final UserRegisterMapper userRegisterMapper;
 
-    @GetMapping("/notifications")
-    public String getNotifications(ModelMap modelMap) {
-        List<NotificationRequestDto> allNotificationsByUserId = notificationService.getAllNotificationsByUserId(getCurrentUser().getId());
-        modelMap.addAttribute("notifications", allNotificationsByUserId);
-        return "notification/notification";
+    @GetMapping
+    public List<NotificationRequestDto> getNotifications() {
+        return notificationService.getAllNotificationsByUserId(getUser().getId());
     }
 
-    @GetMapping("/notifications/{id}")
-    public String getOwnNotifications(@PathVariable int id, ModelMap modelMap) {
-        NotificationRequestDto byId = notificationService.findById(id, getCurrentUser().getId());
-        modelMap.addAttribute("notification", byId);
-        return "notification/ownNotification";
+    @GetMapping("/{id}")
+    public NotificationRequestDto getNotificationById(@PathVariable int id) {
+        return notificationService.findById(id, getUser().getId());
     }
 
-    @GetMapping("/notifications/{id}/delete")
-    public String removeNotification(@PathVariable int id) {
-        notificationService.deleteById(id,getCurrentUser().getId());
-        return "redirect:/notifications";
+    @DeleteMapping("/{id}")
+    public void deleteNotification(@PathVariable int id) {
+        notificationService.deleteById(id, getUser().getId());
     }
 
-    private User getCurrentUser() {
+    private User getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {

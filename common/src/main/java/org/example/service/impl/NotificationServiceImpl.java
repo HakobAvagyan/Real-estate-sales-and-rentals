@@ -59,18 +59,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void notifyUserUnblocked(User user) {
+    public void notifyUserBlocked(User user) {
         NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUser(user);
+        notificationResponseDto.setUserId(user.getId());
         notificationResponseDto.setTitle("Your profile blocked!");
         notificationResponseDto.setMessage(NotificationType.PROFILE_BLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
         notificationRepository.save(notificationResponseMapper.toNotification(notificationResponseDto));
     }
 
     @Override
-    public void notifyUserBlocked(User user) {
+    public void notifyUserUnblocked(User user) {
         NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUser(user);
+        notificationResponseDto.setUserId(user.getId());
         notificationResponseDto.setTitle("Your profile unblocked!");
         notificationResponseDto.setMessage(NotificationType.PROFILE_UNBLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
         notificationRepository.save(notificationResponseMapper.toNotification(notificationResponseDto));
