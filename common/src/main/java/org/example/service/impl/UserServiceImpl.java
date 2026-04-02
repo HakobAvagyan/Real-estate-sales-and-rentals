@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setUserId(savedUser.getId());
         notificationResponseDto.setTitle("You changed your password successfully!");
         notificationResponseDto.setMessage(NotificationType.PROFILE_PASSWORD_CHANGED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationResponseDto);
@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setUserId(savedUser.getId());
         notificationResponseDto.setTitle("You reset your password successfully!");
         notificationResponseDto.setMessage(NotificationType.PROFILE_PASSWORD_RESET_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationResponseDto);
@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setUserId(savedUser.getId());
         notificationResponseDto.setTitle("You registered successfully!");
         notificationResponseDto.setMessage(NotificationType.USER_REGISTERED_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationResponseDto);
@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(existingUser);
 
         NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUser(savedUser);
+        notificationResponseDto.setUserId(savedUser.getId());
         notificationResponseDto.setTitle("You update your profile successfully!");
         notificationResponseDto.setMessage(NotificationType.PROFILE_UPDATE_NOTIFICATION.format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationResponseDto);

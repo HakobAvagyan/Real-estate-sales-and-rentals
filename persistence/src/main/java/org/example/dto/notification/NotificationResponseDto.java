@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationResponseDto {
 
-    private User user;
+    private int userId;
     private String message;
     private String title;
 }
