@@ -1,5 +1,6 @@
 package org.example.app.controller.user;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.user.UserRegisterDto;
@@ -38,7 +39,8 @@ public class UserController {
 
     @GetMapping("/manager/home")
     public String managerHomePage(ModelMap modelMap) {
-        List<UserRequestDto> userList = userService.findAllByRoleIn(List.of(Role.USER, Role.CUSTOMER));
+        List<UserRequestDto> userList = userService.
+                findAllByRoleIn(List.of(Role.USER, Role.CUSTOMER));
         modelMap.addAttribute("users", userList);
         return "manager/managerHome";
     }
@@ -51,7 +53,6 @@ public class UserController {
     @GetMapping("/delete")
     public String deleteUser(@RequestParam("id") int id) {
         userService.deleteById(id);
-
         return "redirect:/logout";
     }
 
@@ -63,12 +64,11 @@ public class UserController {
 
     @GetMapping("/update")
     public String editUser(@RequestParam("id") int id, ModelMap modelMap) {
-
-        userService.findById(id).ifPresent(
-                user -> {
-                    modelMap.addAttribute("user", user);
-                }
-        );
+        UserRequestDto user = userService.findById(id);
+        if (user == null) {
+            return "redirect:/home?msg=" +ErrorCode.USER_NOT_FOUND.format(id);
+        }
+        modelMap.addAttribute("user", user);
         return "update";
     }
 
@@ -81,34 +81,43 @@ public class UserController {
     }
 
     @GetMapping("/loginPage")
-    public String loginPage(@RequestParam(required = false) String msg, ModelMap modelMap) {
+    public String loginPage(@RequestParam(required = false) String msg,
+                            ModelMap modelMap) {
         modelMap.addAttribute("msg", msg);
         return "loginPage";
     }
 
     @GetMapping("/register")
-    public String registerPage(@RequestParam(required = false) String msg, ModelMap modelMap) {
+    public String registerPage(@RequestParam(required = false) String msg,
+                               ModelMap modelMap) {
         modelMap.addAttribute("msg", msg);
         return "registerPage";
     }
 
+
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute UserRegisterDto registeredUser,
                            @RequestParam(value = "pic") MultipartFile multipartFile,
-                           BindingResult errors) {
+                           BindingResult errors,
+                           HttpSession session) {
+
+        String email = registeredUser.getEmail();
         if (errors.hasErrors()) {
-            return "redirect:/register?msg=" + ErrorCode.TRY_AGAIN.format(registeredUser.getEmail());
+            return "redirect:/register?msg=" + ErrorCode.TRY_AGAIN.format(email);
         }
-        if (userService.findByEmail(registeredUser.getEmail()).isPresent()) {
-            return "redirect:/register?msg=" + ErrorCode.USER_ALREADY_REGISTERED.format(registeredUser.getEmail());
+        if (userService.findByEmail(email) != null) {
+            return "redirect:/register?msg=" +
+                    ErrorCode.USER_ALREADY_REGISTERED.format(email);
         }
         registeredUser.setBlocked(true);
         userService.save(registeredUser, multipartFile);
-        return "redirect:/verify?email=" + registeredUser.getEmail();
+        session.setAttribute("verifyEmail", email);
+        return "redirect:/verify";
     }
 
     @GetMapping("/admin/add/manager")
-    public String addManagerPage(@RequestParam(required = false) String msg, ModelMap modelMap) {
+    public String addManagerPage(@RequestParam(required = false) String msg,
+                                 ModelMap modelMap) {
         modelMap.addAttribute("msg", msg);
         return "admin/addManager";
     }
@@ -116,31 +125,40 @@ public class UserController {
     @PostMapping("/admin/add/manager")
     public String addManager(@Valid @ModelAttribute UserRegisterDto manager,
                              @RequestParam(value = "pic") MultipartFile multipartFile) {
-        if (userService.findByEmail(manager.getEmail()).isPresent()) {
-            return "redirect:/admin/add/manager?msg="  + ErrorCode.USER_ALREADY_REGISTERED.format(manager.getEmail());
+        if (userService.findByEmail(manager.getEmail()) != null) {
+            return "redirect:/admin/add/manager?msg="  +
+                    ErrorCode.USER_ALREADY_REGISTERED.format(manager.getEmail());
         }
-        manager.setRole(Role.MANAGER);
-        manager.setBlocked(true);
-        userService.save(manager, multipartFile);
+        userService.createManager(manager, multipartFile);
         return "redirect:/verify?email=" + manager.getEmail();
     }
 
+
     @GetMapping("/verify")
-    public String verifyUserPage(@RequestParam("email") String email, ModelMap modelMap) {
+    public String verifyUserPage(HttpSession session, ModelMap modelMap) {
+        String email = (String) session.getAttribute("verifyEmail");
+        if (email == null) {
+            return "redirect:/register";
+        }
         modelMap.addAttribute("email", email);
         return "verifyUser";
     }
 
     @PostMapping("/verify")
-    public String verifyUser(@RequestParam("email") String email, @RequestParam("verifyCode") String verifyCode) {
+    public String verifyUser(HttpSession session,
+                             @RequestParam("verifyCode") String verifyCode) {
+        String email = (String) session.getAttribute("verifyEmail");
+        if (email == null) {
+            return "redirect:/register";
+        }
         boolean isVerified = userService.verifyUser(email, verifyCode);
         if (isVerified) {
-            userService.findByEmail(email).ifPresent(user -> {;
-                userService.save(user);
-            });
-            return "redirect:/loginPage?msg=User verified successfully, pls Login!";
+            session.removeAttribute("verifyEmail"); // 🔥 clean
+            return "redirect:/loginPage?msg=" + ErrorCode.VERIFICATION_SUCCESSFUL.format(email);
         }
-        return "redirect:/loginPage?msg=Verification code is invalid!";
+
+        return "redirect:/verify?msg=" + ErrorCode.VERIFICATION_FAILED.format(email);
     }
+
 
 }

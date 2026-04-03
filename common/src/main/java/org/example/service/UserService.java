@@ -9,19 +9,20 @@ import org.example.model.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserRegisterDto> findByEmail(String username);
+    UserRegisterDto findByEmail(String username);
 
-    Optional<ChangePasswordRequest> changePassword(String email, String oldPassword, String newPassword);
+    ChangePasswordRequest changePassword(String email, String oldPassword, String newPassword);
 
-    Optional<ChangePasswordRequest> changePasswordByEmail(String email);
+    ChangePasswordRequest changePasswordByEmail(String email);
 
-    Optional<ResetPasswordRequest> resetPassword(String email, String code, String newPassword, String newConfirmPassword);
+    ResetPasswordRequest resetPassword(String email, String code, String newPassword, String newConfirmPassword);
 
     UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
+
+    UserRegisterDto createManager(UserRegisterDto userRegisterDto, MultipartFile file);
 
     List<UserRequestDto> findAll();
 
@@ -31,7 +32,7 @@ public interface UserService {
 
     void toggleUserBlockStatus(int id);
 
-    Optional<UserRegisterDto> findById(int id);
+    UserRequestDto findById(int id);
 
     UserRegisterDto update(UserRegisterDto userRegisterDto, MultipartFile file);
 
@@ -39,4 +40,7 @@ public interface UserService {
 
     boolean verifyUser(String email, String verifyCode);
 
+    boolean chekUserById(int id);
+
+    void removeUserPicture(UserRequestDto userRequestDto);
 }

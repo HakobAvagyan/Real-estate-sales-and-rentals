@@ -1,10 +1,8 @@
 package org.example.app.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
-import org.example.service.UserService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 @Controller
-@RequiredArgsConstructor
 public class MainController {
 
     @Value("${system.upload.images.directory.path}")

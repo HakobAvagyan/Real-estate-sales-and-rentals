@@ -11,7 +11,11 @@ import org.example.model.Notification;
 import org.example.model.User;
 import org.example.model.enums.NotificationType;
 import org.example.repository.NotificationRepository;
+import org.example.repository.UserRepository;
 import org.example.service.NotificationService;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,36 +27,35 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationResponseMapper notificationResponseMapper;
     private final NotificationRequestMapper notificationRequestMapper;
+    private final UserRepository userRepository;
 
 
     @Override
-    public NotificationRequestDto findById(Integer id, Integer userId) {
+    public NotificationRequestDto findById(Integer id) {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND,id));
-
-        if(notification.getUser().getId() != userId){
+        if(notification.getUser().getId() != getCurrentUserId()){
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
-
         return notificationRequestMapper.toDto(notification);
     }
 
 
     @Override
-    public void save(NotificationResponseDto notification) {
-        notificationRepository.save(notificationResponseMapper.toNotification(notification));
+    public void save(NotificationRequestDto notification) {
+        notificationRepository.save(notificationRequestMapper.toNotification(notification));
     }
 
     @Override
-    public List<NotificationRequestDto> getAllNotificationsByUserId(Integer userId) {
-        return notificationRepository.findAllByUserId(userId).stream()
-                .map(notificationRequestMapper::toDto)
+    public List<NotificationResponseDto> getAllNotificationsByUserId() {
+        return notificationRepository.findAllByUserId(getCurrentUserId()).stream()
+                .map(notificationResponseMapper::toDto)
                 .toList();
     }
 
     @Override
-    public void deleteById(Integer id, Integer userId) {
-        if(notificationRepository.findById(id).get().getUser().getId() != userId){
+    public void deleteById(Integer id) {
+        if(notificationRepository.findById(id).get().getUser().getId() != getCurrentUserId()){
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
         notificationRepository.deleteById(id);
@@ -60,20 +63,35 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notifyUserBlocked(User user) {
-        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUserId(user.getId());
-        notificationResponseDto.setTitle("Your profile blocked!");
-        notificationResponseDto.setMessage(NotificationType.PROFILE_BLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
-        notificationRepository.save(notificationResponseMapper.toNotification(notificationResponseDto));
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
+        notificationRequestDto.setUserId(user.getId());
+        notificationRequestDto.setTitle("Your profile blocked!");
+        notificationRequestDto.setMessage(NotificationType.PROFILE_BLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
+        notificationRepository.save(notificationRequestMapper.toNotification(notificationRequestDto));
     }
 
     @Override
     public void notifyUserUnblocked(User user) {
-        NotificationResponseDto notificationResponseDto = new NotificationResponseDto();
-        notificationResponseDto.setUserId(user.getId());
-        notificationResponseDto.setTitle("Your profile unblocked!");
-        notificationResponseDto.setMessage(NotificationType.PROFILE_UNBLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
-        notificationRepository.save(notificationResponseMapper.toNotification(notificationResponseDto));
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
+        notificationRequestDto.setUserId(user.getId());
+        notificationRequestDto.setTitle("Your profile unblocked!");
+        notificationRequestDto.setMessage(NotificationType.PROFILE_UNBLOCKED_NOTIFICATION.format(user.getName(),user.getSurname()));
+        notificationRepository.save(notificationRequestMapper.toNotification(notificationRequestDto));
     }
 
+
+    private Integer getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+
+        String email = auth.getName();
+        User byEmail = userRepository.findByEmail(email).orElse(null);
+        if (byEmail == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email);
+        }
+        return byEmail.getId();
+    }
 }

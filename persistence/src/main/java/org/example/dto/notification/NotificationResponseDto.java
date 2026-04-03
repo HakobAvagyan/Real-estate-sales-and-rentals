@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.User;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationResponseDto {
 
+    private int id;
     private int userId;
     private String message;
     private String title;
+    private LocalDateTime createdAt;
 }
