@@ -1,16 +1,18 @@
 package org.example.controller.user;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.user.UserRegisterDto;
-import org.example.dto.user.UserRequestDto;
+import org.example.dto.user.UserResponseDto;
+import org.example.dto.user.UserUpdateDto;
 import org.example.service.UserService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserRequestDto> findAll() {
+    public List<UserResponseDto> findAll() {
         return userService.findAll();
     }
 
@@ -30,9 +32,10 @@ public class UserRestController {
         userService.deleteById(id);
     }
 
-    @PostMapping("/update")
-    public UserRegisterDto update(@RequestBody UserRegisterDto userRegisterDto) {
-        return userService.update(userRegisterDto, null);
+    @PostMapping(value = "/update" , consumes = "multipart/form-data")
+    public UserUpdateDto update(@ModelAttribute UserUpdateDto userUpdateDto,
+                                @RequestParam(value = "pic", required = false) MultipartFile multipartFile) {
+        return userService.update(userUpdateDto, multipartFile);
     }
 
 

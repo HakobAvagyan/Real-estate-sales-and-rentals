@@ -7,13 +7,15 @@ import org.example.dto.notification.NotificationRequestDto;
 import org.example.dto.user.ChangePasswordRequest;
 import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
-import org.example.dto.user.UserRequestDto;
+import org.example.dto.user.UserResponseDto;
+import org.example.dto.user.UserUpdateDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.mapper.user.ChangePasswordRequestMapper;
 import org.example.mapper.user.UserRegisterMapper;
-import org.example.mapper.user.UserRequestMapper;
 import org.example.mapper.user.UserResetPasswordMapper;
+import org.example.mapper.user.UserResponseMapper;
+import org.example.mapper.user.UserUpdateMapper;
 import org.example.model.User;
 import org.example.model.enums.NotificationType;
 import org.example.model.enums.Role;
@@ -46,10 +48,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRegisterMapper userRegisterMapper;
-    private final UserRequestMapper userRequestMapper;
+    private final UserResponseMapper userResponseMapper;
     private final UserResetPasswordMapper userResetPasswordMapper;
     private final ChangePasswordRequestMapper changePasswordRequestMapper;
     private final NotificationService notificationService;
+    private final UserUpdateMapper userUpdateMapper;
     private final Random random = new Random();
 
     @Override
@@ -134,7 +137,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserRegisterDto save(UserRegisterDto userRegisterDto,
                                 MultipartFile multipartFile) {
-        userAndMultipartFile(userRegisterDto, multipartFile);
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            String fileName = System.currentTimeMillis() + "_" +
+                    multipartFile.getOriginalFilename();
+            File file = new File(imageDirectoryPath + fileName);
+            try {
+                multipartFile.transferTo(file);
+                userRegisterDto.setPicName(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (userRegisterDto.getId() != 0) {
             userRepository.findById(userRegisterDto.getId()).ifPresent(
                     productOptional ->
@@ -169,22 +182,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRequestDto> findAll() {
-        return userRequestMapper.toUserRequestDtoList(userRepository.findAll().stream().filter(user -> user.getRole() != Role.ADMIN).toList());
-    }
-
-
-    @Override
-    public UserRegisterDto save(UserRegisterDto userRegisterDto) {
-        User user = userRegisterMapper.toUser(userRegisterDto);
-        User savedUser = userRepository.save(user);
-        return userRegisterMapper.toUserRegisterDto(savedUser);
+    public List<UserResponseDto> findAll() {
+        return userResponseMapper.toUserResponseDtoList(userRepository.findAll().stream().filter(user -> user.getRole() != Role.ADMIN).toList());
     }
 
     @Override
     public void deleteById(int id) {
         userRepository.findById(id).ifPresent(user -> {
-            if (!chekUserById(id)) {
+            if (!existsById(id)) {
                 throw new BusinessException(ErrorCode.CANNOT_DELETE_OWN_ACCOUNT);
             }
             userRepository.deleteById(user.getId());
@@ -210,28 +215,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRequestDto findById(int id) {
-        return userRequestMapper.toUserRequestDto(userRepository.findById(id)
+    public UserResponseDto findById(int id) {
+        return userResponseMapper.toUserResponseDto(userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id)));
     }
 
     @Override
-    public UserRegisterDto update(UserRegisterDto userRegisterDto,
-                                  MultipartFile multipartFile) {
-        User user = userRepository.findById(userRegisterDto.getId())
+    public UserUpdateDto update( UserUpdateDto userUpdateDto,
+                                MultipartFile multipartFile) {
+        User user = userRepository.findById(userUpdateDto.getId())
                 .orElseThrow(() -> new BusinessException(
-                        ErrorCode.USER_NOT_FOUND, userRegisterDto.getId()));
-        if (!chekUserById(user.getId())) {
+                        ErrorCode.USER_NOT_FOUND, userUpdateDto.getId()));
+        if (!existsById(user.getId())) {
             throw new BusinessException(ErrorCode.CANNOT_UPDATE_OWN_ACCOUNT);
         }
-        UserRegisterDto userDto = userRegisterMapper.toUserRegisterDto(user);
-        userDto.setName(userRegisterDto.getName());
-        userDto.setSurname(userRegisterDto.getSurname());
-        userDto.setEmail(userRegisterDto.getEmail());
-        userDto.setPhone(userRegisterDto.getPhone());
-        userDto.setPassportDetails(userRegisterDto.getPassportDetails());
-        userAndMultipartFile(userDto, multipartFile);
-        User savedUser = userRepository.save(userRegisterMapper.toUser(userDto));
+        UserUpdateDto userDto = userUpdateMapper.toUserUpdateDto(user);
+        userDto.setName(userUpdateDto.getName());
+        userDto.setSurname(userUpdateDto.getSurname());
+        userDto.setEmail(userUpdateDto.getEmail());
+        userDto.setPhone(userUpdateDto.getPhone());
+        userDto.setPassportDetails(userUpdateDto.getPassportDetails());
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            String fileName = System.currentTimeMillis() + "_" +
+                    multipartFile.getOriginalFilename();
+            File file = new File(imageDirectoryPath + fileName);
+            try {
+                multipartFile.transferTo(file);
+                userDto.setPicName(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        User savedUser = userRepository.save(userUpdateMapper.toUser(userDto));
 
         NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
         notificationRequestDto.setUserId(savedUser.getId());
@@ -241,12 +256,12 @@ public class UserServiceImpl implements UserService {
                 format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationRequestDto);
 
-        return userRegisterMapper.toUserRegisterDto(savedUser);
+        return userUpdateMapper.toUserUpdateDto(savedUser);
     }
 
     @Override
-    public List<UserRequestDto> findAllByRoleIn(List<Role> roles) {
-        return userRequestMapper.toUserRequestDtoList(userRepository.findAllByRoleIn(roles));
+    public List<UserResponseDto> findAllByRoleIn(List<Role> roles) {
+        return userResponseMapper.toUserResponseDtoList(userRepository.findAllByRoleIn(roles));
     }
 
     @Override
@@ -263,7 +278,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean chekUserById(int id) {
+    public boolean existsById(int id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
@@ -281,10 +296,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void removeUserPicture(UserRequestDto userRequestDto) {
-        User user = userRepository.findById(userRequestDto.getId())
+    public void removeUserPicture(int userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(
-                        ErrorCode.USER_NOT_FOUND, userRequestDto.getId()));
+                        ErrorCode.USER_NOT_FOUND, userId));
         if (user.getPicName() != null) {
             File file = new File(imageDirectoryPath + user.getPicName());
             if (file.exists()) {
@@ -300,18 +315,4 @@ public class UserServiceImpl implements UserService {
         return String.valueOf(code);
     }
 
-    private void userAndMultipartFile(UserRegisterDto userRegisterDto,
-                                      MultipartFile multipartFile) {
-        if (multipartFile != null && !multipartFile.isEmpty()) {
-            String fileName = System.currentTimeMillis() + "_" +
-                    multipartFile.getOriginalFilename();
-            File file = new File(imageDirectoryPath + fileName);
-            try {
-                multipartFile.transferTo(file);
-                userRegisterDto.setPicName(fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

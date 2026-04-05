@@ -88,10 +88,8 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         String email = auth.getName();
-        User byEmail = userRepository.findByEmail(email).orElse(null);
-        if (byEmail == null) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email);
-        }
+        User byEmail = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL,email));
         return byEmail.getId();
     }
 }

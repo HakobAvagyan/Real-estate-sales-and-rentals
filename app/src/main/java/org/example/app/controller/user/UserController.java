@@ -4,7 +4,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.user.UserRegisterDto;
-import org.example.dto.user.UserRequestDto;
+import org.example.dto.user.UserResponseDto;
+import org.example.dto.user.UserUpdateDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
 import org.example.service.UserService;
@@ -27,7 +28,7 @@ public class UserController {
 
     @GetMapping("/admin/home")
     public String adminHomePage(ModelMap modelMap) {
-        List<UserRequestDto> userList = userService.findAll();
+        List<UserResponseDto> userList = userService.findAll();
         modelMap.addAttribute("users", userList);
         return "admin/adminHome";
     }
@@ -39,7 +40,7 @@ public class UserController {
 
     @GetMapping("/manager/home")
     public String managerHomePage(ModelMap modelMap) {
-        List<UserRequestDto> userList = userService.
+        List<UserResponseDto> userList = userService.
                 findAllByRoleIn(List.of(Role.USER, Role.CUSTOMER));
         modelMap.addAttribute("users", userList);
         return "manager/managerHome";
@@ -64,7 +65,7 @@ public class UserController {
 
     @GetMapping("/update")
     public String editUser(@RequestParam("id") int id, ModelMap modelMap) {
-        UserRequestDto user = userService.findById(id);
+        UserResponseDto user = userService.findById(id);
         if (user == null) {
             return "redirect:/home?msg=" +ErrorCode.USER_NOT_FOUND.format(id);
         }
@@ -73,7 +74,7 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public String editUser(@ModelAttribute UserRegisterDto user,
+    public String editUser(@ModelAttribute UserUpdateDto user,
                            @RequestParam(value = "pic") MultipartFile multipartFile) {
         userService.update(user,multipartFile);
         return "redirect:/personalPage?id=" + user.getId();
@@ -153,7 +154,7 @@ public class UserController {
         }
         boolean isVerified = userService.verifyUser(email, verifyCode);
         if (isVerified) {
-            session.removeAttribute("verifyEmail"); // 🔥 clean
+            session.removeAttribute("verifyEmail");
             return "redirect:/loginPage?msg=" + ErrorCode.VERIFICATION_SUCCESSFUL.format(email);
         }
 

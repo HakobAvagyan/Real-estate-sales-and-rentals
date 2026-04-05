@@ -15,10 +15,10 @@ public class RemoveUserPictureController {
 
     @GetMapping("/remove/user/picture")
     public String removeUserPicture(@RequestParam("id") int id) {
-        if(userService.chekUserById(id)){
+        if(!userService.existsById(id)){
             return "redirect:/home?msg=" + ErrorCode.USER_NOT_FOUND.format(id);
         }
-        userService.removeUserPicture(userService.findById(id));
+        userService.removeUserPicture(id);
         return "redirect:/update?id=" + id;
     }
 }
