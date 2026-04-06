@@ -24,6 +24,7 @@
     </section>
     <a th:href="@{/personalPage(id=${currentUser.id})}">MY personal page</a>
     <a th:href="@{/notifications}">My Notifications</a>
+    <a th:href="@{/messages}">Messages</a>
 
     <section class="panel wide">
         <div class="page-header">
@@ -69,6 +70,8 @@
                     <td><span class="badge" th:text="${user.role}"></span></td>
                     <td th:text="${user.createdAt}"></td>
                     <td>
+                        <a class="link-inline" th:if="${currentUser != null && user.id != currentUser.id}"
+                           th:href="@{/messages/open/direct(otherUserId=${user.id})}">Message</a>
                         <a class="link-inline danger" th:if="${user.isBlocked() == false}" th:href="@{/blocked(id=${user.id})}">Block</a>
                         <a class="link-inline danger" th:if="${user.isBlocked() == true}" th:href="@{/blocked(id=${user.id})}">Unblock</a>
                     </td>
@@ -78,6 +81,7 @@
         </div>
     </section>
 
+    <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </main>
 </body>
 </html>

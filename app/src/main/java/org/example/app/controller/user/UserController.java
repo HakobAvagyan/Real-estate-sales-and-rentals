@@ -9,6 +9,8 @@ import org.example.dto.user.UserUpdateDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
 import org.example.service.UserService;
+import org.example.service.security.SpringUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -64,21 +66,34 @@ public class UserController {
     }
 
     @GetMapping("/update")
-    public String editUser(@RequestParam("id") int id, ModelMap modelMap) {
-        UserResponseDto user = userService.findById(id);
-        if (user == null) {
-            return "redirect:/home?msg=" +ErrorCode.USER_NOT_FOUND.format(id);
+    public String editUser(
+            @RequestParam("id") int id,
+            ModelMap modelMap,
+            @AuthenticationPrincipal SpringUser principal) {
+        if (principal == null) {
+            return "redirect:/home";
         }
+        if (principal.getUser().getId() != id && principal.getUser().getRole() != Role.ADMIN) {
+            return "redirect:/personalPage?id=" + id;
+        }
+        UserResponseDto user = userService.findById(id);
         modelMap.addAttribute("user", user);
         return "update";
     }
 
     @PostMapping("/update")
-    public String editUser(@ModelAttribute UserUpdateDto user,
-                           @RequestParam(value = "pic") MultipartFile multipartFile) {
-        userService.update(user,multipartFile);
+    public String editUser(
+            @ModelAttribute UserUpdateDto user,
+            @RequestParam(value = "pic") MultipartFile multipartFile,
+            @AuthenticationPrincipal SpringUser principal) {
+        if (principal == null) {
+            return "redirect:/home";
+        }
+        if (principal.getUser().getId() != user.getId() && principal.getUser().getRole() != Role.ADMIN) {
+            return "redirect:/personalPage?id=" + user.getId();
+        }
+        userService.update(user, multipartFile);
         return "redirect:/personalPage?id=" + user.getId();
-
     }
 
     @GetMapping("/loginPage")
