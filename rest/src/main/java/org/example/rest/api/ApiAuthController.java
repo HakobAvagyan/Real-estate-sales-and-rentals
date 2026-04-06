@@ -49,7 +49,7 @@ public class ApiAuthController {
         if (body.getPassword() == null || body.getPassword().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Password is required"));
         }
-        if (userService.findByEmail(body.getEmail().trim()).isPresent()) {
+        if (userService.findByEmail(body.getEmail().trim()) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", ErrorCode.USER_ALREADY_REGISTERED.format(body.getEmail())));
         }

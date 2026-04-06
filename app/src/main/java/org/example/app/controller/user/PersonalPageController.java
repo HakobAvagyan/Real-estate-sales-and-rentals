@@ -1,6 +1,9 @@
 package org.example.app.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.user.UserResponseDto;
+import org.example.exception.BusinessException;
+import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
 import org.example.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -16,11 +19,11 @@ public class PersonalPageController {
 
     @GetMapping("/personalPage")
     public String personalPage(@RequestParam("id") int id, ModelMap modelMap) {
-        userService.findById(id).ifPresent(
-                user -> {
-                    modelMap.addAttribute("user", user);
-                }
-        );
+        UserResponseDto user = userService.findById(id);
+        if (user == null || !userService.existsById(id)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND,id);
+        }
+        modelMap.addAttribute("user", user);
         modelMap.addAttribute("role", Role.ADMIN);
         return "personal";
     }

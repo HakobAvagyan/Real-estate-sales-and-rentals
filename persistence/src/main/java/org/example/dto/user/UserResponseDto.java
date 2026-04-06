@@ -7,7 +7,7 @@ import org.example.model.enums.Role;
 import java.time.LocalDate;
 
 @Data
-public class UserRequestDto {
+public class UserResponseDto {
 
     private int id;
     private String name;

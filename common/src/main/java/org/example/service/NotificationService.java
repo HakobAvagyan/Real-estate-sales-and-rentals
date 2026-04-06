@@ -8,15 +8,16 @@ import java.util.List;
 
 public interface NotificationService {
 
-    NotificationRequestDto findById(Integer id, Integer userId);
+    NotificationRequestDto findById(Integer id);
 
-    void save(NotificationResponseDto createNotificationResponseDto);
+    void save(NotificationRequestDto NotificationRequestDto);
 
-    List<NotificationRequestDto> getAllNotificationsByUserId(Integer userId);
+    List<NotificationResponseDto> getAllNotificationsByUserId();
 
-    void deleteById(Integer id,Integer userId);
+    void deleteById(Integer id);
 
     void notifyUserUnblocked(User user);
 
     void notifyUserBlocked(User user);
+
 }
