@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Controller
@@ -58,28 +60,59 @@ public class ChangePasswordController {
         return "redirect:/loginPage?msg=" + ErrorCode.PASSWORD_CHANGED_SUCCESSFULLY.format(email);
     }
 
+    /**
+     * Logged-in user only: always sends the code to the current account email.
+     * Query param {@code email} is ignored if it does not match the authenticated user (prevents abusing others' inboxes).
+     */
     @GetMapping("/verify/password")
-    public String verifyUserPage(@RequestParam("email") String email, ModelMap modelMap) {
+    public String verifyUserPage(
+            @RequestParam(value = "email", required = false) String emailParam,
+            ModelMap modelMap,
+            @AuthenticationPrincipal SpringUser principal) {
+        if (principal == null) {
+            return "redirect:/loginPage?msg=" + URLEncoder.encode(
+                    ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
+        }
+        String email = principal.getUsername();
+        if (emailParam != null && !emailParam.isBlank() && !emailParam.trim().equalsIgnoreCase(email)) {
+            return "redirect:/verify/password";
+        }
         userService.changePasswordByEmail(email);
         modelMap.addAttribute("email", email);
         return "changePassword/changePasswordByVerificationCode";
     }
 
     @PostMapping("/verify/password")
-    public String verifyUserPage(@RequestParam("email") String email,
-                                 @RequestParam("verifyCode") String code,
-                                 HttpSession session) {
+    public String verifyUserPage(
+            @RequestParam("email") String email,
+            @RequestParam("verifyCode") String code,
+            HttpSession session,
+            @AuthenticationPrincipal SpringUser principal) {
+        if (principal == null) {
+            return "redirect:/loginPage?msg=" + URLEncoder.encode(
+                    ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
+        }
+        if (!email.trim().equalsIgnoreCase(principal.getUsername())) {
+            return "redirect:/loginPage?msg=" + URLEncoder.encode(
+                    ErrorCode.TRY_AGAIN.format(), StandardCharsets.UTF_8);
+        }
         boolean isVerified = userService.verifyUser(email, code);
         if (isVerified) {
             session.setAttribute("passwordResetVerifiedAt", LocalDateTime.now());
-            return "redirect:/change/password?email=" + email;
+            return "redirect:/change/password";
         }
         return "redirect:/loginPage?msg=" + ErrorCode.VERIFICATION_FAILED.format(email);
     }
 
     @GetMapping("/change/password")
-    public String changePasswordPage(HttpSession session,
-                                     RedirectAttributes ra) {
+    public String changePasswordPage(
+            HttpSession session,
+            RedirectAttributes ra,
+            @AuthenticationPrincipal SpringUser principal) {
+        if (principal == null) {
+            return "redirect:/loginPage?msg=" + URLEncoder.encode(
+                    ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
+        }
         if (!isRecentlyVerified(session)) {
             ra.addFlashAttribute("msg", "Please verify your email first");
             return "redirect:/verify/password";
@@ -93,13 +126,16 @@ public class ChangePasswordController {
                                  @AuthenticationPrincipal SpringUser springUser,
                                  HttpSession session,
                                  RedirectAttributes ra) {
+        if (springUser == null) {
+            return "redirect:/loginPage?msg=" + URLEncoder.encode(
+                    ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
+        }
         String email = springUser.getUsername();
         if (!isRecentlyVerified(session)) {
             ra.addFlashAttribute("msg", ErrorCode.VERIFICATION_FAILED.format(email));
             return "redirect:/verify/password";
         }
-        if (error.hasErrors() ||
-                !request.getNewPassword().equals(request.getConfirmPassword())) {
+        if (error.hasErrors()) {
             ra.addFlashAttribute("msg",
                     ErrorCode.PASSWORD_CHANGE_FAILED.format(email));
             return "redirect:/change/password";
@@ -107,7 +143,8 @@ public class ChangePasswordController {
         try {
             userService.changePassword(email,
                     request.getOldPassword(),
-                    request.getNewPassword());
+                    request.getNewPassword(),
+                    request.getConfirmPassword());
         } catch (BusinessException ex) {
             ra.addFlashAttribute("msg", ex.getMessage());
             return "redirect:/change/password";

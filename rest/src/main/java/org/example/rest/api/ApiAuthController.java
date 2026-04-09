@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.user.UserRegisterDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
-import org.example.rest.security.JwtService;
+import org.example.security.jwt.JwtService;
 import org.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

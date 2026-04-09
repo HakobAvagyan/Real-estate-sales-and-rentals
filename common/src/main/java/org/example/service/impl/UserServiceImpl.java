@@ -65,7 +65,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ChangePasswordRequest changePassword(String email,
                                                 String oldPassword,
-                                                String newPassword) {
+                                                String newPassword,
+                                                String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
+        }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
@@ -226,9 +230,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userUpdateDto.getId())
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.USER_NOT_FOUND, userUpdateDto.getId()));
-        if (!existsById(user.getId())) {
-            throw new BusinessException(ErrorCode.CANNOT_UPDATE_OWN_ACCOUNT);
-        }
+        assertMayEditUserProfile(user.getId());
         UserUpdateDto userDto = userUpdateMapper.toUserUpdateDto(user);
         userDto.setName(userUpdateDto.getName());
         userDto.setSurname(userUpdateDto.getSurname());
@@ -295,11 +297,31 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    /**
+     * Own profile always; ADMIN may edit any user (MVC /update form).
+     */
+    private void assertMayEditUserProfile(int targetUserId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+        User current = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, auth.getName()));
+        if (current.getId() == targetUserId) {
+            return;
+        }
+        if (current.getRole() == Role.ADMIN) {
+            return;
+        }
+        throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);
+    }
+
     @Override
     public void removeUserPicture(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.USER_NOT_FOUND, userId));
+        assertMayEditUserProfile(userId);
         if (user.getPicName() != null) {
             File file = new File(imageDirectoryPath + user.getPicName());
             if (file.exists()) {
@@ -308,6 +330,13 @@ public class UserServiceImpl implements UserService {
             user.setPicName(null);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public int getIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
     }
 
     private String generateVerificationCode() {

@@ -2,6 +2,8 @@ package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.model.Comment;
+import org.example.model.Property;
+import org.example.model.User;
 import org.example.repository.CommentRepository;
 import org.example.service.CommentService;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,16 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Comment save(Comment comment) {
-        return commentRepository.save(comment);
+    public void addComment(String text, int userId, int propertyId) {
+        User user = new User();
+        user.setId(userId);
+        Property property = new Property();
+        property.setId(propertyId);
+        Comment comment = new Comment();
+        comment.setComment(text);
+        comment.setUser(user);
+        comment.setProperty(property);
+        commentRepository.save(comment);
     }
 
     @Override

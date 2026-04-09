@@ -1,0 +1,36 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="7" author="Cursor">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="ad"/>
+            <tableExists tableName="ad_plans"/>
+        </preConditions>
+
+        <dropForeignKeyConstraint baseTableName="ad" constraintName="ad_ad_plans_FK"/>
+        <dropTable tableName="ad"/>
+        <dropTable tableName="ad_plans"/>
+
+        <rollback>
+            <createTable tableName="ad_plans">
+                <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
+                <column name="name" type="varchar(255)"><constraints nullable="false"/></column>
+                <column name="price" type="decimal(10,0)"><constraints nullable="false"/></column>
+                <column name="duration_days" type="int"><constraints nullable="false"/></column>
+                <column name="created_at" type="date"><constraints nullable="false"/></column>
+                <column name="payment_id" type="int"><constraints nullable="false" foreignKeyName="ad_plans_payment_FK" referencedTableName="payment" referencedColumnNames="id"/></column>
+            </createTable>
+
+            <createTable tableName="ad">
+                <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
+                <column name="images_url" type="varchar(255)"/>
+                <column name="video_url" type="varchar(255)"/>
+                <column name="is_payed" type="tinyint(1)" defaultValueNumeric="0"><constraints nullable="false"/></column>
+                <column name="is_blocked" type="tinyint(1)" defaultValueNumeric="0"><constraints nullable="false"/></column>
+                <column name="user_id" type="int"><constraints nullable="false" foreignKeyName="ad_user_FK" referencedTableName="user" referencedColumnNames="id"/></column>
+                <column name="ad_plans_id" type="int"><constraints nullable="false" foreignKeyName="ad_ad_plans_FK" referencedTableName="ad_plans" referencedColumnNames="id"/></column>
+            </createTable>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

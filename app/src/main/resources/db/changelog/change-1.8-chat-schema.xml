@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1.8.1-conversation-drop-fks" author="system">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="conversation"/>
+        </preConditions>
+        <sql>ALTER TABLE conversation DROP FOREIGN KEY conv_u1_FK;</sql>
+    </changeSet>
+
+    <changeSet id="1.8.2-conversation-drop-fk-user2" author="system">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="conversation"/>
+        </preConditions>
+        <sql>ALTER TABLE conversation DROP FOREIGN KEY conv_u2_FK;</sql>
+    </changeSet>
+
+    <changeSet id="1.8.3-conversation-drop-unique-indexes" author="system">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="conversation"/>
+        </preConditions>
+        <sql stripComments="true" splitStatements="true">
+            ALTER TABLE conversation DROP INDEX user1_id;
+            ALTER TABLE conversation DROP INDEX user2_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="1.8.4-conversation-recreate-indexes-and-fks" author="system">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="conversation"/>
+        </preConditions>
+        <sql stripComments="true" splitStatements="true">
+            CREATE INDEX idx_conversation_user1 ON conversation (user1_id);
+            CREATE INDEX idx_conversation_user2 ON conversation (user2_id);
+            ALTER TABLE conversation
+                ADD CONSTRAINT conv_u1_FK FOREIGN KEY (user1_id) REFERENCES user (id);
+            ALTER TABLE conversation
+                ADD CONSTRAINT conv_u2_FK FOREIGN KEY (user2_id) REFERENCES user (id);
+        </sql>
+    </changeSet>
+
+    <changeSet id="1.8.5-conversation-add-chat-context" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="conversation" columnName="conversation_type"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="conversation">
+            <column name="conversation_type" type="varchar(32)" defaultValue="DIRECT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="property_id" type="int">
+                <constraints nullable="true"
+                             foreignKeyName="conv_property_FK"
+                             referencedTableName="properties"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="updated_at" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_message_at" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1.8.6-message-chat-datetime" author="system">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="message_chat"/>
+        </preConditions>
+        <modifyDataType tableName="message_chat" columnName="created_at" newDataType="datetime"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,9 +1,7 @@
 package org.example.exception;
 
 public enum ErrorCode {
-    AD_NOT_FOUND("Ad not found with id: %d"),
     USER_NOT_FOUND("User not found with id: %d"),
-    AD_PLAN_NOT_FOUND("Ad plan not found with id: %d"),
     USER_LOGIN_NOT_FOUND("Email or password is not true"),
     USER_NOT_FOUND_BY_EMAIL("User not found with email: %s"),
     USER_ALREADY_REGISTERED("User already registered with email: %s"),
@@ -18,7 +16,13 @@ public enum ErrorCode {
     USER_NOT_AUTHENTICATED("User not authenticated"),
     CANNOT_DELETE_OWN_ACCOUNT("Cannot delete own account with id: %d"),
     CANNOT_UPDATE_OWN_ACCOUNT("Cannot update own account with id: %d"),
-    VERIFICATION_SUCCESSFUL("Verification successful for email: %s");
+    VERIFICATION_SUCCESSFUL("Verification successful for email: %s"),
+    CONVERSATION_NOT_FOUND("Conversation not found with id: %d"),
+    CONVERSATION_ACCESS_DENIED("You are not allowed to access this conversation"),
+    CANNOT_MESSAGE_SELF("You cannot start a conversation with yourself"),
+    NO_MANAGER_AVAILABLE("No support manager is available"),
+    PROPERTY_NOT_FOUND("Property not found with id: %d"),
+    PROFILE_EDIT_NOT_ALLOWED("You are not allowed to edit this user profile");
 
 
     private final String message;
