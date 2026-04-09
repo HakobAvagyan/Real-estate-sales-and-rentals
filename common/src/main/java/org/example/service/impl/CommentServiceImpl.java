@@ -18,11 +18,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Comment save(Comment comment) {
-        return commentRepository.save(comment);
-    }
-
-    @Override
     public void addComment(String text, int userId, int propertyId) {
         User user = new User();
         user.setId(userId);
