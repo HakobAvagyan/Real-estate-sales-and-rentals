@@ -1,8 +1,6 @@
 package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.CommentDto;
-import org.example.mapper.comment.CommentMapper;
 import org.example.service.CommentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CommentController {
 
     private final CommentService commentService;
-    private final CommentMapper commentMapper;
 
     @GetMapping("/comments")
     public String getComments(ModelMap modelMap) {
@@ -24,12 +21,8 @@ public class CommentController {
     }
 
     @PostMapping("/comments/add")
-    public String addComment(@RequestParam String comment, @RequestParam int userId, @RequestParam int propertyId, ModelMap modelMap) {
-        CommentDto commentDto = new CommentDto();
-        commentDto.setComment(comment);
-        commentDto.setUserId(userId);
-        commentDto.setPropertyId(propertyId);
-        commentService.save(commentMapper.toEntity(commentDto));
+    public String addComment(@RequestParam String comment, @RequestParam int userId, @RequestParam int propertyId) {
+        commentService.addComment(comment, userId, propertyId);
         return "redirect:/comments/by-property?propertyId=" + propertyId;
     }
 

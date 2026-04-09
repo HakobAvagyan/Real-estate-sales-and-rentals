@@ -65,7 +65,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ChangePasswordRequest changePassword(String email,
                                                 String oldPassword,
-                                                String newPassword) {
+                                                String newPassword,
+                                                String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
+        }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
@@ -326,6 +330,13 @@ public class UserServiceImpl implements UserService {
             user.setPicName(null);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public int getIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
     }
 
     private String generateVerificationCode() {

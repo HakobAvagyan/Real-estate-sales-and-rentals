@@ -10,14 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConversationRepository extends JpaRepository<Conversation, Integer> {
-    @Query("SELECT c FROM Conversation c WHERE (c.user1.id = :u1 AND c.user2.id = :u2) " +
-            "OR (c.user1.id = :u2 AND c.user2.id = :u1)")
-    Optional<Conversation> findExistingConversation(@Param("u1") int u1, @Param("u2") int u2);
 
-    @Query("SELECT DISTINCT c FROM Conversation c "
-            + "JOIN FETCH c.user1 JOIN FETCH c.user2 LEFT JOIN FETCH c.property "
-            + "WHERE c.user1.id = :userId OR c.user2.id = :userId")
-    List<Conversation> findAllByUserId(@Param("userId") int userId);
+    @Query("SELECT c FROM Conversation c WHERE c.user1.id = :userId OR c.user2.id = :userId ORDER BY c.lastMessageAt DESC")
+    List<Conversation> findAllByUserIdOrderByLastMessageAtDesc(@Param("userId") int userId);
 
     Optional<Conversation> findByConversationTypeAndUser1IdAndUser2IdAndPropertyIsNull(
             ConversationType type,

@@ -45,10 +45,8 @@ public class ConversationServiceImpl implements ConversationService {
         if (currentUserId == otherUserId) {
             throw new BusinessException(ErrorCode.CANNOT_MESSAGE_SELF);
         }
-        userRepository.findById(currentUserId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, currentUserId));
-        userRepository.findById(otherUserId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, otherUserId));
+        getUserOrThrow(currentUserId);
+        getUserOrThrow(otherUserId);
 
         Property property = null;
         if (propertyId != null) {
@@ -83,6 +81,11 @@ public class ConversationServiceImpl implements ConversationService {
         return toConversationDto(conv, currentUserId);
     }
 
+    private User getUserOrThrow(int userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId));
+    }
+
     @Override
     @Transactional
     public ChatConversationDto createOrGetSupport(int currentUserId) {
@@ -112,10 +115,9 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     @Transactional(readOnly = true)
     public List<ChatConversationDto> listMyConversations(int currentUserId) {
-        return conversationRepository.findAllByUserId(currentUserId).stream()
-                .sorted(Comparator.comparing(
-                        Conversation::getLastMessageAt,
-                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+
+        return conversationRepository.findAllByUserIdOrderByLastMessageAtDesc(currentUserId)
+                .stream()
                 .map(c -> toConversationDto(c, currentUserId))
                 .toList();
     }
@@ -229,16 +231,10 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     private User pickSupportAgent(int currentUserId) {
-        return userRepository.findAllByRoleIn(List.of(Role.MANAGER)).stream()
-                .filter(u -> u.getId() != currentUserId)
-                .findFirst()
-                .orElseGet(() -> userRepository.findAllByRoleIn(List.of(Role.ADMIN)).stream()
-                        .filter(u -> u.getId() != currentUserId)
-                        .findFirst()
-                        .orElseGet(() -> userRepository.findAllByRoleIn(List.of(Role.MANAGER)).stream()
-                                .findFirst()
-                                .orElseGet(() -> userRepository.findAllByRoleIn(List.of(Role.ADMIN)).stream()
-                                        .findFirst()
-                                        .orElseThrow(() -> new BusinessException(ErrorCode.NO_MANAGER_AVAILABLE)))));
+        return userRepository
+                .findFirstByRoleInAndIdNot(List.of(Role.MANAGER), currentUserId)
+                .or(() -> userRepository.findFirstByRoleInAndIdNot(List.of(Role.ADMIN), currentUserId))
+                .orElseThrow(() -> new BusinessException(ErrorCode.NO_MANAGER_AVAILABLE));
     }
+
 }

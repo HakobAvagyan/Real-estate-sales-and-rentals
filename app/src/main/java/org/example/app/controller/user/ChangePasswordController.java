@@ -135,8 +135,7 @@ public class ChangePasswordController {
             ra.addFlashAttribute("msg", ErrorCode.VERIFICATION_FAILED.format(email));
             return "redirect:/verify/password";
         }
-        if (error.hasErrors() ||
-                !request.getNewPassword().equals(request.getConfirmPassword())) {
+        if (error.hasErrors()) {
             ra.addFlashAttribute("msg",
                     ErrorCode.PASSWORD_CHANGE_FAILED.format(email));
             return "redirect:/change/password";
@@ -144,7 +143,8 @@ public class ChangePasswordController {
         try {
             userService.changePassword(email,
                     request.getOldPassword(),
-                    request.getNewPassword());
+                    request.getNewPassword(),
+                    request.getConfirmPassword());
         } catch (BusinessException ex) {
             ra.addFlashAttribute("msg", ex.getMessage());
             return "redirect:/change/password";

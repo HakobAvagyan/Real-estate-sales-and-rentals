@@ -15,7 +15,7 @@ public interface UserService {
 
     UserRegisterDto findByEmail(String username);
 
-    ChangePasswordRequest changePassword(String email, String oldPassword, String newPassword);
+    ChangePasswordRequest changePassword(String email, String oldPassword, String newPassword, String confirmPassword);
 
     ChangePasswordRequest changePasswordByEmail(String email);
 
@@ -42,4 +42,6 @@ public interface UserService {
     boolean existsById(int id);
 
     void removeUserPicture(int userId);
+
+    int getIdByEmail(String email);
 }

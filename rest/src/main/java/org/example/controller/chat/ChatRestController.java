@@ -5,9 +5,8 @@ import org.example.dto.chat.ChatConversationDto;
 import org.example.dto.chat.ChatMessageDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
-import org.example.model.User;
-import org.example.repository.UserRepository;
 import org.example.service.ConversationService;
+import org.example.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +25,7 @@ import java.util.Map;
 public class ChatRestController {
 
     private final ConversationService conversationService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @PostMapping("/conversations/direct/{otherUserId}")
     public ChatConversationDto createDirect(
@@ -75,9 +74,6 @@ public class ChatRestController {
         if (principal == null) {
             throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
-        String email = principal.getName();
-        return userRepository.findByEmail(email)
-                .map(User::getId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
+        return userService.getIdByEmail(principal.getName());
     }
 }

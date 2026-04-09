@@ -27,7 +27,7 @@
     if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
         return;
     }
-
+    
     var socket = new SockJS('/ws-chat');
     var client = Stomp.over(socket);
     client.debug = null;
