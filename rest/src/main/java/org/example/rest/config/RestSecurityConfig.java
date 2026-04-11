@@ -25,7 +25,11 @@ public class RestSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/login", "/api/auth/register", "/api/users/verify/").permitAll()
+                        auth.requestMatchers("/api/auth/login",
+                                        "/api/auth/register",
+                                        "/api/users/verify/",
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**").permitAll()
                                 .requestMatchers("/ws-chat/**").permitAll()
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

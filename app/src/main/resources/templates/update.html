@@ -32,7 +32,7 @@
           <label for="phone">Phone</label>
           <input id="phone" type="tel" name="phone" th:value="${user.phone}">
         </div>
-        <input type="text" th:value="${user.birthDate}" readonly>
+        <input id="birthDate" type="date" name="birthDate" th:value="${user.birthDate}"  required>
         <div class="field">
           <label for="passportDetails">Passport Detail</label>
           <input id="passportDetails" type="text" name="passportDetails" th:value="${user.passportDetails}">
