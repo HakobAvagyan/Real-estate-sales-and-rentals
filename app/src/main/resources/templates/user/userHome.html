@@ -12,18 +12,21 @@
         <div class="nav">
             <div>
                 <h1 class="headline">User Dashboard</h1>
-                <p class="subline" style="margin-bottom:0">Your personal workspace on Real Estate Hub.</p>
+                <p class="subline mb-0">Your personal workspace on Real Estate Hub.</p>
             </div>
-            <div class="actions" style="margin-top:0">
+            <div class="actions mt-0">
                 <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
             </div>
         </div>
     </section>
-    <a th:href="@{/personalPage(id=${currentUser.id})}">MY personal page</a>
-    <br>
-    <a th:href="@{/notifications}">My Notifications</a>
-    <br>
-    <a th:href="@{/messages}">Messages</a>
+    <section class="panel">
+        <div class="nav-links">
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
+            <a class="btn btn-primary" th:href="@{/user/property/create}">Add Property</a>
+        </div>
+    </section>
     <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </main>
 </body>

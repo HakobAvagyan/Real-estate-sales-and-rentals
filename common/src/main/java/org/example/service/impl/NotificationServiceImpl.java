@@ -55,10 +55,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deleteById(Integer id) {
-        if(notificationRepository.findById(id).get().getUser().getId() != getCurrentUserId()){
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND, id));
+        if(notification.getUser().getId() != getCurrentUserId()){
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
-        notificationRepository.deleteById(id);
+        notificationRepository.deleteById(notification.getId());
     }
 
     @Override

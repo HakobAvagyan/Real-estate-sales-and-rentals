@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Property</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="layout">
+    <section class="panel">
+        <h1 class="headline">Create Property</h1>
+        <p class="subline">Fill in property details and upload one or more images.</p>
+
+        <div th:if="${param.successId}" class="success-note">
+            Property created successfully. ID:
+            <strong th:text="${param.successId}"></strong>
+        </div>
+
+        <form th:action="@{/user/property/create}" method="post" enctype="multipart/form-data" class="grid">
+            <label class="field row-full">Title
+                <input type="text" name="title" required>
+            </label>
+
+            <label class="field row-full">Description
+                <textarea name="description" rows="4" required></textarea>
+            </label>
+
+            <label>Surface (m2)
+                <input type="number" name="surface" min="1" required>
+            </label>
+
+            <label>Rooms Count
+                <input type="number" name="roomsCount" min="0">
+            </label>
+
+            <label>Bathrooms Count
+                <input type="number" name="bathroomsCount" min="0">
+            </label>
+
+            <label>Building Floors Count
+                <input type="number" name="floorCount" min="0">
+            </label>
+
+            <label>Property Floor
+                <input type="number" name="floor" min="0" required>
+            </label>
+
+            <label>Price
+                <input type="number" name="price" min="0" step="0.01" required>
+            </label>
+
+            <label>Location Name
+                <select name="locationNameId" required>
+                    <option value="">Select region and city</option>
+                    <option th:each="locationName : ${locationNames}"
+                            th:value="${locationName.id}"
+                            th:text="${locationName.region + ', ' + locationName.city}">
+                    </option>
+                </select>
+            </label>
+
+            <label>District
+                <input type="text" name="district" required>
+            </label>
+
+            <label>Street
+                <input type="text" name="street" required>
+            </label>
+
+            <label>Status
+                <select name="status" required>
+                    <option value="">Select status</option>
+                    <option th:each="status : ${propertyStatuses}" th:value="${status}" th:text="${status}"></option>
+                </select>
+            </label>
+
+            <label>Type
+                <select name="propertyType" required>
+                    <option value="">Select type</option>
+                    <option th:each="type : ${propertyTypes}" th:value="${type}" th:text="${type}"></option>
+                </select>
+            </label>
+
+            <label class="field row-full">Images
+                <input type="file" name="images" accept="image/*" multiple>
+            </label>
+
+            <div class="actions row-full">
+                <button class="btn btn-primary" type="submit">Create</button>
+                <a class="btn btn-ghost" href="/user/home">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

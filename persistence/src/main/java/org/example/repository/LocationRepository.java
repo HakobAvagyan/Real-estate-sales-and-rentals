@@ -8,13 +8,17 @@ import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<Location, Integer> {
 
-    Optional<Location> findByRegion(Region region);
+    Optional<Location> findByLocationNameRegion(Region region);
 
-    Optional<Location> findByCity(String city);
+    Optional<Location> findByLocationNameCity(String city);
 
     Optional<Location> findByDistrict(String district);
 
     Optional<Location> findByStreet(String street);
 
-    Optional<Location> findByRegionAndCityAndDistrictAndStreet(Region region, String city, String district, String street);
+    Optional<Location> findByLocationNameRegionAndLocationNameCityAndDistrictAndStreet(
+            Region region, String city, String district, String street
+    );
+
+    Optional<Location> findByLocationNameIdAndDistrictAndStreet(int locationNameId, String district, String street);
 }

@@ -2,7 +2,7 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="7" author="Cursor">
+    <changeSet id="7" author="HakobAvagyan">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="ad"/>
             <tableExists tableName="ad_plans"/>

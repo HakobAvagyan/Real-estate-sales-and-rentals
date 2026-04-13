@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @Service
-public class CurrancyRatesService {
+public class CurrencyRatesService {
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String API_URL = "https://api.exchangerate-api.com/v4/latest/USD";
 
@@ -23,9 +23,4 @@ public class CurrancyRatesService {
         Object value = ((Map<?, ?>) rates).get(currencyCode);
         return value instanceof Number ? ((Number) value).doubleValue() : 1.0;
     }
-
-//    Կանչելու Օրինակ
-//    double priceRub = currencyRatesService.convert(property.getPrice(), "RUB");
-//    double rate = currencyRatesService.getRate("EUR");
-
 }

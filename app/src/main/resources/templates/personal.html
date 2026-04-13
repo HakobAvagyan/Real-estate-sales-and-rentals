@@ -6,9 +6,11 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div class="table-wrap">
-    <p>Photo</p>
-    <div class="table-responsive">
+<main class="layout">
+<section class="panel">
+    <h1 class="headline">Profile</h1>
+    <p class="subline">Personal data and account actions.</p>
+    <div class="actions mt-0">
         <img class="avatar"
              th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
              th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
@@ -16,41 +18,45 @@
              th:if="${user.getPicName() == null || user.getPicName().equals('')}"
              th:src="@{/image/img.png}" alt="Default photo">
     </div>
-    <p>Name</p>
-    <p th:text="${user.name}"></p>
-    <p>Surname</p>
-    <p th:text="${user.surname}"></p>
-    <p>Phone</p>
-    <p th:text="${user.phone}"></p>
+
+    <hr class="divider">
+    <dl class="kv-list">
+    <dt>Name</dt>
+    <dd th:text="${user.name}"></dd>
+    <dt>Surname</dt>
+    <dd th:text="${user.surname}"></dd>
+    <dt>Phone</dt>
+    <dd th:text="${user.phone}"></dd>
 
     <!-- Full profile: only for the account owner (and not shown to random visitors by id) -->
     <th:block th:if="${ownProfile}">
-        <p>Email</p>
-        <p th:text="${user.email}"></p>
-        <p>Birthday</p>
-        <p th:text="${user.birthDate}"></p>
-        <p>Passport Details</p>
-        <p th:text="${user.passportDetails}"></p>
-        <p>Role</p>
-        <p th:text="${user.role}"></p>
-        <p>Registered</p>
-        <p th:text="${user.createdAt}"></p>
+        <dt>Email</dt>
+        <dd th:text="${user.email}"></dd>
+        <dt>Birthday</dt>
+        <dd th:text="${user.birthDate}"></dd>
+        <dt>Passport Details</dt>
+        <dd th:text="${user.passportDetails}"></dd>
+        <dt>Role</dt>
+        <dd th:text="${user.role}"></dd>
+        <dt>Registered</dt>
+        <dd th:text="${user.createdAt}"></dd>
 
-        <a th:href="@{/update(id=${user.id})}">Change my profile data</a><br>
-        <a class="link-inline danger" th:href="@{/delete(id=${user.id})}"
-           th:if="${user.getRole() != role}">Delete</a><br>
-        <a th:href="@{/verify/password}">Change password</a><br>
     </th:block>
+    </dl>
 
     <p class="muted" th:if="${ownProfile == false}">Public profile — photo, name and phone only; use Message to chat.</p>
 
-    <a class="btn btn-ghost" href="/home">Back</a><br>
-
-    <p th:if="${currentUser != null && currentUser.id != user.id}">
+    <div class="actions">
+    <a class="btn btn-ghost" href="/home">Back</a>
+    <a class="btn btn-ghost" th:if="${ownProfile}" th:href="@{/update(id=${user.id})}">Edit Profile</a>
+    <a class="btn btn-danger" th:if="${ownProfile and user.getRole() != role}" th:href="@{/delete(id=${user.id})}">Delete</a>
+    <a class="btn btn-ghost" th:if="${ownProfile}" th:href="@{/verify/password}">Change Password</a>
+    <span th:if="${currentUser != null && currentUser.id != user.id}">
         <a class="btn btn-primary btn-sm" th:href="@{/messages/open/direct(otherUserId=${user.id})}">Message</a>
-    </p>
-
-</div>
+    </span>
+    </div>
+</section>
+</main>
 <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </body>
 </html>

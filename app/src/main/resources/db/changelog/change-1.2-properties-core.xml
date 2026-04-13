@@ -20,8 +20,8 @@
             <column name="price" type="decimal(10,0)"><constraints nullable="false"/></column>
             <column name="created_at" type="date"><constraints nullable="false"/></column>
             <column name="location_id" type="int"><constraints nullable="false" foreignKeyName="properties_location_FK" referencedTableName="location" referencedColumnNames="id"/></column>
-            <column name="status" type="enum('FOR_SALE','FOR_RENT','SOLD','RANTED')"><constraints nullable="false"/></column>
-            <column name="type" type="enum('HOUSE','APARTAMENT','LAND')"><constraints nullable="false"/></column>
+            <column name="status" type="enum('FOR_SALE','FOR_RENT','SOLD','RENTED')"><constraints nullable="false"/></column>
+            <column name="type" type="enum('HOUSE','APARTMENT','LAND')"><constraints nullable="false"/></column>
         </createTable>
 
         <rollback>

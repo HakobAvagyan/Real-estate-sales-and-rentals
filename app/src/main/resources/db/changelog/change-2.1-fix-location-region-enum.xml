@@ -1,0 +1,75 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="11" author="HakobAvagyan">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="location_names"/>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE location_names
+            MODIFY region enum(
+                'ԱՐԱԳԱԾՈՏՆ',
+                'ԱՐԱՐԱՏ',
+                'ԱՐՄԱՎԻՐ',
+                'ԳԵՂԱՐՔՈՒՆԻՔ',
+                'ԿՈՏԱՅՔ',
+                'ԼՈՌԻ',
+                'ՇԻՐԱԿ',
+                'ՍՅՈՒՆԻՔ',
+                'ՎԱՅՈՑ ՁՈՐ',
+                'ՎԱՅՈՑ_ՁՈՐ',
+                'ՏԱՎՈՒՇ',
+                'ԵՐԵՎԱՆ'
+            ) NOT NULL;
+        </sql>
+
+        <sql>
+            UPDATE location_names
+            SET region = 'ՎԱՅՈՑ_ՁՈՐ'
+            WHERE region = 'ՎԱՅՈՑ ՁՈՐ';
+        </sql>
+
+        <sql>
+            ALTER TABLE location_names
+            MODIFY region enum(
+                'ԱՐԱԳԱԾՈՏՆ',
+                'ԱՐԱՐԱՏ',
+                'ԱՐՄԱՎԻՐ',
+                'ԳԵՂԱՐՔՈՒՆԻՔ',
+                'ԿՈՏԱՅՔ',
+                'ԼՈՌԻ',
+                'ՇԻՐԱԿ',
+                'ՍՅՈՒՆԻՔ',
+                'ՎԱՅՈՑ_ՁՈՐ',
+                'ՏԱՎՈՒՇ',
+                'ԵՐԵՎԱՆ'
+            ) NOT NULL;
+        </sql>
+
+        <rollback>
+            <sql>
+                UPDATE location_names
+                SET region = 'ՎԱՅՈՑ ՁՈՐ'
+                WHERE region = 'ՎԱՅՈՑ_ՁՈՐ';
+            </sql>
+            <sql>
+                ALTER TABLE location_names
+                MODIFY region enum(
+                    'ԱՐԱԳԱԾՈՏՆ',
+                    'ԱՐԱՐԱՏ',
+                    'ԱՐՄԱՎԻՐ',
+                    'ԳԵՂԱՐՔՈՒՆԻՔ',
+                    'ԿՈՏԱՅՔ',
+                    'ԼՈՌԻ',
+                    'ՇԻՐԱԿ',
+                    'ՍՅՈՒՆԻՔ',
+                    'ՎԱՅՈՑ ՁՈՐ',
+                    'ՏԱՎՈՒՇ',
+                    'ԵՐԵՎԱՆ'
+                ) NOT NULL;
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
