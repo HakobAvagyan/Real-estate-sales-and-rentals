@@ -1,6 +1,7 @@
 package org.example.service;
 
 
+import jakarta.servlet.http.HttpSession;
 import org.example.dto.user.ChangePasswordRequest;
 import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
@@ -33,13 +34,15 @@ public interface UserService {
 
     UserResponseDto findById(int id);
 
-    UserUpdateDto update(UserUpdateDto userUpdateDto, MultipartFile file);
+    UserUpdateDto update(UserUpdateDto userUpdateDto, MultipartFile file,int id);
 
     List<UserResponseDto> findAllByRoleIn(List<Role> roles);
 
     boolean verifyUser(String email, String verifyCode);
 
     boolean existsById(int id);
+
+    boolean isRecentlyVerified(HttpSession session);
 
     void removeUserPicture(int userId);
 

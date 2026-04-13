@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,11 +78,6 @@ public class ConversationServiceImpl implements ConversationService {
         });
 
         return toConversationDto(conv, currentUserId);
-    }
-
-    private User getUserOrThrow(int userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId));
     }
 
     @Override
@@ -235,6 +229,12 @@ public class ConversationServiceImpl implements ConversationService {
                 .findFirstByRoleInAndIdNot(List.of(Role.MANAGER), currentUserId)
                 .or(() -> userRepository.findFirstByRoleInAndIdNot(List.of(Role.ADMIN), currentUserId))
                 .orElseThrow(() -> new BusinessException(ErrorCode.NO_MANAGER_AVAILABLE));
+    }
+
+
+    private User getUserOrThrow(int userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId));
     }
 
 }

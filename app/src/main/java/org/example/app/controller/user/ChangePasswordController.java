@@ -60,10 +60,6 @@ public class ChangePasswordController {
         return "redirect:/loginPage?msg=" + ErrorCode.PASSWORD_CHANGED_SUCCESSFULLY.format(email);
     }
 
-    /**
-     * Logged-in user only: always sends the code to the current account email.
-     * Query param {@code email} is ignored if it does not match the authenticated user (prevents abusing others' inboxes).
-     */
     @GetMapping("/verify/password")
     public String verifyUserPage(
             @RequestParam(value = "email", required = false) String emailParam,
@@ -113,7 +109,7 @@ public class ChangePasswordController {
             return "redirect:/loginPage?msg=" + URLEncoder.encode(
                     ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
         }
-        if (!isRecentlyVerified(session)) {
+        if (!userService.isRecentlyVerified(session)) {
             ra.addFlashAttribute("msg", "Please verify your email first");
             return "redirect:/verify/password";
         }
@@ -131,7 +127,7 @@ public class ChangePasswordController {
                     ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
         }
         String email = springUser.getUsername();
-        if (!isRecentlyVerified(session)) {
+        if (!userService.isRecentlyVerified(session)) {
             ra.addFlashAttribute("msg", ErrorCode.VERIFICATION_FAILED.format(email));
             return "redirect:/verify/password";
         }
@@ -152,14 +148,6 @@ public class ChangePasswordController {
         session.removeAttribute("passwordResetVerifiedAt");
         return "redirect:/loginPage?msg=" +
                 ErrorCode.PASSWORD_CHANGED_SUCCESSFULLY.format(email);
-    }
-
-
-
-    private boolean isRecentlyVerified(HttpSession session) {
-        LocalDateTime verifiedAt = (LocalDateTime) session.getAttribute("passwordResetVerifiedAt");
-        if (verifiedAt == null) return false;
-        return verifiedAt.isAfter(LocalDateTime.now().minusMinutes(5));
     }
 
 }

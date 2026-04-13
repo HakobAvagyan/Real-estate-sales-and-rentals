@@ -34,8 +34,9 @@ public class UserRestController {
 
     @PostMapping(value = "/update" , consumes = "multipart/form-data")
     public UserUpdateDto update(@ModelAttribute UserUpdateDto userUpdateDto,
+                                @RequestParam (value = "id") int id,
                                 @RequestParam(value = "pic", required = false) MultipartFile multipartFile) {
-        return userService.update(userUpdateDto, multipartFile);
+        return userService.update(userUpdateDto, multipartFile,id);
     }
 
 

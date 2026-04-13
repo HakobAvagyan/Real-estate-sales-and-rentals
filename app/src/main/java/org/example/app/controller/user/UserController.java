@@ -83,17 +83,18 @@ public class UserController {
 
     @PostMapping("/update")
     public String editUser(
+            @RequestParam(value = "id") int id,
             @ModelAttribute UserUpdateDto user,
             @RequestParam(value = "pic") MultipartFile multipartFile,
             @AuthenticationPrincipal SpringUser principal) {
         if (principal == null) {
             return "redirect:/home";
         }
-        if (principal.getUser().getId() != user.getId() && principal.getUser().getRole() != Role.ADMIN) {
-            return "redirect:/personalPage?id=" + user.getId();
+        if (principal.getUser().getId() != id && principal.getUser().getRole() != Role.ADMIN) {
+            return "redirect:/personalPage?id=" + id;
         }
-        userService.update(user, multipartFile);
-        return "redirect:/personalPage?id=" + user.getId();
+        userService.update(user, multipartFile,id);
+        return "redirect:/personalPage?id=" + id;
     }
 
     @GetMapping("/loginPage")
