@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,11 +35,11 @@ public class PropertyController {
     }
 
     @PostMapping("/user/property/create")
-    public String addProperty(PropertyCreateRequestDto requestDto,
-                                 @RequestParam(value = "images", required = false) List<MultipartFile> imageList,
-                                 @AuthenticationPrincipal SpringUser principal) {
-        requestDto.setUserId(principal.getUser().getId());
-        PropertyResponseDto createdProperty = propertyService.create(requestDto, imageList);
+    public String addProperty(@ModelAttribute PropertyCreateRequestDto requestDto,
+                                 @RequestParam(value = "images", required = false) MultipartFile imageList) {
+        //TODO
+//        requestDto.setUserId(principal.getUser().getId());
+        PropertyResponseDto createdProperty = propertyService.create(requestDto, List.of(imageList));
         return "redirect:/user/property/create?successId=" + createdProperty.getId();
     }
 }

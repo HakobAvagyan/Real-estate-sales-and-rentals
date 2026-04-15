@@ -81,9 +81,8 @@
                     <option th:each="type : ${propertyTypes}" th:value="${type}" th:text="${type}"></option>
                 </select>
             </label>
-
             <label class="field row-full">Images
-                <input type="file" name="images" accept="image/*" multiple>
+                <input type="file"  class="form-control" name="images" accept="image/*">
             </label>
 
             <div class="actions row-full">

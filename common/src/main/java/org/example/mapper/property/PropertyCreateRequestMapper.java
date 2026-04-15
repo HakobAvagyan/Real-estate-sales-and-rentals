@@ -14,4 +14,12 @@ public interface PropertyCreateRequestMapper {
     @Mapping(target = "location", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Property toProperty(PropertyCreateRequestDto requestDto);
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "locationId", source = "location.id")
+    @Mapping(target = "locationNameId", ignore = true)
+    @Mapping(target = "district", ignore = true)
+    @Mapping(target = "street", ignore = true)
+    PropertyCreateRequestDto toRequestDto(Property property);
+
 }

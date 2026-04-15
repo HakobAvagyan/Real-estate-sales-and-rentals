@@ -19,10 +19,16 @@ spring:
           auth: true
           starttls:
             enable: true
-  servlet:
-    multipart:
-      max-file-size: 20MB
-      max-request-size: 20MB
+  spring:
+    servlet:
+      multipart:
+        enabled: true
+        max-file-size: 50MB
+        max-request-size: 50MB
+
+  server:
+    tomcat:
+      max-swallow-size: -1
 system:
   upload:
     images:

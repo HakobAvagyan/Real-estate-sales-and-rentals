@@ -3,8 +3,10 @@ package org.example.dto.property;
 import lombok.Data;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class PropertyCreateRequestDto {
@@ -23,4 +25,5 @@ public class PropertyCreateRequestDto {
     private BigDecimal price;
     private PropertyStatus status;
     private PropertyType propertyType;
+    private List<MultipartFile> images;
 }
