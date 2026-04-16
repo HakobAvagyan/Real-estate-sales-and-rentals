@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Account | Real Estate Hub</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="layout">
+  <section class="panel">
+    <h1 class="headline">Verify Your Account</h1>
+    <p class="subline">Please enter the verification code sent to your email address.</p>
+
+    <form method="post" th:action="@{/verify}">
+      <div class="grid">
+        <div class="field row-full">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" th:value="${email}" readonly>
+        </div>
+        <div class="field row-full">
+          <label for="verifyCode">Verification Code</label>
+          <input id="verifyCode" type="text" name="verifyCode" placeholder="Enter 4-digit code" maxlength="4" pattern="[0-9]{4}" required inputmode="numeric">
+          <small class="info-note">Enter the 4-digit code you received via email</small>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Verify Account</button>
+        <a class="btn btn-ghost" th:href="@{/home}">Back to Home</a>
+      </div>
+    </form>
+  </section>
+</main>
+<script>
+  document.getElementById('verifyCode').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+  });
+</script>
+</body>
+</html>

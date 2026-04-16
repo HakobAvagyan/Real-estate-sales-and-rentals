@@ -15,11 +15,18 @@
                 <h1 class="headline">
                     Welcome, <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
                 </h1>
-                <p class="subline" style="margin-bottom:0">Manager Dashboard</p>
+                <p class="subline mb-0">Manager Dashboard</p>
             </div>
-            <div class="actions" style="margin-top:0">
+            <div class="actions mt-0">
                 <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
             </div>
+        </div>
+    </section>
+    <section class="panel">
+        <div class="nav-links">
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
         </div>
     </section>
 
@@ -27,7 +34,7 @@
         <div class="page-header">
             <div>
                 <h2 class="headline">User Directory</h2>
-                <p class="subline" style="margin-bottom:0">Accounts visible to your role.</p>
+                <p class="subline mb-0">Accounts visible to your role.</p>
             </div>
         </div>
         <div class="table-wrap">
@@ -41,6 +48,7 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Passport</th>
+                    <th>BirthDate</th>
                     <th>Role</th>
                     <th>Registered</th>
                     <th>Actions</th>
@@ -62,12 +70,14 @@
                     <td th:text="${user.email}"></td>
                     <td th:text="${user.phone}"></td>
                     <td th:text="${user.passportDetails}"></td>
+                    <td th:text="${user.birthDate}"></td>
                     <td><span class="badge" th:text="${user.role}"></span></td>
                     <td th:text="${user.createdAt}"></td>
                     <td>
-                        <a class="link-inline" th:href="@{/update(id=${user.id})}">Edit</a>
-                        <span>·</span>
-                        <a class="link-inline danger" th:href="@{/delete(id=${user.id})}">Delete</a>
+                        <a class="link-inline" th:if="${currentUser != null && user.id != currentUser.id}"
+                           th:href="@{/messages/open/direct(otherUserId=${user.id})}">Message</a>
+                        <a class="link-inline danger" th:if="${user.isBlocked() == false}" th:href="@{/blocked(id=${user.id})}">Block</a>
+                        <a class="link-inline danger" th:if="${user.isBlocked() == true}" th:href="@{/blocked(id=${user.id})}">Unblock</a>
                     </td>
                 </tr>
                 </tbody>
@@ -75,6 +85,7 @@
         </div>
     </section>
 
+    <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </main>
 </body>
 </html>

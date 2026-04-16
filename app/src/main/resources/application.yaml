@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: rent-sell
+  liquibase:
+    change-log: classpath:/db/master.xml
+    enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/rent_sell}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:1234}
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  server:
+    tomcat:
+      max-swallow-size: 50MB
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      enabled: true

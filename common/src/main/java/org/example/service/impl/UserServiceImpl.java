@@ -1,22 +1,43 @@
 package org.example.service.impl;
 
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.UserRegisterDto;
-import org.example.dto.UserRequestDto;
-import org.example.mapper.UserRegisterMapper;
-import org.example.mapper.UserRequestMapper;
+import org.example.dto.notification.NotificationRequestDto;
+import org.example.dto.user.ChangePasswordRequest;
+import org.example.dto.user.ResetPasswordRequest;
+import org.example.dto.user.UserRegisterDto;
+import org.example.dto.user.UserResponseDto;
+import org.example.dto.user.UserUpdateDto;
+import org.example.exception.BusinessException;
+import org.example.exception.ErrorCode;
+import org.example.mapper.user.ChangePasswordRequestMapper;
+import org.example.mapper.user.UserRegisterMapper;
+import org.example.mapper.user.UserResetPasswordMapper;
+import org.example.mapper.user.UserResponseMapper;
+import org.example.mapper.user.UserUpdateMapper;
 import org.example.model.User;
+import org.example.model.enums.NotificationType;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
+import org.example.service.NotificationService;
+import org.example.service.SendMailService;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Random;
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,67 +46,316 @@ public class UserServiceImpl implements UserService {
     @Value("${system.upload.images.directory.path}")
     private String imageDirectoryPath;
 
+    private final SendMailService sendMailService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRegisterMapper userRegisterMapper;
+    private final UserResponseMapper userResponseMapper;
+    private final UserResetPasswordMapper userResetPasswordMapper;
+    private final ChangePasswordRequestMapper changePasswordRequestMapper;
+    private final NotificationService notificationService;
+    private final UserUpdateMapper userUpdateMapper;
+    private final Random random = new Random();
 
     @Override
-    public Optional<UserRegisterDto> findByEmail(String username) {
-        return userRepository.findByEmail(username).map(UserRegisterMapper::toUserRegisterDto);
+    public UserRegisterDto findByEmail(String username) {
+        return userRepository.findByEmail(username)
+                .map(userRegisterMapper::toUserRegisterDto)
+                .orElse(null);
     }
 
     @Override
-    public UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile multipartFile) {
-        if (multipartFile != null && !multipartFile.isEmpty()) {
-            String fileName = System.currentTimeMillis() + "_" + multipartFile.getOriginalFilename();
-            File file = new File(imageDirectoryPath + fileName);
+    public ChangePasswordRequest changePassword(String email,
+                                                String oldPassword,
+                                                String newPassword,
+                                                String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException(ErrorCode.OLD_PASSWORD_IS_INCORRECT);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        User savedUser = userRepository.save(user);
 
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
+        notificationRequestDto.setUserId(savedUser.getId());
+        notificationRequestDto.setTitle("You changed your password successfully!");
+        notificationRequestDto.setMessage(
+                NotificationType.PROFILE_PASSWORD_CHANGED_NOTIFICATION
+                        .format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationRequestDto);
+
+        return changePasswordRequestMapper.toChangePasswordRequestDto(savedUser);
+    }
+
+    @Override
+    public ChangePasswordRequest changePasswordByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL,
+                        email));
+        String verificationCode = generateVerificationCode();
+        try {
+            sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
+            user.setVerificationCode(verificationCode);
+            userRepository.save(user);
+            return changePasswordRequestMapper.toChangePasswordRequestDto(user);
+        } catch (MessagingException e) {
+            throw new BusinessException(ErrorCode.TRY_AGAIN);
+        }
+    }
+
+    @Override
+    public ResetPasswordRequest resetPassword(String email,
+                                              String code,
+                                              String newPassword,
+                                              String newConfirmPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
+
+        if (!verifyUser(email, code)) {
+            throw new BusinessException(ErrorCode.VERIFICATION_FAILED, email);
+        }
+
+        if (!newPassword.equals(newConfirmPassword)) {
+            throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        User savedUser = userRepository.save(user);
+
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
+        notificationRequestDto.setUserId(savedUser.getId());
+        notificationRequestDto.setTitle("You reset your password successfully!");
+        notificationRequestDto.setMessage(NotificationType
+                .PROFILE_PASSWORD_RESET_NOTIFICATION
+                .format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationRequestDto);
+
+        return userResetPasswordMapper.toUserResetPasswordDto(savedUser);
+    }
+
+    @Override
+    public UserRegisterDto save(UserRegisterDto userRegisterDto,
+                                MultipartFile multipartFile) {
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            String fileName = System.currentTimeMillis() + "_" +
+                    multipartFile.getOriginalFilename();
+            File file = new File(imageDirectoryPath + fileName);
             try {
                 multipartFile.transferTo(file);
                 userRegisterDto.setPicName(fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new BusinessException(ErrorCode.TRY_AGAIN);
             }
-        } else {
-            userRepository.findById(userRegisterDto.getId())
-                    .ifPresent(productOptional -> userRegisterDto.setPicName(productOptional.getPicName()));
         }
-        User user = UserRegisterMapper.toUser(userRegisterDto);
+        if (userRegisterDto.getId() != 0) {
+            userRepository.findById(userRegisterDto.getId()).ifPresent(
+                    productOptional ->
+                            userRegisterDto.setPicName(productOptional.getPicName()));
+        }
+        User user = userRegisterMapper.toUser(userRegisterDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String verificationCode = generateVerificationCode();
+        try {
+            sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
+            user.setVerificationCode(verificationCode);
+        } catch (MessagingException e) {
+            throw new BusinessException(ErrorCode.TRY_AGAIN);
+        }
         User savedUser = userRepository.save(user);
-        return UserRegisterMapper.toUserRegisterDto(savedUser);
+
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
+        notificationRequestDto.setUserId(savedUser.getId());
+        notificationRequestDto.setTitle("You registered successfully!");
+        notificationRequestDto.setMessage(NotificationType.USER_REGISTERED_NOTIFICATION
+                .format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationRequestDto);
+
+        return userRegisterMapper.toUserRegisterDto(savedUser);
     }
 
     @Override
-    public List<UserRequestDto> findAll() {
-        return userRepository.findAll().stream().map(UserRequestMapper::toUserRequestDto).toList();
+    public UserRegisterDto createManager(UserRegisterDto userRegisterDto,
+                                         MultipartFile file) {
+        userRegisterDto.setRole(Role.MANAGER);
+        return save(userRegisterDto, file);
     }
 
-
     @Override
-    public UserRegisterDto save(UserRegisterDto userRegisterDto) {
-        User user = UserRegisterMapper.toUser(userRegisterDto);
-        User savedUser = userRepository.save(user);
-        return UserRegisterMapper.toUserRegisterDto(savedUser);
+    public List<UserResponseDto> findAll() {
+        return userResponseMapper.toUserResponseDtoList(userRepository.findAll().stream().filter(user -> user.getRole() != Role.ADMIN).toList());
     }
 
     @Override
     public void deleteById(int id) {
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id));
+        assertMayDeleteUser(user.getId());
+        userRepository.deleteById(user.getId());
+        sendMailService.sendMail(
+                user.getEmail(),
+                "Your account has been deleted",
+                NotificationType.PROFILE_REMOVED_NOTIFICATION.format(user.getName(), user.getSurname())
+        );
     }
 
     @Override
-    public Optional<UserRegisterDto> findById(int id) {
-        return userRepository.findById(id).map(UserRegisterMapper::toUserRegisterDto);
+    @Transactional
+    public void toggleUserBlockStatus(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id));
+
+        boolean isNowBlocked = !user.isBlocked();
+        user.setBlocked(isNowBlocked);
+
+        userRepository.save(user);
+
+        if (isNowBlocked) {
+            notificationService.notifyUserBlocked(user);
+        } else {
+            notificationService.notifyUserUnblocked(user);
+        }
     }
 
+    @Override
+    public UserResponseDto findById(int id) {
+        return userResponseMapper.toUserResponseDto(userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id)));
+    }
 
     @Override
-    public UserRegisterDto update(UserRegisterDto userRegisterDto) {
-        User user = UserRegisterMapper.toUser(userRegisterDto);
+    public UserUpdateDto update( UserUpdateDto userUpdateDto,
+                                MultipartFile multipartFile,
+                                 int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.USER_NOT_FOUND, id));
+        assertMayEditUserProfile(user.getId());
+        user.setName(userUpdateDto.getName());
+        user.setSurname(userUpdateDto.getSurname());
+        user.setEmail(userUpdateDto.getEmail());
+        user.setPhone(userUpdateDto.getPhone());
+        user.setBirthDate(userUpdateDto.getBirthDate());
+        user.setPassportDetails(userUpdateDto.getPassportDetails());
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            String fileName = System.currentTimeMillis() + "_" +
+                    multipartFile.getOriginalFilename();
+            File file = new File(imageDirectoryPath + fileName);
+            try {
+                multipartFile.transferTo(file);
+                user.setPicName(fileName);
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.TRY_AGAIN);
+            }
+        }
         User savedUser = userRepository.save(user);
-        return UserRegisterMapper.toUserRegisterDto(savedUser);
+
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
+        notificationRequestDto.setUserId(savedUser.getId());
+        notificationRequestDto.setTitle("You update your profile successfully!");
+        notificationRequestDto.setMessage(NotificationType.
+                PROFILE_UPDATE_NOTIFICATION.
+                format(savedUser.getName(), savedUser.getSurname()));
+        notificationService.save(notificationRequestDto);
+
+        return userUpdateMapper.toUserUpdateDto(savedUser);
     }
 
     @Override
-    public List<UserRequestDto> findAllByRole(Role role) {
-        return userRepository.findAllByRole(role).stream().map(UserRequestMapper::toUserRequestDto).toList();
+    public List<UserResponseDto> findAllByRoleIn(List<Role> roles) {
+        return userResponseMapper.toUserResponseDtoList(userRepository.findAllByRoleIn(roles));
     }
+
+    @Override
+    public boolean verifyUser(String email, String verifyCode) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
+        if (user.getVerificationCode() != null && user.getVerificationCode().equals(verifyCode)) {
+            user.setVerificationCode(null);
+            user.setBlocked(false);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean existsById(int id) {
+        return userRepository.existsById(id);
+    }
+
+    @Override
+    public boolean isRecentlyVerified(HttpSession session) {
+        LocalDateTime verifiedAtObj = (LocalDateTime) session.getAttribute("passwordResetVerifiedAt");
+        if (verifiedAtObj == null) {
+            return false;
+        }
+        return verifiedAtObj.isAfter(LocalDateTime.now().minusMinutes(5));
+    }
+
+    @Override
+    public void removeUserPicture(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.USER_NOT_FOUND, userId));
+        assertMayEditUserProfile(userId);
+        if (user.getPicName() != null) {
+            File file = new File(imageDirectoryPath + user.getPicName());
+            if (file.exists()) {
+                file.delete();
+            }
+            user.setPicName(null);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public int getIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
+    }
+
+    private String generateVerificationCode() {
+        int code = random.nextInt(1000, 9999);
+        return String.valueOf(code);
+    }
+
+    private void assertMayEditUserProfile(int targetUserId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+        User current = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, auth.getName()));
+        if (current.getId() == targetUserId) {
+            return;
+        }
+        if (current.getRole() == Role.ADMIN) {
+            return;
+        }
+        throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);
+    }
+
+    private void assertMayDeleteUser(int targetUserId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+        User current = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, auth.getName()));
+        if (current.getId() == targetUserId) {
+            throw new BusinessException(ErrorCode.CANNOT_DELETE_OWN_ACCOUNT, targetUserId);
+        }
+        if (current.getRole() == Role.ADMIN || current.getRole() == Role.MANAGER) {
+            return;
+        }
+        throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);
+    }
+
 }

@@ -12,13 +12,65 @@
         <div class="nav">
             <div>
                 <h1 class="headline">User Dashboard</h1>
-                <p class="subline" style="margin-bottom:0">Your personal workspace on Real Estate Hub.</p>
+                <p class="subline mb-0">Your personal workspace on Real Estate Hub.</p>
             </div>
-            <div class="actions" style="margin-top:0">
+            <div class="actions mt-0">
                 <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
             </div>
         </div>
     </section>
+    <section class="panel">
+        <div class="nav-links">
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
+            <a class="btn btn-primary" th:href="@{/user/property/create}">Add Property</a>
+        </div>
+    </section>
+    <section class="panel wide">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">My Properties</h2>
+                <p class="subline mb-0">Products added by you.</p>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(properties)}">
+            <p>You have not added any properties yet.</p>
+        </div>
+        <div class="table-wrap" th:if="${!#lists.isEmpty(properties)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Location ID</th>
+                    <th>Surface</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="property : ${properties}">
+                    <td>
+                        <img class="avatar"
+                             th:if="${!#lists.isEmpty(property.imageUrls)}"
+                             th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                             alt="Property image">
+                        <span th:if="${#lists.isEmpty(property.imageUrls)}">No image</span>
+                    </td>
+                    <td th:text="${property.title}"></td>
+                    <td th:text="${property.price}"></td>
+                    <td><span class="badge" th:text="${property.status}"></span></td>
+                    <td th:text="${property.propertyType}"></td>
+                    <td th:text="${property.locationId}"></td>
+                    <td th:text="${property.surface}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </main>
 </body>
 </html>

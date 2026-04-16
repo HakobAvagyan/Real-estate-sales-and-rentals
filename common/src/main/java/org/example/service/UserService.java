@@ -1,30 +1,50 @@
 package org.example.service;
 
 
-import org.example.dto.UserRegisterDto;
-import org.example.dto.UserRequestDto;
+import jakarta.servlet.http.HttpSession;
+import org.example.dto.user.ChangePasswordRequest;
+import org.example.dto.user.ResetPasswordRequest;
+import org.example.dto.user.UserRegisterDto;
+import org.example.dto.user.UserResponseDto;
+import org.example.dto.user.UserUpdateDto;
 import org.example.model.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserRegisterDto> findByEmail(String username);
+    UserRegisterDto findByEmail(String username);
+
+    ChangePasswordRequest changePassword(String email, String oldPassword, String newPassword, String confirmPassword);
+
+    ChangePasswordRequest changePasswordByEmail(String email);
+
+    ResetPasswordRequest resetPassword(String email, String code, String newPassword, String newConfirmPassword);
 
     UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
 
-    List<UserRequestDto> findAll();
+    UserRegisterDto createManager(UserRegisterDto userRegisterDto, MultipartFile file);
 
-    UserRegisterDto save(UserRegisterDto userRegisterDto);
+    List<UserResponseDto> findAll();
 
     void deleteById(int id);
 
-    Optional<UserRegisterDto> findById(int id);
+    void toggleUserBlockStatus(int id);
 
-    UserRegisterDto update(UserRegisterDto userRegisterDto);
+    UserResponseDto findById(int id);
 
-    List<UserRequestDto> findAllByRole(Role role);
+    UserUpdateDto update(UserUpdateDto userUpdateDto, MultipartFile file,int id);
 
+    List<UserResponseDto> findAllByRoleIn(List<Role> roles);
+
+    boolean verifyUser(String email, String verifyCode);
+
+    boolean existsById(int id);
+
+    boolean isRecentlyVerified(HttpSession session);
+
+    void removeUserPicture(int userId);
+
+    int getIdByEmail(String email);
 }

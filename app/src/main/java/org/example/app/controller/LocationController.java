@@ -1,7 +1,7 @@
 package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.LocationDto;
+import org.example.dto.location.LocationDto;
 import org.example.service.LocationService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;

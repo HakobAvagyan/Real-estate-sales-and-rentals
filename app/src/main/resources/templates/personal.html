@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Personal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="layout">
+<section class="panel">
+    <h1 class="headline">Profile</h1>
+    <p class="subline">Personal data and account actions.</p>
+    <div class="actions mt-0">
+        <img class="avatar"
+             th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
+             th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
+        <img class="avatar"
+             th:if="${user.getPicName() == null || user.getPicName().equals('')}"
+             th:src="@{/image/img.png}" alt="Default photo">
+    </div>
+
+    <hr class="divider">
+    <dl class="kv-list">
+    <dt>Name</dt>
+    <dd th:text="${user.name}"></dd>
+    <dt>Surname</dt>
+    <dd th:text="${user.surname}"></dd>
+    <dt>Phone</dt>
+    <dd th:text="${user.phone}"></dd>
+
+    <!-- Full profile: only for the account owner (and not shown to random visitors by id) -->
+    <th:block th:if="${ownProfile}">
+        <dt>Email</dt>
+        <dd th:text="${user.email}"></dd>
+        <dt>Birthday</dt>
+        <dd th:text="${user.birthDate}"></dd>
+        <dt>Passport Details</dt>
+        <dd th:text="${user.passportDetails}"></dd>
+        <dt>Role</dt>
+        <dd th:text="${user.role}"></dd>
+        <dt>Registered</dt>
+        <dd th:text="${user.createdAt}"></dd>
+
+    </th:block>
+    </dl>
+
+    <p class="muted" th:if="${ownProfile == false}">Public profile — photo, name and phone only; use Message to chat.</p>
+
+    <div class="actions">
+    <a class="btn btn-ghost" href="/home">Back</a>
+    <a class="btn btn-ghost" th:if="${ownProfile}" th:href="@{/update(id=${user.id})}">Edit Profile</a>
+    <a class="btn btn-danger" th:if="${ownProfile and user.getRole() != role}" th:href="@{/delete(id=${user.id})}">Delete</a>
+    <a class="btn btn-ghost" th:if="${ownProfile}" th:href="@{/verify/password}">Change Password</a>
+    <span th:if="${currentUser != null && currentUser.id != user.id}">
+        <a class="btn btn-primary btn-sm" th:href="@{/messages/open/direct(otherUserId=${user.id})}">Message</a>
+    </span>
+    </div>
+</section>
+</main>
+<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+</body>
+</html>

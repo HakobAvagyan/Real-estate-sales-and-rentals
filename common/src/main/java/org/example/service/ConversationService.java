@@ -1,16 +1,21 @@
 package org.example.service;
 
-import org.example.model.Conversation;
-import org.example.model.MessageChat;
+import org.example.dto.chat.ChatConversationDto;
+import org.example.dto.chat.ChatMessageDto;
 
 import java.util.List;
 
 public interface ConversationService {
-    Conversation getOrCreateConversation(int user1Id, int user2Id);
 
-    List<Conversation> findAllMyConversations(int userId);
+    ChatConversationDto createOrGetDirect(int currentUserId, int otherUserId, Integer propertyId);
 
-    MessageChat sendMessage(MessageChat message);
+    ChatConversationDto createOrGetSupport(int currentUserId);
 
-    List<MessageChat> getMessagesByConversationId(int conversationId);
+    List<ChatConversationDto> listMyConversations(int currentUserId);
+
+    List<ChatMessageDto> getMessages(int conversationId, int currentUserId);
+
+    ChatMessageDto sendMessage(int conversationId, int senderUserId, String text);
+
+    void markConversationRead(int conversationId, int readerUserId);
 }

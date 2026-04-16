@@ -1,16 +1,14 @@
 package org.example.app.config;
 
+import org.example.exception.ErrorCode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -22,12 +20,16 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/login", "/","/loginPage", "/home", "/register", "/css/**", "/js/**", "/image/**").permitAll()
+                                .requestMatchers("/login","/verify","/reset/password/byEmail", "/verify/password", "/verify/password/reset",  "/","/loginPage", "/home", "/register", "/css/**", "/js/**", "/image/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/manager/**").hasAuthority("MANAGER")
+                                .requestMatchers("/blocked").hasAnyAuthority("ADMIN", "MANAGER")
                                 .requestMatchers("/user/**").hasAuthority("USER")
                                 .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
-//                                .requestMatchers("/home").hasAnyAuthority("ADMIN", "USER", "MANAGER", "CUSTOMER")
+                                .requestMatchers("/personalPage", "/remove/user/picture", "/change/password").hasAnyAuthority("ADMIN", "MANAGER", "USER", "CUSTOMER")
+                                .requestMatchers("/messages", "/messages/**").hasAnyAuthority("ADMIN", "MANAGER", "USER", "CUSTOMER")
+                                .requestMatchers("/ws-chat/**").authenticated()
+                                .requestMatchers("/user/property/create").hasAuthority("USER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->
@@ -35,7 +37,7 @@ public class WebSecurityConfig {
                                 .loginPage("/home")
                                 .loginProcessingUrl("/login")
                                 .usernameParameter("email")
-                                .failureUrl("/loginPage?msg=User not found")
+                                .failureUrl("/loginPage?msg=" + ErrorCode.USER_LOGIN_NOT_FOUND.format())
                                 .defaultSuccessUrl("/home", true)
                                 .permitAll()
                 )

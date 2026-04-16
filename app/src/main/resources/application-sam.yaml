@@ -6,10 +6,25 @@ spring:
     enabled: true
   datasource:
     url: jdbc:mysql://localhost:3306/rent_sell
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:1234}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: java2026java@gmail.com
+    password: mysm qqxm ecvi sefu
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 system:
   upload:
     images:
       directory:
-        path: /uploads/images
+        path: /home/sam/IdeaProjects/Real-estate-sales-and-rentals/app/upload-images/
