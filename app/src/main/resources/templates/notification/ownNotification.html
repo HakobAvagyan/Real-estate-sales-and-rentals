@@ -6,12 +6,17 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Own Notification</h1>
-
-<h4 th:text="${notification.title}"></h4>
-<p th:text="${notification.message}"></p>
-
-<a th:href="@{/notifications}">Back</a>
-
+<main class="layout">
+    <section class="panel">
+        <h1 class="headline">Notification Details</h1>
+        <p class="subline">Full notification text and metadata.</p>
+        <hr class="divider">
+        <h2 class="headline" th:text="${notification.title}"></h2>
+        <p th:text="${notification.message}"></p>
+        <div class="actions">
+            <a class="btn btn-ghost" th:href="@{/notifications}">Back</a>
+        </div>
+    </section>
+</main>
 </body>
 </html>

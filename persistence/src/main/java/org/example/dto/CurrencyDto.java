@@ -3,7 +3,7 @@ package org.example.dto;
 import lombok.Data;
 
 @Data
-public class CurrancyDto {
+public class CurrencyDto {
     private int id;
     private String code;
     private String name;

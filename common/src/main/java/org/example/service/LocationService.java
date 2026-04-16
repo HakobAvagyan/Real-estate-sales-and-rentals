@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dto.location.LocationDto;
+import org.example.dto.location.LocationNameDto;
 import org.example.model.enums.Region;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public interface LocationService {
     void deleteByID(int id);
 
     List<LocationDto> getAll();
+
+    List<LocationNameDto> getAllLocationNames();
 
 
 }

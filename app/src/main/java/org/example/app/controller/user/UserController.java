@@ -8,6 +8,7 @@ import org.example.dto.user.UserResponseDto;
 import org.example.dto.user.UserUpdateDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
+import org.example.service.PropertyService;
 import org.example.service.UserService;
 import org.example.service.security.SpringUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final PropertyService propertyService;
 
     @GetMapping("/admin/home")
     public String adminHomePage(ModelMap modelMap) {
@@ -36,7 +38,11 @@ public class UserController {
     }
 
     @GetMapping("/user/home")
-    public String userHomePage() {
+    public String userHomePage(@AuthenticationPrincipal SpringUser principal, ModelMap modelMap) {
+        if (principal == null) {
+            return "redirect:/home";
+        }
+        modelMap.addAttribute("properties", propertyService.findAllByUserId(principal.getUser().getId()));
         return "user/userHome";
     }
 

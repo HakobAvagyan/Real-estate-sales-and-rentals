@@ -3,7 +3,7 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="1.8.1-conversation-drop-fks" author="system">
+    <changeSet id="1.8.1-conversation-drop-fks" author="HakobAvagyan">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="conversation"/>
         </preConditions>
@@ -17,9 +17,14 @@
         <sql>ALTER TABLE conversation DROP FOREIGN KEY conv_u2_FK;</sql>
     </changeSet>
 
-    <changeSet id="1.8.3-conversation-drop-unique-indexes" author="system">
+    <changeSet id="1.8.3-conversation-drop-unique-indexes" author="ыфьвфкишт">
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="conversation"/>
+            <and>
+                <tableExists tableName="conversation"/>
+                <indexExists tableName="conversation" indexName="user1_id"/>
+                <indexExists tableName="conversation" indexName="user2_id"/>
+            </and>
         </preConditions>
         <sql stripComments="true" splitStatements="true">
             ALTER TABLE conversation DROP INDEX user1_id;
@@ -28,17 +33,64 @@
     </changeSet>
 
     <changeSet id="1.8.4-conversation-recreate-indexes-and-fks" author="system">
+        <validCheckSum>9:9a1fc486414f8ff74d11906d290eb857</validCheckSum>
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="conversation"/>
+            <and>
+                <tableExists tableName="conversation"/>
+                <not>
+                    <indexExists tableName="conversation" indexName="idx_conversation_user1"/>
+                </not>
+            </and>
         </preConditions>
-        <sql stripComments="true" splitStatements="true">
-            CREATE INDEX idx_conversation_user1 ON conversation (user1_id);
-            CREATE INDEX idx_conversation_user2 ON conversation (user2_id);
-            ALTER TABLE conversation
-                ADD CONSTRAINT conv_u1_FK FOREIGN KEY (user1_id) REFERENCES user (id);
-            ALTER TABLE conversation
-                ADD CONSTRAINT conv_u2_FK FOREIGN KEY (user2_id) REFERENCES user (id);
-        </sql>
+        <createIndex tableName="conversation" indexName="idx_conversation_user1">
+            <column name="user1_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1.8.4.1-conversation-recreate-index-user2" author="system">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="conversation"/>
+                <not>
+                    <indexExists tableName="conversation" indexName="idx_conversation_user2"/>
+                </not>
+            </and>
+        </preConditions>
+        <createIndex tableName="conversation" indexName="idx_conversation_user2">
+            <column name="user2_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1.8.4.2-conversation-recreate-fk-user1" author="system">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="conversation"/>
+                <not>
+                    <foreignKeyConstraintExists foreignKeyName="conv_u1_FK"/>
+                </not>
+            </and>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="conversation"
+                                 baseColumnNames="user1_id"
+                                 constraintName="conv_u1_FK"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="1.8.4.3-conversation-recreate-fk-user2" author="system">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="conversation"/>
+                <not>
+                    <foreignKeyConstraintExists foreignKeyName="conv_u2_FK"/>
+                </not>
+            </and>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="conversation"
+                                 baseColumnNames="user2_id"
+                                 constraintName="conv_u2_FK"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet id="1.8.5-conversation-add-chat-context" author="system">

@@ -104,7 +104,6 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             return changePasswordRequestMapper.toChangePasswordRequestDto(user);
         } catch (MessagingException e) {
-            e.printStackTrace();
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
     }
@@ -151,7 +150,7 @@ public class UserServiceImpl implements UserService {
                 multipartFile.transferTo(file);
                 userRegisterDto.setPicName(fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new BusinessException(ErrorCode.TRY_AGAIN);
             }
         }
         if (userRegisterDto.getId() != 0) {
@@ -166,7 +165,7 @@ public class UserServiceImpl implements UserService {
             sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
             user.setVerificationCode(verificationCode);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
         User savedUser = userRepository.save(user);
 
@@ -194,13 +193,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(int id) {
-        userRepository.findById(id).ifPresent(user -> {
-            if (!existsById(id)) {
-                throw new BusinessException(ErrorCode.CANNOT_DELETE_OWN_ACCOUNT);
-            }
-            userRepository.deleteById(user.getId());
-            sendMailService.sendMail(user.getEmail(), "Your account has been deleted",NotificationType.PROFILE_REMOVED_NOTIFICATION.format(user.getName(), user.getSurname()));
-        });
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id));
+        assertMayDeleteUser(user.getId());
+        userRepository.deleteById(user.getId());
+        sendMailService.sendMail(
+                user.getEmail(),
+                "Your account has been deleted",
+                NotificationType.PROFILE_REMOVED_NOTIFICATION.format(user.getName(), user.getSurname())
+        );
     }
 
     @Override
@@ -249,7 +250,7 @@ public class UserServiceImpl implements UserService {
                 multipartFile.transferTo(file);
                 user.setPicName(fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new BusinessException(ErrorCode.TRY_AGAIN);
             }
         }
         User savedUser = userRepository.save(user);
@@ -285,20 +286,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsById(int id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
-            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
-        }
-
-        String email = auth.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(
-                        ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
-        if (user.getId() != id) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND, id);
-        }
-        return true;
+        return userRepository.existsById(id);
     }
 
     @Override
@@ -349,6 +337,22 @@ public class UserServiceImpl implements UserService {
             return;
         }
         if (current.getRole() == Role.ADMIN) {
+            return;
+        }
+        throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);
+    }
+
+    private void assertMayDeleteUser(int targetUserId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+        User current = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, auth.getName()));
+        if (current.getId() == targetUserId) {
+            throw new BusinessException(ErrorCode.CANNOT_DELETE_OWN_ACCOUNT, targetUserId);
+        }
+        if (current.getRole() == Role.ADMIN || current.getRole() == Role.MANAGER) {
             return;
         }
         throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);

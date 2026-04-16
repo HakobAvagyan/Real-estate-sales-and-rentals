@@ -15,23 +15,27 @@
                 <h1 class="headline">
                     Welcome, <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
                 </h1>
-                <p class="subline" style="margin-bottom:0">Admin Dashboard</p>
+                <p class="subline mb-0">Admin Dashboard</p>
             </div>
-            <div class="actions" style="margin-top:0">
+            <div class="actions mt-0">
                 <a class="btn btn-ghost btn-sm" href="/admin/add/manager">+ Add Manager</a>
                 <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
             </div>
         </div>
     </section>
 
-    <a th:href="@{/personalPage(id=${currentUser.id})}">MY personal page</a>
-    <a th:href="@{/messages}">Messages</a>
+    <section class="panel">
+        <div class="nav-links">
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
+        </div>
+    </section>
 
     <section class="panel wide">
         <div class="page-header">
             <div>
                 <h2 class="headline">User Directory</h2>
-                <p class="subline" style="margin-bottom:0">All registered accounts on the platform.</p>
+                <p class="subline mb-0">All registered accounts on the platform.</p>
             </div>
         </div>
         <div class="table-wrap">

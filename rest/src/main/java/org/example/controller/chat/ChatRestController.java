@@ -1,8 +1,9 @@
 package org.example.controller.chat;
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.example.dto.chat.ChatConversationDto;
 import org.example.dto.chat.ChatMessageDto;
+import org.example.dto.chat.SendChatMessagePayload;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.service.ConversationService;
@@ -21,11 +22,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/chat")
-@RequiredArgsConstructor
 public class ChatRestController {
 
     private final ConversationService conversationService;
     private final UserService userService;
+    private final ChatMessageJsonConverter chatMessageJsonConverter;
+
+    public ChatRestController(
+            ConversationService conversationService,
+            UserService userService,
+            ChatMessageJsonConverter chatMessageJsonConverter) {
+        this.conversationService = conversationService;
+        this.userService = userService;
+        this.chatMessageJsonConverter = chatMessageJsonConverter;
+    }
 
     @PostMapping("/conversations/direct/{otherUserId}")
     public ChatConversationDto createDirect(
@@ -57,11 +67,11 @@ public class ChatRestController {
     @PostMapping("/conversations/{conversationId}/messages")
     public ChatMessageDto send(
             @PathVariable int conversationId,
-            @RequestBody Map<String, String> body,
+            @RequestBody JsonNode body,
             Principal principal) {
-        String text = body == null ? null : body.get("text");
+        SendChatMessagePayload payload = chatMessageJsonConverter.convert(body, conversationId);
         int uid = resolveUserId(principal);
-        return conversationService.sendMessage(conversationId, uid, text);
+        return conversationService.sendMessage(payload.getConversationId(), uid, payload.getText());
     }
 
     @PostMapping("/conversations/{conversationId}/read")

@@ -13,19 +13,19 @@
             <div>
                 <p class="welcome" th:text="${currentUser.name + ' ' + currentUser.surname}"></p>
                 <h1 class="headline">Customer Dashboard</h1>
-                <p class="subline" style="margin-bottom:0">Browse and manage your property inquiries.</p>
+                <p class="subline mb-0">Browse and manage your property inquiries.</p>
             </div>
-            <div class="actions" style="margin-top:0">
+            <div class="actions mt-0">
                 <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
             </div>
         </div>
     </section>
 
-    <section>
-        <div>
-            <a th:href="@{/personalPage(id=${currentUser.id})}">MY personal page</a>
-            <a th:href="@{/notifications}">My Notifications</a>
-            <a th:href="@{/messages}">Messages</a>
+    <section class="panel">
+        <div class="nav-links">
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
         </div>
     </section>
     <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>

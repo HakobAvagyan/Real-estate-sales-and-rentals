@@ -12,12 +12,25 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: java2026java@gmail.com
+    password : mysm qqxm ecvi sefu
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+server:
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: -1
+    max-part-count: -1
+
 system:
   upload:
     images:

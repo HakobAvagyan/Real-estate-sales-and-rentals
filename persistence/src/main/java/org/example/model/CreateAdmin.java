@@ -5,12 +5,14 @@ import org.example.model.enums.Gender;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 @Component
+@Profile("!test")
 @RequiredArgsConstructor
 public class CreateAdmin implements CommandLineRunner {
 

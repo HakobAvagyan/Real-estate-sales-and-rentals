@@ -22,6 +22,9 @@ public enum ErrorCode {
     CANNOT_MESSAGE_SELF("You cannot start a conversation with yourself"),
     NO_MANAGER_AVAILABLE("No support manager is available"),
     PROPERTY_NOT_FOUND("Property not found with id: %d"),
+    LOCATION_NOT_FOUND("Location not found with id: %d"),
+    LOCATION_NAME_NOT_FOUND("Location name not found with id: %d"),
+    INVALID_REQUEST_BODY("Request body is invalid"),
     PROFILE_EDIT_NOT_ALLOWED("You are not allowed to edit this user profile");
 
 
