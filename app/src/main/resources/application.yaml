@@ -27,9 +27,3 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
       enabled: true
-#
-#system:
-#  upload:
-#    images:
-#      directory:
-#        path: ${UPLOAD_IMAGES_DIR:./upload-images/}

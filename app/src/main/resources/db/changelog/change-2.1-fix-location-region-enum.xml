@@ -18,17 +18,10 @@
                 'ԼՈՌԻ',
                 'ՇԻՐԱԿ',
                 'ՍՅՈՒՆԻՔ',
-                'ՎԱՅՈՑ ՁՈՐ',
                 'ՎԱՅՈՑ_ՁՈՐ',
                 'ՏԱՎՈՒՇ',
                 'ԵՐԵՎԱՆ'
             ) NOT NULL;
-        </sql>
-
-        <sql>
-            UPDATE location_names
-            SET region = 'ՎԱՅՈՑ_ՁՈՐ'
-            WHERE region = 'ՎԱՅՈՑ ՁՈՐ';
         </sql>
 
         <sql>
@@ -51,7 +44,7 @@
         <rollback>
             <sql>
                 UPDATE location_names
-                SET region = 'ՎԱՅՈՑ ՁՈՐ'
+                SET region = 'ՎԱՅՈՑ_ՁՈՐ'
                 WHERE region = 'ՎԱՅՈՑ_ՁՈՐ';
             </sql>
             <sql>
@@ -65,7 +58,7 @@
                     'ԼՈՌԻ',
                     'ՇԻՐԱԿ',
                     'ՍՅՈՒՆԻՔ',
-                    'ՎԱՅՈՑ ՁՈՐ',
+                    'ՎԱՅՈՑ_ՁՈՐ',
                     'ՏԱՎՈՒՇ',
                     'ԵՐԵՎԱՆ'
                 ) NOT NULL;

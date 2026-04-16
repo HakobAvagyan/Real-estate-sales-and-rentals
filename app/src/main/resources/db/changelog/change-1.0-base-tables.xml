@@ -27,7 +27,7 @@
 
         <createTable tableName="location">
             <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
-            <column name="region" type="enum('ԱՐԱԳԱԾՈՏՆ','ԱՐԱՐԱՏ','ԱՐՄԱՎԻՐ','ԳԵՂԱՐՔՈՒՆԻՔ','ԿՈՏԱՅՔ','ԼՈՌԻ','ՇԻՐԱԿ','ՍՅՈՒՆԻՔ','ՎԱՅՈՑ ՁՈՐ','ՏԱՎՈՒՇ','ԵՐԵՎԱՆ')"><constraints nullable="false"/></column>
+            <column name="region" type="enum('ԱՐԱԳԱԾՈՏՆ','ԱՐԱՐԱՏ','ԱՐՄԱՎԻՐ','ԳԵՂԱՐՔՈՒՆԻՔ','ԿՈՏԱՅՔ','ԼՈՌԻ','ՇԻՐԱԿ','ՍՅՈՒՆԻՔ','ՎԱՅՈՑ_ՁՈՐ','ՏԱՎՈՒՇ','ԵՐԵՎԱՆ')"><constraints nullable="false"/></column>
             <column name="city" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="district" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="street" type="varchar(255)"><constraints nullable="false"/></column>
