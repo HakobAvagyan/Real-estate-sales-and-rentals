@@ -9,6 +9,7 @@ import java.util.List;
 public interface PropertyService {
     PropertyResponseDto addProperty(PropertyCreateRequestDto request, List<MultipartFile> images);
     List<PropertyResponseDto> findAll();
+    List<PropertyResponseDto> findAllByUserId(Integer userId);
 
     default PropertyResponseDto create(PropertyCreateRequestDto request, List<MultipartFile> images) {
         return addProperty(request, images);

@@ -77,6 +77,17 @@ public class PropertyServiceImpl implements PropertyService {
         }).toList();
     }
 
+    @Override
+    public List<PropertyResponseDto> findAllByUserId(Integer userId) {
+        return propertyRepository.findAllByUserId(userId).stream().map(property -> {
+            List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                    .stream()
+                    .map(PropertyImage::getImagesUrl)
+                    .toList();
+            return toResponse(property, imageUrls);
+        }).toList();
+    }
+
     private List<String> savePropertyImages(Property property, List<MultipartFile> images) {
         List<String> imageUrls = new ArrayList<>();
         if (images == null || images.isEmpty()) {

@@ -17,7 +17,7 @@
             <strong th:text="${param.successId}"></strong>
         </div>
 
-        <form th:action="@{/user/property/create}" method="post" enctype="multipart/form-data" class="grid">
+        <form action="/user/property/create" method="post" enctype="multipart/form-data" class="grid">
             <label class="field row-full">Title
                 <input type="text" name="title" required>
             </label>
@@ -82,7 +82,7 @@
                 </select>
             </label>
             <label class="field row-full">Images
-                <input type="file"  class="form-control" name="images" accept="image/*">
+                <input type="file" class="form-control" name="images" multiple accept="image/*">
             </label>
 
             <div class="actions row-full">

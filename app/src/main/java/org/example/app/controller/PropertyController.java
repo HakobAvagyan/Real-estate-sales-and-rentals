@@ -36,10 +36,10 @@ public class PropertyController {
 
     @PostMapping("/user/property/create")
     public String addProperty(@ModelAttribute PropertyCreateRequestDto requestDto,
-                                 @RequestParam(value = "images", required = false) MultipartFile imageList) {
-        //TODO
-//        requestDto.setUserId(principal.getUser().getId());
-        PropertyResponseDto createdProperty = propertyService.create(requestDto, List.of(imageList));
+                              @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                              @AuthenticationPrincipal SpringUser principal) {
+        requestDto.setUserId(principal.getUser().getId());
+        PropertyResponseDto createdProperty = propertyService.create(requestDto, images);
         return "redirect:/user/property/create?successId=" + createdProperty.getId();
     }
 }
