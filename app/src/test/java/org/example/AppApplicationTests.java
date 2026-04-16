@@ -57,7 +57,6 @@ class AppApplicationTests {
                     classes.add(clazz);
                 }
             } catch (Throwable ignored) {
-                // Skip unloadable/problematic classes for this smoke test.
             }
         }
         classes.sort(Comparator.comparing(Class::getName));
