@@ -2,9 +2,11 @@ package org.example.app.controller;
 
 import org.apache.commons.io.FileUtils;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.location.LocationDto;
 import org.example.dto.property.PropertyResponseDto;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
+import org.example.service.LocationService;
 import org.example.service.PropertyService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -30,10 +34,11 @@ public class MainController {
     @Value("${system.upload.images.directory.path}")
     private String imageDirectoryPath;
     private final PropertyService propertyService;
+    private final LocationService locationService;
 
     @GetMapping("/")
     public String mainPage() {
-        return "redirect:/index";
+        return "redirect:/home";
     }
 
     @GetMapping("/index")
@@ -46,21 +51,28 @@ public class MainController {
     @GetMapping("/home")
     public String homePage(@AuthenticationPrincipal SpringUser userPrincipal, ModelMap modelMap) {
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
-        if (user == null) {
-            modelMap.addAttribute("properties", propertyService.findAll());
-            return "home";
-        }
-        if(user.isBlocked()){
+
+        if (user != null && user.isBlocked()) {
             return "redirect:/loginPage?msg=" + ErrorCode.PROFILE_IS_BLOCKED.format(user.getEmail());
         }
-        switch (user.getRole()){
-            case ADMIN: return "redirect:/admin/home";
-            case USER: return "redirect:/user/home";
-            case MANAGER: return "redirect:/manager/home";
-            case CUSTOMER: return "redirect:/customer/home";
-            default: return "home";
+
+        modelMap.addAttribute("properties", propertyService.findAll());
+        Map<Integer, LocationDto> locationMap = locationService.getAll()
+                .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
+        modelMap.addAttribute("locationMap", locationMap);
+
+        if (user != null) {
+            modelMap.addAttribute("currentUser", user);
+            String dashboardUrl = switch (user.getRole()) {
+                case ADMIN    -> "/admin/home";
+                case USER     -> "/user/home";
+                case MANAGER  -> "/manager/home";
+                case CUSTOMER -> "/customer/home";
+            };
+            modelMap.addAttribute("dashboardUrl", dashboardUrl);
         }
 
+        return "home";
     }
 
     @GetMapping("/image/get")

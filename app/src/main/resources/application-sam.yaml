@@ -23,6 +23,11 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+server:
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: -1
+    max-part-count: -1
 system:
   upload:
     images:
