@@ -1084,3 +1084,234 @@ td .link-inline + span { color: var(--border-mid); margin: 0 3px; }
   .catalog-layout { padding: 24px 14px 40px; }
   .site-header-inner { padding: 0 14px; }
 }
+
+/* ─── Book button on property card ─────────────────────────────────── */
+.prop-card-book-btn {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px 0;
+  background: var(--accent);
+  color: #fff;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: .88rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition),
+              box-shadow var(--transition), transform var(--transition);
+}
+
+.prop-card-book-btn:hover {
+  background: var(--accent-h);
+  border-color: var(--accent-h);
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+/* ─── Urgent button (amber) ─────────────────────────────────────────── */
+.btn-urgent {
+  background: var(--warn-bd);
+  color: #fff;
+  border-color: var(--warn-bd);
+}
+
+.btn-urgent:hover {
+  background: #d97706;
+  border-color: #d97706;
+  box-shadow: 0 4px 14px rgba(245,158,11,.3);
+}
+
+/* ─── Payment / Booking pages ───────────────────────────────────────── */
+.property-summary-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.property-summary-type {
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.property-summary-price {
+  font-size: .9rem;
+  color: var(--text-2);
+}
+
+.payment-total-box {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: var(--accent-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+}
+
+.payment-total-label {
+  font-size: .8rem;
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.payment-total-amount {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-left: 10px;
+}
+
+.order-summary-detail {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.order-summary-note {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ─── Write / Phone contact buttons on property card ────────────────── */
+.prop-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.prop-card-write-btn,
+.prop-card-phone-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 0;
+  border-radius: var(--radius-sm);
+  font-size: .88rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background var(--transition), border-color var(--transition),
+              box-shadow var(--transition), transform var(--transition);
+}
+
+.prop-card-write-btn {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.prop-card-write-btn:hover {
+  background: var(--accent-h);
+  border-color: var(--accent-h);
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.prop-card-phone-btn {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--border-mid);
+}
+
+.prop-card-phone-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* ─── Urgent ribbon on property card ───────────────────────────────── */
+.prop-card-urgent-ribbon {
+  position: absolute;
+  top: 18px;
+  right: -30px;
+  width: 120px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-align: center;
+  padding: 5px 0;
+  transform: rotate(45deg);
+  z-index: 3;
+  box-shadow: 0 2px 6px rgba(0,0,0,.18);
+  pointer-events: none;
+}
+
+/* ─── Own listing toast ─────────────────────────────────────────────── */
+.own-listing-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: 10px 22px;
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--text-2);
+  box-shadow: var(--shadow-md);
+  z-index: 3000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  white-space: nowrap;
+}
+
+.own-listing-toast.show {
+  opacity: 1;
+}
+
+/* ─── Phone number popup overlay ───────────────────────────────────── */
+.phone-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, .45);
+}
+
+.phone-popup.open {
+  display: flex;
+}
+
+.phone-popup-card {
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 28px 36px;
+  text-align: center;
+  min-width: 240px;
+}
+
+.phone-popup-label {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 8px;
+}
+
+.phone-popup-number {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 20px;
+}

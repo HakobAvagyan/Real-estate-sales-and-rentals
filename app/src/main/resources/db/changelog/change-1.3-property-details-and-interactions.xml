@@ -82,27 +82,42 @@
 
         <createTable tableName="conversation">
             <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
-            <column name="user1_id" type="int"><constraints nullable="false" unique="true" foreignKeyName="conv_u1_FK" referencedTableName="user" referencedColumnNames="id"/></column>
-            <column name="user2_id" type="int"><constraints nullable="false" unique="true" foreignKeyName="conv_u2_FK" referencedTableName="user" referencedColumnNames="id"/></column>
+            <column name="user1_id" type="int"><constraints nullable="false" unique="true"/></column>
+            <column name="user2_id" type="int"><constraints nullable="false" unique="true"/></column>
             <column name="created_at" type="date"><constraints nullable="false"/></column>
         </createTable>
+        <addForeignKeyConstraint baseTableName="conversation" baseColumnNames="user1_id"
+                                 constraintName="conv_u1_FK" referencedTableName="user" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="conversation" baseColumnNames="user2_id"
+                                 constraintName="conv_u2_FK" referencedTableName="user" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <createTable tableName="message_chat">
             <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
-            <column name="conversation_id" type="int"><constraints nullable="false" foreignKeyName="msg_conv_FK" referencedTableName="conversation" referencedColumnNames="id"/></column>
+            <column name="conversation_id" type="int"><constraints nullable="false"/></column>
             <column name="user_send_id" type="int"><constraints nullable="false" foreignKeyName="msg_user_FK" referencedTableName="user" referencedColumnNames="id"/></column>
             <column name="text" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="is_read" type="tinyint(1)" defaultValueNumeric="0"><constraints nullable="false"/></column>
             <column name="created_at" type="date"><constraints nullable="false"/></column>
         </createTable>
 
+        <addForeignKeyConstraint baseTableName="message_chat" baseColumnNames="conversation_id"
+                                 constraintName="msg_conv_FK" referencedTableName="conversation" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
         <createTable tableName="notification">
             <column name="id" type="int" autoIncrement="true"><constraints primaryKey="true" nullable="false"/></column>
-            <column name="user_id" type="int"><constraints nullable="false" foreignKeyName="notif_user_FK" referencedTableName="user" referencedColumnNames="id"/></column>
+            <column name="user_id" type="int"><constraints nullable="false"/></column>
             <column name="message" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="title" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="created_at" type="date"><constraints nullable="false"/></column>
         </createTable>
+
+        <addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
+                                 constraintName="notif_user_FK" referencedTableName="user" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <rollback>
             <dropTable tableName="notification"/><dropTable tableName="meassage_chat"/><dropTable tableName="conversation"/>
