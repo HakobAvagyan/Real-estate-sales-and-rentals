@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.notification.NotificationRequestDto;
 import org.example.dto.notification.NotificationResponseDto;
 import org.example.exception.BusinessException;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -35,6 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND,id));
         if(notification.getUser().getId() != getCurrentUserId()){
+            log.error("Unauthorized access attempt to notification id: {} by user id: {}", id, getCurrentUserId());
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
         return notificationRequestMapper.toDto(notification);
@@ -58,6 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOTIFICATION_NOT_FOUND, id));
         if(notification.getUser().getId() != getCurrentUserId()){
+            log.error("Unauthorized delete attempt to notification id: {} by user id: {}", id, getCurrentUserId());
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
         notificationRepository.deleteById(notification.getId());
@@ -86,6 +90,7 @@ public class NotificationServiceImpl implements NotificationService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            log.error("Unauthenticated access attempt to get current user id");
             throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
 

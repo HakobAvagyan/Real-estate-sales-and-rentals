@@ -15,7 +15,7 @@ public interface MessageChatRepository extends JpaRepository<MessageChat, Intege
     @Modifying
     @Query("UPDATE MessageChat m SET m.isRead = true WHERE m.conversation.id = :cid AND m.user.id <> :readerId "
             + "AND m.isRead = false")
-    int markReadForOthers(@Param("cid") int conversationId, @Param("readerId") int readerId);
+    void markReadForOthers(@Param("cid") int conversationId, @Param("readerId") int readerId);
 
     @Query("SELECT COUNT(m) FROM MessageChat m WHERE m.conversation.id = :cid AND m.user.id <> :readerId "
             + "AND m.isRead = false")

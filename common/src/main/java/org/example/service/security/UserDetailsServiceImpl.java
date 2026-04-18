@@ -1,6 +1,7 @@
 package org.example.service.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.user.UserRegisterDto;
 import org.example.mapper.user.UserRegisterMapper;
 import org.example.model.User;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserService userService;
@@ -23,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         UserRegisterDto userRegisterDto = userService.findByEmail(username);
         if (userRegisterDto == null) {
-            throw new UsernameNotFoundException("User not found: " + username);
+            log.error("Username {} not found", username);
         }
         User user = userRegisterMapper.toUser(userRegisterDto);
         return new SpringUser(user);

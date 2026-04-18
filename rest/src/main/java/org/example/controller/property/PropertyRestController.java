@@ -45,7 +45,7 @@ public class PropertyRestController {
         if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
             throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
-        request.setUserId(userService.getIdByEmail(authentication.getName()));
+        request.setUserId(userService.findByEmail(authentication.getName()).getId());
         return propertyService.addProperty(request, imageList);
     }
 }

@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
@@ -25,11 +25,9 @@ public class WebSecurityConfig {
                                 .requestMatchers("/manager/**").hasAuthority("MANAGER")
                                 .requestMatchers("/blocked").hasAnyAuthority("ADMIN", "MANAGER")
                                 .requestMatchers("/user/**").hasAuthority("USER")
-                                .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
-                                .requestMatchers("/personalPage", "/remove/user/picture", "/change/password").hasAnyAuthority("ADMIN", "MANAGER", "USER", "CUSTOMER")
-                                .requestMatchers("/messages", "/messages/**").hasAnyAuthority("ADMIN", "MANAGER", "USER", "CUSTOMER")
+                                .requestMatchers("/personalPage", "/remove/user/picture", "/change/password").hasAnyAuthority("ADMIN", "MANAGER", "USER")
+                                .requestMatchers("/messages", "/messages/**").hasAnyAuthority("ADMIN", "MANAGER", "USER")
                                 .requestMatchers("/ws-chat/**").authenticated()
-                                .requestMatchers("/user/property/create").hasAuthority("USER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->

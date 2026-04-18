@@ -2,8 +2,6 @@ package org.example.service;
 
 
 import jakarta.servlet.http.HttpSession;
-import org.example.dto.user.ChangePasswordRequest;
-import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserResponseDto;
 import org.example.dto.user.UserUpdateDto;
@@ -16,15 +14,15 @@ public interface UserService {
 
     UserRegisterDto findByEmail(String username);
 
-    ChangePasswordRequest changePassword(String email, String oldPassword, String newPassword, String confirmPassword);
+    void changePassword(String email, String oldPassword, String newPassword, String confirmPassword);
 
-    ChangePasswordRequest changePasswordByEmail(String email);
+    void changePasswordByEmail(String email);
 
-    ResetPasswordRequest resetPassword(String email, String code, String newPassword, String newConfirmPassword);
+    void resetPassword(String email, String code, String newPassword, String newConfirmPassword);
 
     UserRegisterDto save(UserRegisterDto userRegisterDto, MultipartFile file);
 
-    UserRegisterDto createManager(UserRegisterDto userRegisterDto, MultipartFile file);
+    void createManager(UserRegisterDto userRegisterDto, MultipartFile file);
 
     List<UserResponseDto> findAll();
 
@@ -36,15 +34,12 @@ public interface UserService {
 
     UserUpdateDto update(UserUpdateDto userUpdateDto, MultipartFile file,int id);
 
-    List<UserResponseDto> findAllByRoleIn(List<Role> roles);
+    List<UserResponseDto> findUserByRole(Role roles);
 
     boolean verifyUser(String email, String verifyCode);
-
-    boolean existsById(int id);
 
     boolean isRecentlyVerified(HttpSession session);
 
     void removeUserPicture(int userId);
 
-    int getIdByEmail(String email);
 }
