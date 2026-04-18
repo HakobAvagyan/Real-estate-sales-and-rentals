@@ -12,7 +12,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByEmail(String email);
 
-    List<User> findAllByRoleIn(List<Role> roles);
+    List<User> findUserByRole(Role role);
 
     Optional<User> findFirstByRoleInAndIdNot(Collection<Role> roles, int userId);
 }

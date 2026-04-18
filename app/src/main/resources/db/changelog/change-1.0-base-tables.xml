@@ -20,7 +20,7 @@
             <column name="password" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="passport_details" type="varchar(255)"><constraints nullable="false"/></column>
             <column name="pic_name" type="varchar(255)"><constraints nullable="true"/></column>
-            <column name="role" type="enum('ADMIN','MANAGER','USER','CUSTOMER')"><constraints nullable="false"/></column>
+            <column name="role" type="enum('ADMIN','MANAGER','USER')"><constraints nullable="false"/></column>
             <column name="is_blocked" type="tinyint(1)" defaultValueNumeric="0"><constraints nullable="false"/></column>
             <column name="created_at" type="date"><constraints nullable="false"/></column>
         </createTable>

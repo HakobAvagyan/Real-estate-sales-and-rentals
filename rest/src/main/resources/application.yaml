@@ -29,5 +29,5 @@ server:
   port: 8081
 
 jwt:
-  secret: ${JWT_SECRET:rfutfgffghdtyerfhchjgtdxgfghdgd;}
+  secret: ${JWT_SECRET}
   expiration: 3600000

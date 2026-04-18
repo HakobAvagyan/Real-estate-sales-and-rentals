@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.chat.ChatPushService;
 import org.example.dto.chat.ChatConversationDto;
 import org.example.dto.chat.ChatMessageDto;
@@ -29,6 +30,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConversationServiceImpl implements ConversationService {
 
     private final ConversationRepository conversationRepository;
@@ -49,9 +51,11 @@ public class ConversationServiceImpl implements ConversationService {
 
         Property property = null;
         if (propertyId != null) {
+            log.error("User {} is trying to create/get direct conversation with user); {} for property {}", currentUserId, otherUserId, propertyId);
             property = propertyRepository.findById(propertyId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
             if (property.getUser().getId() != otherUserId) {
+                log.error("User {} is trying to create/get direct conversation with user); {} for property {} that does not belong to the other user", currentUserId, otherUserId, propertyId);
                 throw new BusinessException(ErrorCode.CONVERSATION_ACCESS_DENIED);
             }
         }
@@ -131,6 +135,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public ChatMessageDto sendMessage(int conversationId, int senderUserId, String text) {
         if (text == null || text.isBlank()) {
+            log.error("Text is null or blank");
             throw new BusinessException(ErrorCode.TRY_AGAIN);
         }
         Conversation conv = conversationRepository.findById(conversationId)
@@ -179,12 +184,14 @@ public class ConversationServiceImpl implements ConversationService {
 
     private void assertParticipant(Conversation conv, int userId) {
         if (conv.getUser1().getId() != userId && conv.getUser2().getId() != userId) {
+            log.error("User {} is trying to access conversation {} but is not a assertParticipant", userId, conv.getId());
             throw new BusinessException(ErrorCode.CONVERSATION_ACCESS_DENIED);
         }
     }
 
     private User otherParticipant(Conversation conv, int userId) {
         if (conv.getUser1().getId() == userId) {
+            log.error("User {} is trying to access conversation {} but is not a otherParticipant", userId, conv.getId());
             return userRepository.findById(conv.getUser2().getId()).orElseThrow();
         }
         return userRepository.findById(conv.getUser1().getId()).orElseThrow();
@@ -232,8 +239,8 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
 
-    private User getUserOrThrow(int userId) {
-        return userRepository.findById(userId)
+    private void getUserOrThrow(int userId) {
+        userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId));
     }
 

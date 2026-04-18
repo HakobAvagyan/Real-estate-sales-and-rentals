@@ -1,7 +1,8 @@
 package org.example.app.controller;
 
-import org.apache.commons.io.FileUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.example.dto.location.LocationDto;
 import org.example.dto.property.PropertyResponseDto;
 import org.example.exception.ErrorCode;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class MainController {
 
     @Value("${system.upload.images.directory.path}")
@@ -67,7 +69,6 @@ public class MainController {
                 case ADMIN    -> "/admin/home";
                 case USER     -> "/user/home";
                 case MANAGER  -> "/manager/home";
-                case CUSTOMER -> "/customer/home";
             };
             modelMap.addAttribute("dashboardUrl", dashboardUrl);
         }
@@ -76,7 +77,9 @@ public class MainController {
     }
 
     @GetMapping("/image/get")
-    public @ResponseBody ResponseEntity<byte[]> getImage(@RequestParam("pic") String picName) {
+    public @ResponseBody ResponseEntity<byte[]> getImage(
+            @RequestParam("pic") String picName,
+            @AuthenticationPrincipal SpringUser springUser) {
         Path basePath = Paths.get(imageDirectoryPath).normalize();
         Path requestedPath = basePath.resolve(picName).normalize();
         if (!requestedPath.startsWith(basePath)) {
@@ -89,6 +92,7 @@ public class MainController {
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
                         .body(FileUtils.readFileToByteArray(file));
             } catch (IOException e) {
+                log.error("Failed to read image file: {} user email: {}", e.getMessage(), springUser.getUser().getEmail());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }

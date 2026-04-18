@@ -1,5 +1,6 @@
 package org.example.chat.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.chat.StompUserPrincipalProvider;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 @Configuration
 @EnableWebSocketMessageBroker
+@Slf4j
 public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompUserPrincipalProvider stompUserPrincipalProvider;
@@ -28,6 +30,7 @@ public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
     public WebSocketChatConfig(ObjectProvider<StompUserPrincipalProvider> principalProvider) {
         this.stompUserPrincipalProvider = principalProvider.getIfUnique();
         if (this.stompUserPrincipalProvider == null) {
+            log.error("StompUserPrincipalProvider is null");
             throw new IllegalStateException(
                     "Expected exactly one StompUserPrincipalProvider bean "
                             + "(see AppStompPrincipalProvider in app, RestStompPrincipalProvider in rest).");
@@ -63,6 +66,7 @@ public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor acc = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (acc != null && acc.getUser() instanceof Authentication authentication) {
+                    log.error("Setting authentication for STOMP message: " + authentication.getName());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
                 return message;

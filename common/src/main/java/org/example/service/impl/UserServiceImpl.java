@@ -4,9 +4,8 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.notification.NotificationRequestDto;
-import org.example.dto.user.ChangePasswordRequest;
-import org.example.dto.user.ResetPasswordRequest;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserResponseDto;
 import org.example.dto.user.UserUpdateDto;
@@ -41,6 +40,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Value("${system.upload.images.directory.path}")
@@ -65,17 +65,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ChangePasswordRequest changePassword(String email,
-                                                String oldPassword,
-                                                String newPassword,
-                                                String confirmPassword) {
+    public void changePassword(String email,
+                               String oldPassword,
+                               String newPassword,
+                               String confirmPassword) {
         if (!newPassword.equals(confirmPassword)) {
+            log.error("Passwords do not match");
             throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
         }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            log.error("Passwords do not match");
             throw new BusinessException(ErrorCode.OLD_PASSWORD_IS_INCORRECT);
         }
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -89,11 +91,11 @@ public class UserServiceImpl implements UserService {
                         .format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationRequestDto);
 
-        return changePasswordRequestMapper.toChangePasswordRequestDto(savedUser);
+        changePasswordRequestMapper.toChangePasswordRequestDto(savedUser);
     }
 
     @Override
-    public ChangePasswordRequest changePasswordByEmail(String email) {
+    public void changePasswordByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL,
                         email));
@@ -102,26 +104,28 @@ public class UserServiceImpl implements UserService {
             sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
             user.setVerificationCode(verificationCode);
             userRepository.save(user);
-            return changePasswordRequestMapper.toChangePasswordRequestDto(user);
+            changePasswordRequestMapper.toChangePasswordRequestDto(user);
         } catch (MessagingException e) {
-            throw new BusinessException(ErrorCode.TRY_AGAIN);
+            log.error("Failed to send verification email to {}, and exception: {}", email, e.getMessage());
         }
     }
 
     @Override
-    public ResetPasswordRequest resetPassword(String email,
-                                              String code,
-                                              String newPassword,
-                                              String newConfirmPassword) {
+    public void resetPassword(String email,
+                              String code,
+                              String newPassword,
+                              String newConfirmPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
 
         if (!verifyUser(email, code)) {
+            log.error("Password reset verification failed for email: {}", email);
             throw new BusinessException(ErrorCode.VERIFICATION_FAILED, email);
         }
 
         if (!newPassword.equals(newConfirmPassword)) {
+            log.error("New passwords do not match with new confirm password");
             throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH, email);
         }
 
@@ -136,36 +140,26 @@ public class UserServiceImpl implements UserService {
                 .format(savedUser.getName(), savedUser.getSurname()));
         notificationService.save(notificationRequestDto);
 
-        return userResetPasswordMapper.toUserResetPasswordDto(savedUser);
+        userResetPasswordMapper.toUserResetPasswordDto(savedUser);
     }
 
     @Override
     public UserRegisterDto save(UserRegisterDto userRegisterDto,
                                 MultipartFile multipartFile) {
-        if (multipartFile != null && !multipartFile.isEmpty()) {
-            String fileName = System.currentTimeMillis() + "_" +
-                    multipartFile.getOriginalFilename();
-            File file = new File(imageDirectoryPath + fileName);
-            try {
-                multipartFile.transferTo(file);
-                userRegisterDto.setPicName(fileName);
-            } catch (IOException e) {
-                throw new BusinessException(ErrorCode.TRY_AGAIN);
-            }
-        }
+        User user = userRegisterMapper.toUser(userRegisterDto);
+        editImage(multipartFile, user);
         if (userRegisterDto.getId() != 0) {
             userRepository.findById(userRegisterDto.getId()).ifPresent(
                     productOptional ->
                             userRegisterDto.setPicName(productOptional.getPicName()));
         }
-        User user = userRegisterMapper.toUser(userRegisterDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String verificationCode = generateVerificationCode();
         try {
             sendMailService.sendVerificationMailHtml(user.getEmail(), verificationCode);
             user.setVerificationCode(verificationCode);
         } catch (MessagingException e) {
-            throw new BusinessException(ErrorCode.TRY_AGAIN);
+            log.error("Failed to send verification code for register email: {}, and exception: {}", user.getEmail(), e.getMessage());
         }
         User savedUser = userRepository.save(user);
 
@@ -180,10 +174,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRegisterDto createManager(UserRegisterDto userRegisterDto,
-                                         MultipartFile file) {
+    public void createManager(UserRegisterDto userRegisterDto,
+                              MultipartFile file) {
         userRegisterDto.setRole(Role.MANAGER);
-        return save(userRegisterDto, file);
+        save(userRegisterDto, file);
     }
 
     @Override
@@ -195,7 +189,7 @@ public class UserServiceImpl implements UserService {
     public void deleteById(int id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, id));
-        assertMayDeleteUser(user.getId());
+        assertMayEditUserProfile(user.getId());
         userRepository.deleteById(user.getId());
         sendMailService.sendMail(
                 user.getEmail(),
@@ -216,8 +210,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         if (isNowBlocked) {
+            log.info("User {} is now blocked", user.getEmail());
             notificationService.notifyUserBlocked(user);
         } else {
+            log.info("User {} is now unblocked", user.getEmail());
             notificationService.notifyUserUnblocked(user);
         }
     }
@@ -242,17 +238,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userUpdateDto.getPhone());
         user.setBirthDate(userUpdateDto.getBirthDate());
         user.setPassportDetails(userUpdateDto.getPassportDetails());
-        if (multipartFile != null && !multipartFile.isEmpty()) {
-            String fileName = System.currentTimeMillis() + "_" +
-                    multipartFile.getOriginalFilename();
-            File file = new File(imageDirectoryPath + fileName);
-            try {
-                multipartFile.transferTo(file);
-                user.setPicName(fileName);
-            } catch (IOException e) {
-                throw new BusinessException(ErrorCode.TRY_AGAIN);
-            }
-        }
+        editImage(multipartFile, user);
         User savedUser = userRepository.save(user);
 
         NotificationRequestDto notificationRequestDto = new NotificationRequestDto();
@@ -267,8 +253,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponseDto> findAllByRoleIn(List<Role> roles) {
-        return userResponseMapper.toUserResponseDtoList(userRepository.findAllByRoleIn(roles));
+    public List<UserResponseDto> findUserByRole(Role roles) {
+        return userResponseMapper.toUserResponseDtoList(userRepository.findUserByRole(roles));
     }
 
     @Override
@@ -281,21 +267,17 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             return true;
         }
+        log.error("Invalid verification code");
         return false;
-    }
-
-    @Override
-    public boolean existsById(int id) {
-        return userRepository.existsById(id);
     }
 
     @Override
     public boolean isRecentlyVerified(HttpSession session) {
         LocalDateTime verifiedAtObj = (LocalDateTime) session.getAttribute("passwordResetVerifiedAt");
         if (verifiedAtObj == null) {
-            return false;
+            return true;
         }
-        return verifiedAtObj.isAfter(LocalDateTime.now().minusMinutes(5));
+        return !verifiedAtObj.isAfter(LocalDateTime.now().minusMinutes(5));
     }
 
     @Override
@@ -307,18 +289,14 @@ public class UserServiceImpl implements UserService {
         if (user.getPicName() != null) {
             File file = new File(imageDirectoryPath + user.getPicName());
             if (file.exists()) {
-                file.delete();
+                if (!file.delete()) {
+                    log.error("Failed to delete file {}", user.getPicName());
+                    throw new RuntimeException("Failed to delete file: " + file.getName());
+                }
             }
             user.setPicName(null);
             userRepository.save(user);
         }
-    }
-
-    @Override
-    public int getIdByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(User::getId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
     }
 
     private String generateVerificationCode() {
@@ -329,6 +307,7 @@ public class UserServiceImpl implements UserService {
     private void assertMayEditUserProfile(int targetUserId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            log.error("Invalid authentication");
             throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
         User current = userRepository.findByEmail(auth.getName())
@@ -337,25 +316,24 @@ public class UserServiceImpl implements UserService {
             return;
         }
         if (current.getRole() == Role.ADMIN) {
+            log.info("ADMIN-user profile");
             return;
         }
         throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);
     }
 
-    private void assertMayDeleteUser(int targetUserId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
-            throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
+    private void editImage(MultipartFile multipartFile, User user) {
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            String fileName = System.currentTimeMillis() + "_" +
+                    multipartFile.getOriginalFilename();
+            File file = new File(imageDirectoryPath + fileName);
+            try {
+                multipartFile.transferTo(file);
+                user.setPicName(fileName);
+            } catch (IOException e) {
+                log.error("Failed to save user image: {}", e.getMessage());
+            }
         }
-        User current = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, auth.getName()));
-        if (current.getId() == targetUserId) {
-            throw new BusinessException(ErrorCode.CANNOT_DELETE_OWN_ACCOUNT, targetUserId);
-        }
-        if (current.getRole() == Role.ADMIN || current.getRole() == Role.MANAGER) {
-            return;
-        }
-        throw new BusinessException(ErrorCode.PROFILE_EDIT_NOT_ALLOWED);
     }
 
 }

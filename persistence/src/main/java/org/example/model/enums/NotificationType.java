@@ -5,9 +5,6 @@ public enum NotificationType {
     USER_REGISTERED_NOTIFICATION("Welcome %s %s!\n" +
                     "Your registration was successful.\n" +
                     "Your profile is now active. You can browse properties, connect with our real estate agents, and publish your own property listings."),
-    CUSTOMER_REGISTERED_NOTIFICATION("Welcome %s %s!\n" +
-                    "Your registration was successful.\n" +
-                    "Your profile is now active. Start exploring properties and publish your own advertisements anytime."),
     MANAGER_REGISTERED_NOTIFICATION("Welcome %s %s!\n" + "Your registration was successful.\n" +
                     "Your profile is now active. You can now manage properties, assist customers, and oversee real estate transactions."),
     PROFILE_REMOVED_NOTIFICATION("Dear %s %s,\n" +

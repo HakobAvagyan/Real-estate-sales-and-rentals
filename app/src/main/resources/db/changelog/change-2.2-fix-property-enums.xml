@@ -9,7 +9,7 @@
 
         <sql>
             ALTER TABLE properties
-            MODIFY type enum('HOUSE','APARTAMENT','APARTMENT','LAND') NOT NULL;
+            MODIFY type enum('HOUSE','APARTMENT','LAND') NOT NULL;
         </sql>
         <sql>
             UPDATE properties SET type = 'APARTMENT' WHERE type = 'APARTAMENT';
@@ -34,14 +34,14 @@
         <rollback>
             <sql>
                 ALTER TABLE properties
-                MODIFY type enum('HOUSE','APARTAMENT','APARTMENT','LAND') NOT NULL;
+                MODIFY type enum('HOUSE','APARTMENT','LAND') NOT NULL;
             </sql>
             <sql>
-                UPDATE properties SET type = 'APARTAMENT' WHERE type = 'APARTMENT';
+                UPDATE properties SET type = 'APARTMENT' WHERE type = 'APARTMENT';
             </sql>
             <sql>
                 ALTER TABLE properties
-                MODIFY type enum('HOUSE','APARTAMENT','LAND') NOT NULL;
+                MODIFY type enum('HOUSE','APARTMENT','LAND') NOT NULL;
             </sql>
 
             <sql>
