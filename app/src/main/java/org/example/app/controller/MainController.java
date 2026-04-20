@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -43,12 +44,25 @@ public class MainController {
         return "index";
     }
 
+    @GetMapping("/property/details")
+    public String propertyDetails(@RequestParam Integer propertyId, ModelMap modelMap) {
+        PropertyResponseDto property = propertyService.findById(propertyId);
+        List<PropertyResponseDto> similarProperties = propertyService.findAll().stream()
+                .filter(item -> item.getId() != property.getId())
+                .filter(item -> item.getPropertyType() == property.getPropertyType())
+                .limit(6)
+                .toList();
+        modelMap.addAttribute("property", property);
+        modelMap.addAttribute("similarProperties", similarProperties);
+        return "property/propertyDetails";
+    }
+
     @GetMapping("/home")
     public String homePage(@AuthenticationPrincipal SpringUser userPrincipal, ModelMap modelMap) {
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
         if (user == null) {
             modelMap.addAttribute("properties", propertyService.findAll());
-            return "home";
+            return "index";
         }
         if(user.isBlocked()){
             return "redirect:/loginPage?msg=" + ErrorCode.PROFILE_IS_BLOCKED.format(user.getEmail());

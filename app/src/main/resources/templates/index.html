@@ -7,60 +7,76 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+<div class="header-style-2">
+    <div class="container">
+        <div class="left-side">
+            <h2 class="headline">Real Estate Hub</h2>
+            <p class="subline mb-0">Apartments, houses and commercial properties.</p>
+        </div>
+        <div class="right-side header-widget">
+            <a class="header-widget-item btn btn-primary" href="/loginPage">Sign In</a>
+            <a class="header-widget-item btn btn-ghost" href="/register">Create Account</a>
+        </div>
+    </div>
+</div>
+
 <main class="layout">
     <section class="panel">
         <div class="hero">
-            <span class="icon">🏡</span>
-            <h1 class="headline">Real Estate Hub</h1>
-            <p class="subline">Sales and rentals platform for professionals.</p>
-            <div class="actions">
-                <a class="btn btn-primary" href="/loginPage">Sign In</a>
-                <a class="btn btn-ghost" href="/register">Create Account</a>
-            </div>
+            <h1 class="headline">Real Estate in Armenia</h1>
+            <p class="subline">Discover current sale and rental offers in one place.</p>
+        </div>
+        <div class="actions">
+            <a class="btn btn-primary" href="#">Sale</a>
+            <a class="btn btn-ghost" href="#">Lease</a>
+        </div>
+        <div class="actions">
+            <a class="btn btn-ghost" href="#">Apartment</a>
+            <a class="btn btn-ghost" href="#">House</a>
+            <a class="btn btn-ghost" href="#">Commercial</a>
         </div>
     </section>
 
     <section class="panel wide">
         <div class="page-header">
             <div>
-                <h2 class="headline">Available Properties</h2>
-                <p class="subline mb-0">All current products from the database.</p>
+                <h2 class="headline">Latest Listings</h2>
+                <p class="subline mb-0">Most relevant properties from the database.</p>
             </div>
         </div>
         <div th:if="${#lists.isEmpty(properties)}">
             <p>No properties found.</p>
         </div>
-        <div class="table-wrap" th:if="${!#lists.isEmpty(properties)}">
-            <table>
-                <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Title</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Type</th>
-                    <th>Location ID</th>
-                    <th>Surface</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="property : ${properties}">
-                    <td>
-                        <img class="avatar"
-                             th:if="${!#lists.isEmpty(property.imageUrls)}"
-                             th:src="@{/image/get(pic=${property.imageUrls[0]})}"
-                             alt="Property image">
-                        <span th:if="${#lists.isEmpty(property.imageUrls)}">No image</span>
-                    </td>
-                    <td th:text="${property.title}"></td>
-                    <td th:text="${property.price}"></td>
-                    <td><span class="badge" th:text="${property.status}"></span></td>
-                    <td th:text="${property.propertyType}"></td>
-                    <td th:text="${property.locationId}"></td>
-                    <td th:text="${property.surface}"></td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="listing-grid" th:if="${!#lists.isEmpty(properties)}">
+            <div class="panel listing-card" th:each="property : ${properties}">
+                <div class="listing-image">
+                    <img class="avatar"
+                         th:if="${!#lists.isEmpty(property.imageUrls)}"
+                         th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                         alt="Property image">
+                    <div th:if="${#lists.isEmpty(property.imageUrls)}">No image</div>
+                </div>
+                <div class="listing-content">
+                    <h3 class="headline" th:text="${property.title}">Property title</h3>
+                    <p class="subline">
+                        <span th:text="${property.propertyType}">Apartment</span>
+                        <span> | </span>
+                        <span th:text="${property.locationId}">Location</span>
+                    </p>
+                    <p class="subline">
+                        <span th:text="${property.surface}">0</span>
+                        <span> sq.m.</span>
+                    </p>
+                    <div class="actions">
+                        <span class="badge" th:text="${property.status}">status</span>
+                        <strong th:text="${property.price}">0</strong>
+                        <a class="btn btn-primary"
+                           th:href="@{/property/details(propertyId=${property.id})}">
+                            details
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </main>

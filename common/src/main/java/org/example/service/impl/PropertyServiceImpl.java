@@ -78,6 +78,17 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
+    public PropertyResponseDto findById(Integer id) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, id));
+        List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                .stream()
+                .map(PropertyImage::getImagesUrl)
+                .toList();
+        return toResponse(property, imageUrls);
+    }
+
+    @Override
     public List<PropertyResponseDto> findAllByUserId(Integer userId) {
         return propertyRepository.findAllByUserId(userId).stream().map(property -> {
             List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())

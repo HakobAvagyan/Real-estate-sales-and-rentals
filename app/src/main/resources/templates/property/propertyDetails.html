@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="header-style-2">
+    <div class="container">
+        <div class="left-side">
+            <h2 class="headline">Property Details</h2>
+            <p class="subline mb-0">Detailed information about the selected listing.</p>
+        </div>
+        <div class="right-side header-widget">
+            <a class="header-widget-item btn btn-ghost" th:href="@{/index}">Back to listings</a>
+        </div>
+    </div>
+</div>
+
+<main class="layout">
+    <section class="panel wide" th:if="${property != null}">
+        <div class="page-header">
+            <div>
+                <h1 class="headline" th:text="${property.title}">Property title</h1>
+                <p class="subline">
+                    <span th:text="${property.propertyType}">Apartment</span>
+                    <span> | Location #</span>
+                    <span th:text="${property.locationId}">0</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="listing-image">
+            <img class="avatar"
+                 th:if="${!#lists.isEmpty(property.imageUrls)}"
+                 th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                 alt="Property image">
+            <div th:if="${#lists.isEmpty(property.imageUrls)}">No image</div>
+        </div>
+        <div class="listing-grid" th:if="${!#lists.isEmpty(property.imageUrls)}">
+            <th:block th:each="imageUrl, iterStat : ${property.imageUrls}">
+                <div class="panel listing-card" th:if="${iterStat.index > 0}">
+                    <div class="listing-image">
+                        <img class="avatar"
+                             th:src="@{/image/get(pic=${imageUrl})}"
+                             alt="Property gallery image">
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <div class="listing-content">
+            <p class="subline" th:if="${property.description != null and !#strings.isEmpty(property.description)}"
+               th:text="${property.description}">
+                Property description
+            </p>
+
+            <div class="actions">
+                <span class="badge" th:text="${property.status}">status</span>
+                <strong th:text="${property.price}">0</strong>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>Surface</th>
+                        <td>
+                            <span th:text="${property.surface}">0</span>
+                            <span> sq.m.</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Rooms</th>
+                        <td th:text="${property.roomsCount}">0</td>
+                    </tr>
+                    <tr>
+                        <th>Bathrooms</th>
+                        <td th:text="${property.bathroomsCount}">0</td>
+                    </tr>
+                    <tr>
+                        <th>Floor</th>
+                        <td>
+                            <span th:text="${property.floor}">0</span>
+                            <span> / </span>
+                            <span th:text="${property.floorCount}">0</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Published</th>
+                        <td th:text="${property.createdAt}">date</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel wide" th:if="${!#lists.isEmpty(similarProperties)}">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">Similar Listings</h2>
+                <p class="subline mb-0">Other properties with the same type.</p>
+            </div>
+        </div>
+        <div class="listing-grid">
+            <div class="panel listing-card" th:each="item : ${similarProperties}">
+                <div class="listing-image">
+                    <img class="avatar"
+                         th:if="${!#lists.isEmpty(item.imageUrls)}"
+                         th:src="@{/image/get(pic=${item.imageUrls[0]})}"
+                         alt="Similar property image">
+                    <div th:if="${#lists.isEmpty(item.imageUrls)}">No image</div>
+                </div>
+                <div class="listing-content">
+                    <h3 class="headline" th:text="${item.title}">Property title</h3>
+                    <p class="subline">
+                        <span th:text="${item.surface}">0</span>
+                        <span> sq.m. | </span>
+                        <span th:text="${item.propertyType}">Apartment</span>
+                    </p>
+                    <div class="actions">
+                        <span class="badge" th:text="${item.status}">status</span>
+                        <strong th:text="${item.price}">0</strong>
+                        <a class="btn btn-primary"
+                           th:href="@{/property/details(propertyId=${item.id})}">
+                            details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
