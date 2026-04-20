@@ -3,66 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome | Real Estate Hub</title>
+    <title>Real Estate Hub</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<main class="layout">
+
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="site-logo" href="/">🏡 Real Estate Hub</a>
+        <nav class="site-nav">
+            <th:block th:if="${currentUser != null}">
+                <a class="site-user-link" th:href="${dashboardUrl}">
+                    <span class="site-user-avatar" th:text="${#strings.substring(currentUser.name, 0, 1).toUpperCase()}"></span>
+                    <span th:text="${currentUser.name + ' ' + currentUser.surname}"></span>
+                </a>
+            </th:block>
+            <th:block th:if="${currentUser == null}">
+                <a class="btn btn-ghost btn-sm" href="/loginPage">Sign In</a>
+                <a class="btn btn-primary btn-sm" href="/register">Register</a>
+            </th:block>
+        </nav>
+    </div>
+</header>
+
+<main class="catalog-layout">
     <section class="panel">
         <div class="hero">
-            <span class="icon">🏡</span>
-            <h1 class="headline">Real Estate Hub</h1>
-            <p class="subline">Sales and rentals platform for professionals.</p>
-            <div class="actions">
-                <a class="btn btn-primary" href="/loginPage">Sign In</a>
-                <a class="btn btn-ghost" href="/register">Create Account</a>
-            </div>
+            <h1 class="headline">Real Estate in Armenia</h1>
+            <p class="subline">Discover current sale and rental offers in one place.</p>
+        </div>
+        <div class="actions">
+            <a class="btn btn-primary" href="#">Sale</a>
+            <a class="btn btn-ghost" href="#">Lease</a>
+        </div>
+        <div class="actions">
+            <a class="btn btn-ghost" href="#">Apartment</a>
+            <a class="btn btn-ghost" href="#">House</a>
+            <a class="btn btn-ghost" href="#">Commercial</a>
         </div>
     </section>
 
-    <section class="panel wide">
-        <div class="page-header">
-            <div>
-                <h2 class="headline">Available Properties</h2>
-                <p class="subline mb-0">All current products from the database.</p>
+    <div class="catalog-header">
+        <h2 class="headline">Latest Listings</h2>
+        <p class="subline mb-0"
+           th:text="${properties != null ? #lists.size(properties) + ' properties found' : ''}"></p>
+    </div>
+
+    <div th:if="${properties == null or #lists.isEmpty(properties)}" class="empty-state">
+        <span class="empty-icon">🏠</span>
+        <p>No properties found at the moment.</p>
+    </div>
+
+    <div class="prop-grid" th:if="${properties != null and !#lists.isEmpty(properties)}">
+        <div class="prop-card" th:each="property : ${properties}">
+
+            <div class="prop-card-img-wrap">
+                <img class="prop-card-img"
+                     th:if="${!#lists.isEmpty(property.imageUrls)}"
+                     th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                     alt="Property image">
+                <div class="prop-card-img-placeholder"
+                     th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
+                <span class="prop-card-status"
+                      th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
+                      th:text="${property.status}"></span>
+                <div class="prop-card-urgent-ribbon"
+                     th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}">URGENT</div>
+            </div>
+            <div class="prop-card-body">
+                <div class="prop-card-type" th:text="${property.propertyType}"></div>
+
+                <div class="prop-card-location"
+                     th:if="${locationMap != null and locationMap[property.locationId] != null}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span th:text="${locationMap[property.locationId].city
+                        + (locationMap[property.locationId].district != null
+                           ? ', ' + locationMap[property.locationId].district : '')}"></span>
+                </div>
+
+                <div class="prop-card-price"
+                     th:text="'$' + ${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}"></div>
+
+                <div class="prop-card-meta">
+                    <span class="prop-card-meta-item" th:if="${property.roomsCount != null}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                        <span th:text="${property.roomsCount} + ' rm.'"></span>
+                    </span>
+                    <span class="prop-card-meta-item" th:if="${property.surface > 0}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        </svg>
+                        <span th:text="${property.surface} + ' sq.m.'"></span>
+                    </span>
+                    <span class="prop-card-meta-item"
+                          th:if="${property.floorCount != null and property.floorCount > 0}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="2" x2="12" y2="22"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                        <span th:text="${property.floor} + '/' + ${property.floorCount} + ' fl.'"></span>
+                    </span>
+                </div>
+
+                <th:block th:if="${property.status.name() == 'FOR_RENT'}">
+                    <a class="prop-card-book-btn" th:if="${currentUser == null}" href="/loginPage">BOOK</a>
+                    <a class="prop-card-book-btn" href="#"
+                       th:if="${currentUser != null and property.userId == currentUser.id}"
+                       onclick="showOwnListing(event)">BOOK</a>
+                    <a class="prop-card-book-btn"
+                       th:if="${currentUser != null and property.userId != currentUser.id}"
+                       th:href="@{/booking/form(propertyId=${property.id})}">BOOK</a>
+                    <a class="btn btn-primary btn-sm"
+                       th:href="@{/property/details(propertyId=${property.id})}">details</a>
+                </th:block>
+
+                <th:block th:if="${property.status.name() == 'FOR_SALE'}">
+                    <div class="prop-card-actions">
+                        <a class="prop-card-write-btn" th:if="${currentUser == null}" href="/loginPage">WRITE</a>
+                        <a class="prop-card-phone-btn" th:if="${currentUser == null}" href="/loginPage">PHONE</a>
+
+                        <a class="prop-card-write-btn" href="#"
+                           th:if="${currentUser != null and property.userId == currentUser.id}"
+                           onclick="showOwnListing(event)">WRITE</a>
+                        <button class="prop-card-phone-btn" type="button"
+                                th:if="${currentUser != null and property.userId == currentUser.id}"
+                                onclick="showOwnListing(event)">PHONE</button>
+
+                        <a class="prop-card-write-btn"
+                           th:if="${currentUser != null and property.userId != currentUser.id}"
+                           th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}">WRITE</a>
+                        <button class="prop-card-phone-btn" type="button"
+                                th:if="${currentUser != null and property.userId != currentUser.id}"
+                                th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
+                                onclick="openPhonePopup(this)">PHONE</button>
+                    </div>
+                    <a class="btn btn-primary btn-sm"
+                       th:href="@{/property/details(propertyId=${property.id})}">details</a>
+                </th:block>
             </div>
         </div>
-        <div th:if="${#lists.isEmpty(properties)}">
-            <p>No properties found.</p>
-        </div>
-        <div class="table-wrap" th:if="${!#lists.isEmpty(properties)}">
-            <table>
-                <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Title</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Type</th>
-                    <th>Location ID</th>
-                    <th>Surface</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="property : ${properties}">
-                    <td>
-                        <img class="avatar"
-                             th:if="${!#lists.isEmpty(property.imageUrls)}"
-                             th:src="@{/image/get(pic=${property.imageUrls[0]})}"
-                             alt="Property image">
-                        <span th:if="${#lists.isEmpty(property.imageUrls)}">No image</span>
-                    </td>
-                    <td th:text="${property.title}"></td>
-                    <td th:text="${property.price}"></td>
-                    <td><span class="badge" th:text="${property.status}"></span></td>
-                    <td th:text="${property.propertyType}"></td>
-                    <td th:text="${property.locationId}"></td>
-                    <td th:text="${property.surface}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    </div>
 </main>
+
+<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+
+<div id="ownListingToast" class="own-listing-toast">This is your listing</div>
+
+<div id="phonePopup" class="phone-popup">
+    <div class="phone-popup-card">
+        <p class="phone-popup-label">Seller's phone</p>
+        <p id="phonePopupNumber" class="phone-popup-number"></p>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closePhonePopup()">Close</button>
+    </div>
+</div>
+
+<script>
+    function showOwnListing(event) {
+        event.preventDefault();
+        var toast = document.getElementById('ownListingToast');
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(function () { toast.classList.remove('show'); }, 3000);
+    }
+
+    function openPhonePopup(btn) {
+        var phone = btn.dataset.phone;
+        document.getElementById('phonePopupNumber').textContent = phone || 'Not provided';
+        document.getElementById('phonePopup').classList.add('open');
+    }
+    function closePhonePopup() {
+        document.getElementById('phonePopup').classList.remove('open');
+    }
+    document.getElementById('phonePopup').addEventListener('click', function (e) {
+        if (e.target === this) closePhonePopup();
+    });
+</script>
 </body>
 </html>

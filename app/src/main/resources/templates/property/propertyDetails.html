@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details | Real Estate Hub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .image-zoom-trigger {
+            cursor: zoom-in;
+        }
+        .image-lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.88);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .image-lightbox.open {
+            display: flex;
+        }
+        .image-lightbox img {
+            max-width: 95vw;
+            max-height: 92vh;
+            border-radius: 8px;
+        }
+        .image-lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .image-lightbox-nav.prev {
+            left: 18px;
+        }
+        .image-lightbox-nav.next {
+            right: 18px;
+        }
+        .image-lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            border: 0;
+            background: transparent;
+            color: #fff;
+            font-size: 34px;
+            line-height: 1;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="header-style-2">
+    <div class="container">
+        <div class="left-side">
+            <h2 class="headline">Property Details</h2>
+            <p class="subline mb-0">Detailed information about the selected listing.</p>
+        </div>
+        <div class="right-side header-widget">
+            <a class="header-widget-item btn btn-ghost" th:href="@{/index}">Back to listings</a>
+        </div>
+    </div>
+</div>
+
+<main class="layout">
+    <section class="panel wide" th:if="${property != null}">
+        <div class="page-header">
+            <div>
+                <h1 class="headline" th:text="${property.title}">Property title</h1>
+                <p class="subline">
+                    <span th:text="${property.propertyType}">Apartment</span>
+                    <span> | Location #</span>
+                    <span th:text="${property.locationId}">0</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="prop-card-img-wrap">
+            <img class="prop-card-img"
+                 th:if="${!#lists.isEmpty(property.imageUrls)}"
+                 th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                 th:attr="data-full-image=@{/image/get(pic=${property.imageUrls[0]})}"
+                 th:classappend="' image-zoom-trigger'"
+                 alt="Property image">
+            <div class="prop-card-img-placeholder"
+                 th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
+            <span class="prop-card-status"
+                  th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
+                  th:text="${property.status}"></span>
+            <div class="prop-card-urgent-ribbon"
+                 th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}">URGENT</div>
+        </div>
+        <div class="listing-grid" th:if="${!#lists.isEmpty(property.imageUrls)}">
+            <th:block th:each="imageUrl, iterStat : ${property.imageUrls}">
+                <div class="panel listing-card" th:if="${iterStat.index > 0}">
+                    <div class="prop-card-img-wrap">
+                        <img class="prop-card-img"
+                             th:src="@{/image/get(pic=${imageUrl})}"
+                             th:attr="data-full-image=@{/image/get(pic=${imageUrl})}"
+                             th:classappend="' image-zoom-trigger'"
+                             alt="Property gallery image">
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <div class="listing-content">
+            <p class="subline" th:if="${property.description != null and !#strings.isEmpty(property.description)}"
+               th:text="${property.description}">
+                Property description
+            </p>
+
+            <div class="actions">
+                <span class="badge" th:text="${property.status}">status</span>
+                <strong th:text="${property.price}">0</strong>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>Surface</th>
+                        <td>
+                            <span th:text="${property.surface}">0</span>
+                            <span> sq.m.</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Rooms</th>
+                        <td th:text="${property.roomsCount}">0</td>
+                    </tr>
+                    <tr>
+                        <th>Bathrooms</th>
+                        <td th:text="${property.bathroomsCount}">0</td>
+                    </tr>
+                    <tr>
+                        <th>Floor</th>
+                        <td>
+                            <span th:text="${property.floor}">0</span>
+                            <span> / </span>
+                            <span th:text="${property.floorCount}">0</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Published</th>
+                        <td th:text="${property.createdAt}">date</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel wide" th:if="${!#lists.isEmpty(similarProperties)}">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">Similar Listings</h2>
+                <p class="subline mb-0">Other properties with the same type.</p>
+            </div>
+        </div>
+        <div class="listing-grid">
+            <div class="panel listing-card" th:each="item : ${similarProperties}">
+                <div class="prop-card-img-wrap">
+                    <img class="prop-card-img"
+                         th:if="${!#lists.isEmpty(item.imageUrls)}"
+                         th:src="@{/image/get(pic=${item.imageUrls[0]})}"
+                         th:attr="data-full-image=@{/image/get(pic=${item.imageUrls[0]})}"
+                         th:classappend="' image-zoom-trigger'"
+                         alt="Similar property image">
+                    <div class="prop-card-img-placeholder"
+                         th:if="${#lists.isEmpty(item.imageUrls)}">🏠</div>
+                    <span class="prop-card-status"
+                          th:classappend="${item.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
+                          th:text="${item.status}"></span>
+                    <div class="prop-card-urgent-ribbon"
+                         th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, item.id)}">URGENT</div>
+                </div>
+                <div class="listing-content">
+                    <h3 class="headline" th:text="${item.title}">Property title</h3>
+                    <p class="subline">
+                        <span th:text="${item.surface}">0</span>
+                        <span> sq.m. | </span>
+                        <span th:text="${item.propertyType}">Apartment</span>
+                    </p>
+                    <div class="actions">
+                        <span class="badge" th:text="${item.status}">status</span>
+                        <strong th:text="${item.price}">0</strong>
+                        <a class="btn btn-primary"
+                           th:href="@{/property/details(propertyId=${item.id})}">
+                            details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<div id="imageLightbox" class="image-lightbox" aria-hidden="true">
+    <button id="imageLightboxPrev" class="image-lightbox-nav prev" type="button" aria-label="Previous image">&#8249;</button>
+    <button id="imageLightboxNext" class="image-lightbox-nav next" type="button" aria-label="Next image">&#8250;</button>
+    <button id="imageLightboxClose" class="image-lightbox-close" type="button" aria-label="Close image">&times;</button>
+    <img id="imageLightboxPreview" src="" alt="Full size property image">
+</div>
+<script>
+    (function () {
+        var lightbox = document.getElementById('imageLightbox');
+        var preview = document.getElementById('imageLightboxPreview');
+        var closeBtn = document.getElementById('imageLightboxClose');
+        var prevBtn = document.getElementById('imageLightboxPrev');
+        var nextBtn = document.getElementById('imageLightboxNext');
+        var images = Array.prototype.slice.call(document.querySelectorAll('[data-full-image]'));
+        var currentIndex = -1;
+
+        function showImageAt(index) {
+            if (!images.length) {
+                return;
+            }
+            if (index < 0) {
+                index = images.length - 1;
+            }
+            if (index >= images.length) {
+                index = 0;
+            }
+            currentIndex = index;
+            preview.src = images[currentIndex].dataset.fullImage;
+            lightbox.classList.add('open');
+            lightbox.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            preview.src = '';
+            currentIndex = -1;
+        }
+
+        document.addEventListener('click', function (event) {
+            var target = event.target;
+            if (target && target.dataset && target.dataset.fullImage) {
+                var clickedIndex = images.indexOf(target);
+                showImageAt(clickedIndex);
+                return;
+            }
+            if (target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        closeBtn.addEventListener('click', closeLightbox);
+        prevBtn.addEventListener('click', function () {
+            if (currentIndex >= 0) {
+                showImageAt(currentIndex - 1);
+            }
+        });
+        nextBtn.addEventListener('click', function () {
+            if (currentIndex >= 0) {
+                showImageAt(currentIndex + 1);
+            }
+        });
+        document.addEventListener('keydown', function (event) {
+            if (!lightbox.classList.contains('open')) {
+                return;
+            }
+            if (event.key === 'Escape') {
+                closeLightbox();
+            } else if (event.key === 'ArrowLeft') {
+                showImageAt(currentIndex - 1);
+            } else if (event.key === 'ArrowRight') {
+                showImageAt(currentIndex + 1);
+            }
+        });
+    })();
+</script>
+</body>
+</html>
