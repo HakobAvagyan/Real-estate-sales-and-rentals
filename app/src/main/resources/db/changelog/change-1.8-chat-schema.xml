@@ -3,37 +3,47 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="1.8.1-conversation-drop-fks" author="HakobAvagyan">
+    <changeSet id="1.8.1-conversation-drop-fks" author="system">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="conversation"/>
+            <and>
+                <tableExists tableName="conversation"/>
+                <foreignKeyConstraintExists foreignKeyName="conv_u1_FK"/>
+            </and>
         </preConditions>
         <sql>ALTER TABLE conversation DROP FOREIGN KEY conv_u1_FK;</sql>
     </changeSet>
 
     <changeSet id="1.8.2-conversation-drop-fk-user2" author="system">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="conversation"/>
+            <and>
+                <tableExists tableName="conversation"/>
+                <foreignKeyConstraintExists foreignKeyName="conv_u2_FK"/>
+            </and>
         </preConditions>
         <sql>ALTER TABLE conversation DROP FOREIGN KEY conv_u2_FK;</sql>
     </changeSet>
 
-    <changeSet id="1.8.3-conversation-drop-unique-indexes" author="ыфьвфкишт">
-        <validCheckSum>ANY</validCheckSum>
+    <changeSet id="1.8.3-conversation-drop-unique-indexes" author="system">
         <preConditions onFail="MARK_RAN">
             <and>
                 <tableExists tableName="conversation"/>
                 <indexExists tableName="conversation" indexName="user1_id"/>
+            </and>
+        </preConditions>
+        <dropIndex tableName="conversation" indexName="user1_id"/>
+    </changeSet>
+
+    <changeSet id="1.8.3.1-conversation-drop-unique-index-user2" author="system">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="conversation"/>
                 <indexExists tableName="conversation" indexName="user2_id"/>
             </and>
         </preConditions>
-        <sql stripComments="true" splitStatements="true">
-            ALTER TABLE conversation DROP INDEX user1_id;
-            ALTER TABLE conversation DROP INDEX user2_id;
-        </sql>
+        <dropIndex tableName="conversation" indexName="user2_id"/>
     </changeSet>
 
     <changeSet id="1.8.4-conversation-recreate-indexes-and-fks" author="system">
-        <validCheckSum>9:9a1fc486414f8ff74d11906d290eb857</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <and>
                 <tableExists tableName="conversation"/>
@@ -74,7 +84,8 @@
                                  baseColumnNames="user1_id"
                                  constraintName="conv_u1_FK"
                                  referencedTableName="user"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
     </changeSet>
 
     <changeSet id="1.8.4.3-conversation-recreate-fk-user2" author="system">
@@ -90,7 +101,8 @@
                                  baseColumnNames="user2_id"
                                  constraintName="conv_u2_FK"
                                  referencedTableName="user"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
     </changeSet>
 
     <changeSet id="1.8.5-conversation-add-chat-context" author="system">

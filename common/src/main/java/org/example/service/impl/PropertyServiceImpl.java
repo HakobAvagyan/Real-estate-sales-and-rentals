@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -77,6 +78,17 @@ public class PropertyServiceImpl implements PropertyService {
                     .toList();
             return toResponse(property, imageUrls);
         }).toList();
+    }
+
+    @Override
+    public Optional<PropertyResponseDto> findById(int id) {
+        return propertyRepository.findById(id).map(property -> {
+            List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                    .stream()
+                    .map(PropertyImage::getImagesUrl)
+                    .toList();
+            return toResponse(property, imageUrls);
+        });
     }
 
     @Override

@@ -27,6 +27,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/user/**").hasAuthority("USER")
                                 .requestMatchers("/personalPage", "/remove/user/picture", "/change/password").hasAnyAuthority("ADMIN", "MANAGER", "USER")
                                 .requestMatchers("/messages", "/messages/**").hasAnyAuthority("ADMIN", "MANAGER", "USER")
+                                .requestMatchers("/booking/**", "/payment/**").hasAnyAuthority("ADMIN", "MANAGER", "USER")
                                 .requestMatchers("/ws-chat/**").authenticated()
                                 .anyRequest().authenticated()
                 )

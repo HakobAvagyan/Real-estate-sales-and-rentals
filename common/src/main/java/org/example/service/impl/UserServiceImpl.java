@@ -35,7 +35,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -297,6 +299,18 @@ public class UserServiceImpl implements UserService {
             user.setPicName(null);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public Map<Integer, String> getSellerPhoneMap(List<Integer> userIds) {
+        return userIds.stream()
+                .collect(Collectors.toMap(
+                        uid -> uid,
+                        uid -> {
+                            UserResponseDto u = findById(uid);
+                            return u.getPhone() != null ? u.getPhone() : "";
+                        }
+                ));
     }
 
     private String generateVerificationCode() {
