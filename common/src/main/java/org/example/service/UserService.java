@@ -9,7 +9,6 @@ import org.example.model.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
 
@@ -42,7 +41,5 @@ public interface UserService {
     boolean isRecentlyVerified(HttpSession session);
 
     void removeUserPicture(int userId);
-
-    Map<Integer, String> getSellerPhoneMap(List<Integer> userIds);
 
 }

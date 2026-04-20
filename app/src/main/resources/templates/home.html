@@ -51,9 +51,8 @@
                 <span class="prop-card-status"
                       th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
                       th:text="${property.status}"></span>
-                <div class="prop-card-urgent-ribbon"
-                     th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}">URGENT</div>
             </div>
+
             <div class="prop-card-body">
                 <div class="prop-card-type" th:text="${property.propertyType}"></div>
 
@@ -102,85 +101,11 @@
                         <span th:text="${property.floor} + '/' + ${property.floorCount} + ' fl.'"></span>
                     </span>
                 </div>
-
-                <th:block th:if="${property.status.name() == 'FOR_RENT'}">
-                    <!-- Not logged in -->
-                    <a class="prop-card-book-btn" th:if="${currentUser == null}" href="/loginPage">BOOK</a>
-                    <!-- Own listing -->
-                    <a class="prop-card-book-btn" href="#"
-                       th:if="${currentUser != null and property.userId == currentUser.id}"
-                       onclick="showOwnListing(event)">BOOK</a>
-                    <!-- Other user's listing -->
-                    <a class="prop-card-book-btn"
-                       th:if="${currentUser != null and property.userId != currentUser.id}"
-                       th:href="@{/booking/form(propertyId=${property.id})}">BOOK</a>
-                </th:block>
-
-                <th:block th:if="${property.status.name() == 'FOR_SALE'}">
-                    <div class="prop-card-actions">
-
-                        <!-- Not logged in -->
-                        <a class="prop-card-write-btn" th:if="${currentUser == null}" href="/loginPage">WRITE</a>
-                        <a class="prop-card-phone-btn" th:if="${currentUser == null}" href="/loginPage">PHONE</a>
-
-                        <!-- Own listing -->
-                        <a class="prop-card-write-btn" href="#"
-                           th:if="${currentUser != null and property.userId == currentUser.id}"
-                           onclick="showOwnListing(event)">WRITE</a>
-                        <button class="prop-card-phone-btn" type="button"
-                                th:if="${currentUser != null and property.userId == currentUser.id}"
-                                onclick="showOwnListing(event)">PHONE</button>
-
-                        <!-- Other user's listing -->
-                        <a class="prop-card-write-btn"
-                           th:if="${currentUser != null and property.userId != currentUser.id}"
-                           th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}">WRITE</a>
-                        <button class="prop-card-phone-btn" type="button"
-                                th:if="${currentUser != null and property.userId != currentUser.id}"
-                                th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
-                                onclick="openPhonePopup(this)">PHONE</button>
-
-                    </div>
-                </th:block>
             </div>
 
         </div>
     </div>
 </main>
 
-
-<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
-
-<div id="ownListingToast" class="own-listing-toast">This is your listing</div>
-
-<div id="phonePopup" class="phone-popup">
-    <div class="phone-popup-card">
-        <p class="phone-popup-label">Seller's phone</p>
-        <p id="phonePopupNumber" class="phone-popup-number"></p>
-        <button class="btn btn-ghost btn-sm" type="button" onclick="closePhonePopup()">Close</button>
-    </div>
-</div>
-
-<script>
-    function showOwnListing(event) {
-        event.preventDefault();
-        var toast = document.getElementById('ownListingToast');
-        toast.classList.add('show');
-        clearTimeout(toast._timer);
-        toast._timer = setTimeout(function () { toast.classList.remove('show'); }, 3000);
-    }
-
-    function openPhonePopup(btn) {
-        var phone = btn.dataset.phone;
-        document.getElementById('phonePopupNumber').textContent = phone || 'Not provided';
-        document.getElementById('phonePopup').classList.add('open');
-    }
-    function closePhonePopup() {
-        document.getElementById('phonePopup').classList.remove('open');
-    }
-    document.getElementById('phonePopup').addEventListener('click', function (e) {
-        if (e.target === this) closePhonePopup();
-    });
-</script>
 </body>
 </html>

@@ -21,7 +21,6 @@
     </section>
     <section class="panel">
         <div class="nav-links">
-            <a class="btn btn-ghost" href="/home">Main Page</a>
             <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
             <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
             <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
@@ -49,7 +48,6 @@
                     <th>Type</th>
                     <th>Location ID</th>
                     <th>Surface</th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -67,10 +65,6 @@
                     <td th:text="${property.propertyType}"></td>
                     <td th:text="${property.locationId}"></td>
                     <td th:text="${property.surface}"></td>
-                    <td>
-                        <a class="btn btn-sm btn-urgent"
-                           th:href="@{/payment/urgent(propertyId=${property.id})}">URGENT</a>
-                    </td>
                 </tr>
                 </tbody>
             </table>

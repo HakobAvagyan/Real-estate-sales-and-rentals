@@ -7,11 +7,8 @@ import org.example.dto.location.LocationDto;
 import org.example.dto.property.PropertyResponseDto;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
-import org.example.model.enums.PropertyStatus;
 import org.example.service.LocationService;
-import org.example.service.PaymentService;
 import org.example.service.PropertyService;
-import org.example.service.UserService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -41,8 +37,6 @@ public class MainController {
     private String imageDirectoryPath;
     private final PropertyService propertyService;
     private final LocationService locationService;
-    private final UserService userService;
-    private final PaymentService paymentService;
 
     @GetMapping("/")
     public String mainPage() {
@@ -64,21 +58,12 @@ public class MainController {
             return "redirect:/loginPage?msg=" + ErrorCode.PROFILE_IS_BLOCKED.format(user.getEmail());
         }
 
-        List<PropertyResponseDto> properties = propertyService.findAll();
-        modelMap.addAttribute("properties", properties);
+        modelMap.addAttribute("properties", propertyService.findAll());
         Map<Integer, LocationDto> locationMap = locationService.getAll()
                 .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
         modelMap.addAttribute("locationMap", locationMap);
-        modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
 
         if (user != null) {
-            List<Integer> sellerIds = properties.stream()
-                    .filter(p -> p.getStatus() == PropertyStatus.FOR_SALE)
-                    .map(PropertyResponseDto::getUserId)
-                    .distinct()
-                    .toList();
-            modelMap.addAttribute("sellerPhoneMap", userService.getSellerPhoneMap(sellerIds));
-
             modelMap.addAttribute("currentUser", user);
             String dashboardUrl = switch (user.getRole()) {
                 case ADMIN    -> "/admin/home";

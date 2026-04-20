@@ -30,7 +30,7 @@ public class PropertyController {
     public String createPropertyPage(ModelMap modelMap) {
         modelMap.addAttribute("locationNames", locationService.getAllLocationNames());
         modelMap.addAttribute("propertyTypes", PropertyType.values());
-        modelMap.addAttribute("propertyStatuses", new PropertyStatus[]{PropertyStatus.FOR_SALE, PropertyStatus.FOR_RENT});
+        modelMap.addAttribute("propertyStatuses", PropertyStatus.values());
         return "property/createProperty";
     }
 
