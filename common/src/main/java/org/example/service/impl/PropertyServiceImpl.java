@@ -3,7 +3,9 @@ package org.example.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.property.PropertyCreateRequestDto;
+import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
+import org.example.specification.PropertySpecification;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.mapper.property.PropertyCreateRequestMapper;
@@ -78,6 +80,21 @@ public class PropertyServiceImpl implements PropertyService {
                     .toList();
             return toResponse(property, imageUrls);
         }).toList();
+    }
+
+    @Override
+    public List<PropertyResponseDto> findAllFiltered(PropertyFilterDto filter) {
+        if (filter == null || filter.isEmpty()) {
+            return findAll();
+        }
+        return propertyRepository.findAll(PropertySpecification.withFilter(filter)).stream()
+                .map(property -> {
+                    List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                            .stream()
+                            .map(PropertyImage::getImagesUrl)
+                            .toList();
+                    return toResponse(property, imageUrls);
+                }).toList();
     }
 
     @Override

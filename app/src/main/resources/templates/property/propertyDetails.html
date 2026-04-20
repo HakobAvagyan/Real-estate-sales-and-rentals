@@ -60,6 +60,7 @@
     </style>
 </head>
 <body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <div class="header-style-2">
     <div class="container">
         <div class="left-side">
@@ -67,7 +68,7 @@
             <p class="subline mb-0">Detailed information about the selected listing.</p>
         </div>
         <div class="right-side header-widget">
-            <a class="header-widget-item btn btn-ghost" th:href="@{/index}">Back to listings</a>
+            <a class="header-widget-item btn btn-ghost" th:href="@{/home}">Back to listings</a>
         </div>
     </div>
 </div>

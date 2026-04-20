@@ -8,46 +8,173 @@
 </head>
 <body>
 
-<header class="site-header">
-    <div class="site-header-inner">
-        <a class="site-logo" href="/">🏡 Real Estate Hub</a>
-        <nav class="site-nav">
-            <th:block th:if="${currentUser != null}">
-                <a class="site-user-link" th:href="${dashboardUrl}">
-                    <span class="site-user-avatar" th:text="${#strings.substring(currentUser.name, 0, 1).toUpperCase()}"></span>
-                    <span th:text="${currentUser.name + ' ' + currentUser.surname}"></span>
-                </a>
-            </th:block>
-            <th:block th:if="${currentUser == null}">
-                <a class="btn btn-ghost btn-sm" href="/loginPage">Sign In</a>
-                <a class="btn btn-primary btn-sm" href="/register">Register</a>
-            </th:block>
-        </nav>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+
+<!-- Filter overlay -->
+<div id="filterOverlay" class="filter-overlay" onclick="closeFilterPanel()"></div>
+
+<!-- Filter panel -->
+<div id="filterPanel" class="filter-panel">
+    <div class="filter-panel-header">
+        <span class="filter-panel-title">Filters</span>
+        <button class="filter-panel-close" type="button" onclick="closeFilterPanel()">&#x2715;</button>
     </div>
-</header>
+    <form id="filterForm" method="get" th:action="@{/home}" class="filter-form">
+        <!-- Property Type -->
+        <div class="filter-section">
+            <div class="filter-section-label">Property Type</div>
+            <div class="filter-checkboxes">
+                <label class="filter-checkbox-label" th:each="type : ${propertyTypes}">
+                    <input type="radio" name="propertyType" th:value="${type}"
+                           th:checked="${filter.propertyType == type}">
+                    <span th:text="${type}"></span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="radio" name="propertyType" value=""
+                           th:checked="${filter.propertyType == null}">
+                    <span>Any</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="filter-section">
+            <div class="filter-section-label">Status</div>
+            <div class="filter-checkboxes">
+                <label class="filter-checkbox-label" th:each="st : ${propertyStatuses}">
+                    <input type="radio" name="status" th:value="${st}"
+                           th:checked="${filter.status == st}">
+                    <span th:text="${st}"></span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="radio" name="status" value=""
+                           th:checked="${filter.status == null}">
+                    <span>Any</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Price -->
+        <div class="filter-section">
+            <div class="filter-section-label">Price ($)</div>
+            <div class="filter-range-row">
+                <input type="number" name="minPrice" placeholder="From"
+                       th:value="${filter.minPrice}" min="0" step="1000">
+                <span class="filter-range-sep">—</span>
+                <input type="number" name="maxPrice" placeholder="To"
+                       th:value="${filter.maxPrice}" min="0" step="1000">
+            </div>
+        </div>
+
+        <!-- Surface -->
+        <div class="filter-section">
+            <div class="filter-section-label">Area (sq.m.)</div>
+            <div class="filter-range-row">
+                <input type="number" name="minSurface" placeholder="From"
+                       th:value="${filter.minSurface}" min="0">
+                <span class="filter-range-sep">—</span>
+                <input type="number" name="maxSurface" placeholder="To"
+                       th:value="${filter.maxSurface}" min="0">
+            </div>
+        </div>
+
+        <!-- Rooms -->
+        <div class="filter-section">
+            <div class="filter-section-label">Rooms</div>
+            <div class="filter-range-row">
+                <input type="number" name="minRooms" placeholder="From"
+                       th:value="${filter.minRooms}" min="1">
+                <span class="filter-range-sep">—</span>
+                <input type="number" name="maxRooms" placeholder="To"
+                       th:value="${filter.maxRooms}" min="1">
+            </div>
+        </div>
+
+        <!-- Bathrooms -->
+        <div class="filter-section">
+            <div class="filter-section-label">Bathrooms (min)</div>
+            <input type="number" name="minBathrooms" placeholder="e.g. 1"
+                   th:value="${filter.minBathrooms}" min="1">
+        </div>
+
+        <!-- Floor -->
+        <div class="filter-section">
+            <div class="filter-section-label">Floor</div>
+            <div class="filter-range-row">
+                <input type="number" name="minFloor" placeholder="From"
+                       th:value="${filter.minFloor}" min="0">
+                <span class="filter-range-sep">—</span>
+                <input type="number" name="maxFloor" placeholder="To"
+                       th:value="${filter.maxFloor}" min="0">
+            </div>
+        </div>
+
+        <!-- Region -->
+        <div class="filter-section">
+            <div class="filter-section-label">Region</div>
+            <select name="region">
+                <option value="" th:selected="${filter.region == null}">Any</option>
+                <option th:each="reg : ${regions}" th:value="${reg}" th:text="${reg}"
+                        th:selected="${filter.region == reg}"></option>
+            </select>
+        </div>
+
+        <!-- City -->
+        <div class="filter-section">
+            <div class="filter-section-label">City</div>
+            <input type="text" name="city" placeholder="City name"
+                   th:value="${filter.city}">
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary filter-apply-btn">Apply</button>
+            <a th:href="@{/home}" class="btn btn-ghost filter-reset-btn">Reset</a>
+        </div>
+    </form>
+</div>
 
 <main class="catalog-layout">
-    <section class="panel">
-        <div class="hero">
-            <h1 class="headline">Real Estate in Armenia</h1>
-            <p class="subline">Discover current sale and rental offers in one place.</p>
+    <section class="panel wide urgent-panel">
+        <!-- hero headings removed as requested -->
+        <div th:if="${urgentPropertyIds != null and !#lists.isEmpty(urgentPropertyIds)}" class="prop-grid urgent-grid">
+            <div class="prop-card" th:each="property : ${properties}" th:if="${urgentPropertyIds.contains(property.id)}">
+                <div class="prop-card-img-wrap">
+                    <a th:href="@{/property/details(propertyId=${property.id})}">
+                        <img class="prop-card-img" th:if="${!#lists.isEmpty(property.imageUrls)}" th:src="@{/image/get(pic=${property.imageUrls[0]})}" alt="Property image">
+                        <div class="prop-card-img-placeholder" th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
+                    </a>
+                    <div class="prop-card-urgent-ribbon">URGENT</div>
+                </div>
+                <div class="prop-card-body">
+                    <div class="prop-card-type" th:text="${property.propertyType}"></div>
+                    <div class="prop-card-location" th:if="${locationMap != null and locationMap[property.locationId] != null}">
+                        <span th:text="${locationMap[property.locationId].city}"></span>
+                    </div>
+                    <div class="prop-card-price" th:text="'$' + ${#numbers.formatDecimal(property.price,0,'COMMA',0,'POINT')}"></div>
+                </div>
+            </div>
         </div>
-        <div class="actions">
-            <a class="btn btn-primary" href="#">Sale</a>
-            <a class="btn btn-ghost" href="#">Lease</a>
-        </div>
-        <div class="actions">
-            <a class="btn btn-ghost" href="#">Apartment</a>
-            <a class="btn btn-ghost" href="#">House</a>
-            <a class="btn btn-ghost" href="#">Commercial</a>
+
+        <div th:if="${urgentPropertyIds == null or #lists.isEmpty(urgentPropertyIds)}" class="empty-state">
+            <p>No urgent listings at the moment.</p>
         </div>
     </section>
 
-    <div class="catalog-header">
-        <h2 class="headline">Latest Listings</h2>
-        <p class="subline mb-0"
-           th:text="${properties != null ? #lists.size(properties) + ' properties found' : ''}"></p>
+    <div class="listings-toolbar">
+        <button class="filter-toggle-btn" type="button" onclick="openFilterPanel()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+                <line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+            Filters
+            <span class="filter-active-badge" th:if="${filter != null and !filter.isEmpty()}">Active</span>
+        </button>
     </div>
+
+    <div class="listings-area">
 
     <div th:if="${properties == null or #lists.isEmpty(properties)}" class="empty-state">
         <span class="empty-icon">🏠</span>
@@ -56,6 +183,7 @@
 
     <div class="prop-grid" th:if="${properties != null and !#lists.isEmpty(properties)}">
         <div class="prop-card" th:each="property : ${properties}">
+            <a class="prop-card-overlay-link" th:href="@{/property/details(propertyId=${property.id})}"></a>
 
             <div class="prop-card-img-wrap">
                 <img class="prop-card-img"
@@ -127,8 +255,6 @@
                     <a class="prop-card-book-btn"
                        th:if="${currentUser != null and property.userId != currentUser.id}"
                        th:href="@{/booking/form(propertyId=${property.id})}">BOOK</a>
-                    <a class="btn btn-primary btn-sm"
-                       th:href="@{/property/details(propertyId=${property.id})}">details</a>
                 </th:block>
 
                 <th:block th:if="${property.status.name() == 'FOR_SALE'}">
@@ -151,12 +277,12 @@
                                 th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
                                 onclick="openPhonePopup(this)">PHONE</button>
                     </div>
-                    <a class="btn btn-primary btn-sm"
-                       th:href="@{/property/details(propertyId=${property.id})}">details</a>
                 </th:block>
             </div>
         </div>
     </div>
+
+    </div><!-- end listings-area -->
 </main>
 
 <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
@@ -172,6 +298,17 @@
 </div>
 
 <script>
+    function openFilterPanel() {
+        document.getElementById('filterPanel').classList.add('open');
+        document.getElementById('filterOverlay').classList.add('open');
+        document.body.classList.add('filter-panel-active');
+    }
+    function closeFilterPanel() {
+        document.getElementById('filterPanel').classList.remove('open');
+        document.getElementById('filterOverlay').classList.remove('open');
+        document.body.classList.remove('filter-panel-active');
+    }
+
     function showOwnListing(event) {
         event.preventDefault();
         var toast = document.getElementById('ownListingToast');
