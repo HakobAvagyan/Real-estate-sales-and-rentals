@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.example.dto.location.LocationDto;
 import org.example.dto.property.PropertyResponseDto;
+import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
 import org.example.model.enums.PropertyStatus;
@@ -54,6 +55,21 @@ public class MainController {
         java.util.List<PropertyResponseDto> properties = propertyService.findAll();
         modelMap.addAttribute("properties", properties);
         return "index";
+    }
+
+    @GetMapping("/property/details")
+    public String propertyDetails(@RequestParam Integer propertyId, ModelMap modelMap) {
+        PropertyResponseDto property = propertyService.findById(propertyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        List<PropertyResponseDto> similarProperties = propertyService.findAll().stream()
+                .filter(item -> item.getId() != property.getId())
+                .filter(item -> item.getPropertyType() == property.getPropertyType())
+                .limit(6)
+                .toList();
+        modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
+        modelMap.addAttribute("property", property);
+        modelMap.addAttribute("similarProperties", similarProperties);
+        return "property/propertyDetails";
     }
 
     @GetMapping("/home")
