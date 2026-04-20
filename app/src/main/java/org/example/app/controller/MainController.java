@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.example.dto.location.LocationDto;
+import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
 import org.example.model.enums.PropertyStatus;
+import org.example.model.enums.PropertyType;
+import org.example.model.enums.Region;
 import org.example.service.LocationService;
 import org.example.service.PaymentService;
 import org.example.service.PropertyService;
@@ -22,6 +25,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -50,13 +54,6 @@ public class MainController {
         return "redirect:/home";
     }
 
-    @GetMapping("/index")
-    public String indexPage(ModelMap modelMap) {
-        java.util.List<PropertyResponseDto> properties = propertyService.findAll();
-        modelMap.addAttribute("properties", properties);
-        return "index";
-    }
-
     @GetMapping("/property/details")
     public String propertyDetails(@RequestParam Integer propertyId, ModelMap modelMap) {
         PropertyResponseDto property = propertyService.findById(propertyId)
@@ -73,15 +70,21 @@ public class MainController {
     }
 
     @GetMapping("/home")
-    public String homePage(@AuthenticationPrincipal SpringUser userPrincipal, ModelMap modelMap) {
+    public String homePage(@AuthenticationPrincipal SpringUser userPrincipal,
+                           @ModelAttribute PropertyFilterDto filter,
+                           ModelMap modelMap) {
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
 
         if (user != null && user.isBlocked()) {
             return "redirect:/loginPage?msg=" + ErrorCode.PROFILE_IS_BLOCKED.format(user.getEmail());
         }
 
-        List<PropertyResponseDto> properties = propertyService.findAll();
+        List<PropertyResponseDto> properties = propertyService.findAllFiltered(filter);
         modelMap.addAttribute("properties", properties);
+        modelMap.addAttribute("filter", filter);
+        modelMap.addAttribute("propertyTypes", PropertyType.values());
+        modelMap.addAttribute("propertyStatuses", new PropertyStatus[]{PropertyStatus.FOR_SALE, PropertyStatus.FOR_RENT});
+        modelMap.addAttribute("regions", Region.values());
         Map<Integer, LocationDto> locationMap = locationService.getAll()
                 .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
         modelMap.addAttribute("locationMap", locationMap);

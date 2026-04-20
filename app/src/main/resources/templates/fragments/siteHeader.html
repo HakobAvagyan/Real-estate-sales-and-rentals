@@ -1,0 +1,34 @@
+<th:block th:fragment="siteHeader">
+  <header class="site-header brand">
+    <div class="site-header-inner">
+      <div class="site-brand">
+        <a class="site-logo" th:href="@{/home}">
+          <img class="site-logo-img" th:src="@{/image/get(pic='logo.png')}" alt="Logo" />
+        </a>
+
+        <div class="site-cats">
+          <a class="site-cat-link" th:href="@{/home(category='Apartment')}">Apartment</a>
+          <a class="site-cat-link" th:href="@{/home(category='House')}">House</a>
+          <a class="site-cat-link" th:href="@{/home(category='Commercial')}">Commercial</a>
+        </div>
+      </div>
+
+      <nav class="site-nav">
+        <th:block th:if="${currentUser != null}">
+          <a class="site-user-link" th:href="${dashboardUrl}">
+            <span class="site-user-avatar" th:text="${#strings.substring(currentUser.name, 0, 1).toUpperCase()}"></span>
+            <span th:text="${currentUser.name + ' ' + currentUser.surname}"></span>
+          </a>
+        </th:block>
+
+        <th:block th:if="${currentUser == null}">
+          <a class="site-auth-btn site-auth-signin" th:href="@{/loginPage}">Sign In</a>
+          <a class="site-auth-btn site-auth-register" th:href="@{/register}">Register</a>
+        </th:block>
+      </nav>
+    </div>
+  </header>
+</th:block>
+
+
+

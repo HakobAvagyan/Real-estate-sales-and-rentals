@@ -20,7 +20,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/login","/verify","/reset/password/byEmail", "/verify/password", "/verify/password/reset",  "/","/index", "/property/details", "/loginPage", "/home", "/register", "/css/**", "/js/**", "/image/**").permitAll()
+                                .requestMatchers("/login","/verify","/reset/password/byEmail", "/verify/password", "/verify/password/reset",  "/", "/property/details", "/loginPage", "/home", "/register", "/css/**", "/js/**", "/image/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/manager/**").hasAuthority("MANAGER")
                                 .requestMatchers("/blocked").hasAnyAuthority("ADMIN", "MANAGER")
