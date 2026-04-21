@@ -257,6 +257,8 @@
                        th:href="@{/booking/form(propertyId=${property.id})}">BOOK</a>
                 </th:block>
 
+
+
                 <th:block th:if="${property.status.name() == 'FOR_SALE'}">
                     <div class="prop-card-actions">
                         <a class="prop-card-write-btn" th:if="${currentUser == null}" href="/loginPage">WRITE</a>
@@ -276,6 +278,15 @@
                                 th:if="${currentUser != null and property.userId != currentUser.id}"
                                 th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
                                 onclick="openPhonePopup(this)">PHONE</button>
+
+                        <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post">
+                            <input type="hidden" name="propertyId" th:value="${property.id}">
+                            <input type="hidden" name="userId" th:value="${currentUser.id}">
+                            <button type="submit">
+                                ❤️
+                            </button>
+                        </form>
+
                     </div>
                 </th:block>
             </div>
