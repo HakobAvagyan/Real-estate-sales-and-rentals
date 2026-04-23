@@ -3,8 +3,10 @@ package org.example.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.dto.favorites.FavoritePageDto;
 import org.example.dto.favorites.FavoritesDto;
 import org.example.dto.notification.NotificationRequestDto;
+import org.example.dto.property.PropertyResponseDto;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserResponseDto;
 import org.example.exception.BusinessException;
@@ -14,9 +16,14 @@ import org.example.mapper.user.UserResponseMapper;
 import org.example.model.Favorites;
 import org.example.model.User;
 import org.example.model.enums.NotificationType;
+import org.example.model.enums.PropertyStatus;
+import org.example.model.enums.PropertyType;
+import org.example.model.enums.Region;
 import org.example.repository.FavoritesRepository;
 import org.example.service.FavoriteService;
+import org.example.service.LocationService;
 import org.example.service.NotificationService;
+import org.example.service.PaymentService;
 import org.example.service.PropertyService;
 import org.example.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -33,15 +40,33 @@ public class FavoritesServiceImpl implements FavoriteService {
     private final FavoritesRepository favoritesRepository;
     private final UserService userService;
     private final PropertyService propertyService;
+    private final LocationService locationService;
+    private final PaymentService  paymentService;
     private final UserResponseMapper userResponseMapper;
     private final NotificationService notificationService;
     private final FavoritesMapper favoritesMapper;
 
     @Override
-    public List<FavoritesDto> findAllByUserId(Integer userId) {
-        userService.findById(userId);
-        return favoritesMapper.toFavoritesListDto(favoritesRepository.findAllByUserId(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.FAVORITES_NOT_FOUND, userId)));
+    public FavoritePageDto getFavoritePageData(int userId) {
+
+        List<FavoritesDto> favorites = favoritesMapper.toFavoritesListDto(
+                favoritesRepository.findAllByUserId(userId)
+                        .orElseThrow(() -> new BusinessException(ErrorCode.FAVORITES_NOT_FOUND, userId))
+        );
+
+        List<PropertyResponseDto> properties = favorites.stream()
+                .map(FavoritesDto::getProperty)
+                .toList();
+
+        FavoritePageDto dto = new FavoritePageDto();
+        dto.setProperties(properties);
+        dto.setPropertyTypes(PropertyType.values());
+        dto.setPropertyStatuses(new PropertyStatus[]{PropertyStatus.FOR_SALE, PropertyStatus.FOR_RENT});
+        dto.setRegions(Region.values());
+        dto.setLocationMap(locationService.getLocationMap());
+        dto.setUrgentPropertyIds(paymentService.getActiveUrgentPropertyIds());
+
+        return dto;
     }
 
     @Override

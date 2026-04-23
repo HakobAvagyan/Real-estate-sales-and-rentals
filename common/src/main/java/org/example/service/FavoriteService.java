@@ -1,12 +1,10 @@
 package org.example.service;
 
-import org.example.dto.favorites.FavoritesDto;
-
-import java.util.List;
+import org.example.dto.favorites.FavoritePageDto;
 
 public interface FavoriteService {
 
-    List<FavoritesDto> findAllByUserId(Integer userId);
+    FavoritePageDto getFavoritePageData(int userId);
 
     void addFavoriteProperty(int propertyId,int  userId);
 

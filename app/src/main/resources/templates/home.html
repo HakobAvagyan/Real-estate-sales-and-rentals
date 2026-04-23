@@ -281,7 +281,6 @@
 
                         <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post">
                             <input type="hidden" name="propertyId" th:value="${property.id}">
-                            <input type="hidden" name="userId" th:value="${currentUser.id}">
                             <button type="submit">
                                 ❤️
                             </button>
