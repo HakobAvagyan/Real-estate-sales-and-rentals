@@ -26,7 +26,9 @@ public enum ErrorCode {
     LOCATION_NAME_NOT_FOUND("Location name not found with id: %d"),
     INVALID_REQUEST_BODY("Request body is invalid"),
     PROFILE_EDIT_NOT_ALLOWED("You are not allowed to edit this user profile"),
-    URGENT_PLAN_NOT_FOUND("No active urgent sell plan found");
+    URGENT_PLAN_NOT_FOUND("No active urgent sell plan found"),
+    FAVORITES_NOT_FOUND("No favorites found with id: %d"),
+    FAVORITES_NOT_FOUND_WHIT_USER_ID_OR_PROPERTY_ID("No favorites found with user_id: %d or property_id: %d");
 
 
     private final String message;

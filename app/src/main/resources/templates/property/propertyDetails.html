@@ -73,6 +73,13 @@
     </div>
 </div>
 
+<form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post">
+    <input type="hidden" name="propertyId" th:value="${property.id}">
+    <button type="submit">
+        ❤️
+    </button>
+</form>
+
 <main class="layout">
     <section class="panel wide" th:if="${property != null}">
         <div class="page-header">

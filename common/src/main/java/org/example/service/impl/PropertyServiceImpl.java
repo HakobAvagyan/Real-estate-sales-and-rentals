@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.dto.property.PropertyCreateRequestDto;
 import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
-import org.example.specification.PropertySpecification;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.mapper.property.PropertyCreateRequestMapper;
@@ -20,6 +19,7 @@ import org.example.repository.PropertyImageRepository;
 import org.example.repository.PropertyRepository;
 import org.example.repository.UserRepository;
 import org.example.service.PropertyService;
+import org.example.specification.PropertySpecification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -148,7 +148,7 @@ public class PropertyServiceImpl implements PropertyService {
             try {
                 image.transferTo(imagePath.toFile());
             } catch (IOException e) {
-                log.error("Unable to save image for property {}", property.getId());
+                log.error("Unable to addFavoriteProperty image for property {}", property.getId());
             }
 
             String relativePath = "properties/" + storedFileName;
