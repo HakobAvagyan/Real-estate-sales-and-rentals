@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Details | Real Estate Hub</title>
+    <title th:text="#{page.property.details.title}">Property Details</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .image-zoom-trigger {
@@ -64,11 +64,11 @@
 <div class="header-style-2">
     <div class="container">
         <div class="left-side">
-            <h2 class="headline">Property Details</h2>
-            <p class="subline mb-0">Detailed information about the selected listing.</p>
+            <h2 class="headline" th:text="#{property.details.headline}">Property Details</h2>
+            <p class="subline mb-0" th:text="#{property.details.subline}">Detailed information about the selected listing.</p>
         </div>
         <div class="right-side header-widget">
-            <a class="header-widget-item btn btn-ghost" th:href="@{/home}">Back to listings</a>
+            <a class="header-widget-item btn btn-ghost" th:href="@{/home}" th:text="#{property.details.back}">Back to listings</a>
         </div>
     </div>
 </div>
@@ -78,10 +78,26 @@
         <div class="page-header">
             <div>
                 <h1 class="headline" th:text="${property.title}">Property title</h1>
+                <div class="rating-flash rating-flash-err moderation-banner"
+                     th:if="${property.moderationStatus != null and property.moderationStatus.name() == 'PENDING'}">
+                    <span th:utext="#{property.details.moderation.pendingHtml}">This listing is <strong>awaiting manager approval</strong> and is not shown in the public catalog yet.</span>
+                </div>
+                <div class="rating-flash rating-flash-err moderation-banner"
+                     th:if="${property.moderationStatus != null and property.moderationStatus.name() == 'REJECTED'}">
+                    <span th:utext="#{property.details.moderation.rejectedHtml}">This listing was <strong>not approved</strong>. Check your notifications for details.</span>
+                </div>
                 <p class="subline">
-                    <span th:text="${property.propertyType}">Apartment</span>
-                    <span> | Location #</span>
+                    <span th:with="typeKey=|enum.propertyType.${property.propertyType}|" th:text="#{__${typeKey}__}">Apartment</span>
+                    <span th:text="' | ' + #{property.details.locationPrefix}"> | Location #</span>
                     <span th:text="${property.locationId}">0</span>
+                </p>
+                <p class="prop-header-rating" th:with="rs=${propertyRatingSummaries.get(property.id)}">
+                    <span th:if="${rs != null and rs.reviewCount > 0}">
+                        <span class="rating-stars-inline">★</span>
+                        <strong th:text="${rs.averageStars}">0</strong><span class="muted">/5</span>
+                        <span class="muted" th:text="#{property.details.reviewCount(${rs.reviewCount})}"></span>
+                    </span>
+                    <span class="muted" th:if="${rs == null or rs.reviewCount == 0}" th:text="#{property.details.noReviews}">No reviews yet</span>
                 </p>
             </div>
         </div>
@@ -92,14 +108,15 @@
                  th:src="@{/image/get(pic=${property.imageUrls[0]})}"
                  th:attr="data-full-image=@{/image/get(pic=${property.imageUrls[0]})}"
                  th:classappend="' image-zoom-trigger'"
-                 alt="Property image">
+                 th:alt="#{home.card.alt}">
             <div class="prop-card-img-placeholder"
                  th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
             <span class="prop-card-status"
                   th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
-                  th:text="${property.status}"></span>
+                  th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                  th:text="#{__${statusKey}__}"></span>
             <div class="prop-card-urgent-ribbon"
-                 th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}">URGENT</div>
+                 th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}" th:text="#{home.urgent.badge}">URGENT</div>
         </div>
         <div class="listing-grid" th:if="${!#lists.isEmpty(property.imageUrls)}">
             <th:block th:each="imageUrl, iterStat : ${property.imageUrls}">
@@ -109,7 +126,7 @@
                              th:src="@{/image/get(pic=${imageUrl})}"
                              th:attr="data-full-image=@{/image/get(pic=${imageUrl})}"
                              th:classappend="' image-zoom-trigger'"
-                             alt="Property gallery image">
+                             th:alt="#{property.details.gallery.alt}">
                     </div>
                 </div>
             </th:block>
@@ -122,30 +139,38 @@
             </p>
 
             <div class="actions">
-                <span class="badge" th:text="${property.status}">status</span>
+                <span class="badge" th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                      th:text="#{__${statusKey}__}">status</span>
                 <strong th:text="${property.price}">0</strong>
             </div>
+
+            <p class="rating-cta-row">
+                <a class="btn btn-primary btn-sm" href="#ratings" th:if="${canRateProperty}" th:text="#{property.details.cta.rate}">Rate this property</a>
+                <a class="btn btn-ghost btn-sm" href="#ratings" th:text="#{property.details.cta.reviews}">Reviews</a>
+                <a class="btn btn-ghost btn-sm" href="#comments" th:text="#{property.details.cta.comments}">Comments</a>
+                <a class="btn btn-ghost btn-sm" th:href="@{/loginPage}" th:if="${currentUser == null}" th:text="#{property.details.cta.signIn}">Sign in to rate</a>
+            </p>
 
             <div class="table-wrap">
                 <table>
                     <tbody>
                     <tr>
-                        <th>Surface</th>
+                        <th th:text="#{property.details.table.surface}">Surface</th>
                         <td>
                             <span th:text="${property.surface}">0</span>
-                            <span> sq.m.</span>
+                            <span th:text="' ' + #{property.details.sqmUnit}"> sq.m.</span>
                         </td>
                     </tr>
                     <tr>
-                        <th>Rooms</th>
+                        <th th:text="#{property.details.table.rooms}">Rooms</th>
                         <td th:text="${property.roomsCount}">0</td>
                     </tr>
                     <tr>
-                        <th>Bathrooms</th>
+                        <th th:text="#{property.details.table.bathrooms}">Bathrooms</th>
                         <td th:text="${property.bathroomsCount}">0</td>
                     </tr>
                     <tr>
-                        <th>Floor</th>
+                        <th th:text="#{property.details.table.floor}">Floor</th>
                         <td>
                             <span th:text="${property.floor}">0</span>
                             <span> / </span>
@@ -153,7 +178,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>Published</th>
+                        <th th:text="#{property.details.table.published}">Published</th>
                         <td th:text="${property.createdAt}">date</td>
                     </tr>
                     </tbody>
@@ -162,11 +187,108 @@
         </div>
     </section>
 
+    <section id="ratings" class="panel wide rating-section" tabindex="-1">
+        <div class="page-header">
+            <div>
+                <h2 class="headline" th:text="#{property.details.ratings.title}">Ratings &amp; reviews</h2>
+                <p class="subline mb-0" th:text="#{property.details.ratings.subline}">Average score and feedback from visitors.</p>
+            </div>
+        </div>
+
+        <div class="rating-flash rating-flash-err" th:if="${ratingError != null}" th:text="${ratingError}"></div>
+        <div class="rating-flash rating-flash-ok" th:if="${ratingSuccess != null}" th:text="#{property.details.rating.saved}">Your rating was saved.</div>
+
+        <div class="rating-form-card" th:if="${canRateProperty}">
+            <h3 class="rating-form-title" th:text="${myPropertyReview != null} ? #{property.details.rating.update} : #{property.details.rating.leave}">Leave a review</h3>
+            <form th:action="@{/property/rating}" method="post" class="rating-form" id="propertyRatingForm">
+                <input type="hidden" name="propertyId" th:value="${property.id}"/>
+                <label class="filter-section-label" id="ratingStarsLabel" th:text="#{property.details.rating.score}">Your score (tap stars)</label>
+                <div class="star-rating-picker" id="starRatingPicker" aria-labelledby="ratingStarsLabel">
+                    <input type="hidden" name="stars" id="ratingStarsInput" required
+                           th:value="${myPropertyReview != null ? myPropertyReview.stars : 5}">
+                    <div class="star-rating-btns" role="radiogroup" aria-label="Rating from 1 to 5 stars">
+                        <button type="button" class="star-rating-btn" data-star="1" aria-label="1 star">★</button>
+                        <button type="button" class="star-rating-btn" data-star="2" aria-label="2 stars">★</button>
+                        <button type="button" class="star-rating-btn" data-star="3" aria-label="3 stars">★</button>
+                        <button type="button" class="star-rating-btn" data-star="4" aria-label="4 stars">★</button>
+                        <button type="button" class="star-rating-btn" data-star="5" aria-label="5 stars">★</button>
+                    </div>
+                    <p class="star-rating-hint muted" id="starRatingHint">Selected: <span id="starRatingValueLabel">5</span> / 5</p>
+                </div>
+                <label class="filter-section-label" for="ratingReviewText" th:text="#{property.details.rating.comment}">Comment (optional)</label>
+                <textarea id="ratingReviewText" name="reviewText" rows="4" maxlength="2000" class="inp rating-textarea"
+                          th:text="${myPropertyReview != null and myPropertyReview.reviewText != null ? myPropertyReview.reviewText : ''}"></textarea>
+                <button type="submit" class="btn btn-primary" th:text="#{property.details.rating.submit}">Submit</button>
+            </form>
+        </div>
+
+        <p class="subline" th:if="${currentUser == null}">
+            <span th:text="#{property.details.rating.login}">Log in to rate this property.</span>
+        </p>
+        <p class="subline muted"
+           th:if="${currentUser != null and !canRateProperty and currentUser.id == property.userId}">
+            <span th:text="#{property.details.rating.own}">You cannot rate your own listing.</span>
+        </p>
+
+        <div class="reviews-list" th:if="${propertyReviews != null and !propertyReviews.isEmpty()}">
+            <article class="review-item" th:each="rev : ${propertyReviews}">
+                <div class="review-item-head">
+                    <strong th:text="${rev.authorDisplayName}">Author</strong>
+                    <span class="review-item-stars" th:text="|★ ${rev.stars}/5|">★ 5/5</span>
+                    <span class="muted" th:text="${#temporals.format(rev.ratedAt, 'dd MMM yyyy, HH:mm')}">date</span>
+                </div>
+                <p class="review-item-text" th:if="${rev.reviewText != null and !#strings.isEmpty(rev.reviewText)}"
+                   th:text="${rev.reviewText}">text</p>
+            </article>
+        </div>
+        <p class="empty-state muted" th:if="${propertyReviews == null or propertyReviews.isEmpty()}" th:text="#{property.details.rating.noWritten}">No written reviews yet.</p>
+    </section>
+
+    <section id="comments" class="panel wide comment-section" tabindex="-1">
+        <div class="page-header">
+            <div>
+                <h2 class="headline" th:text="#{property.comments.title}">Comments</h2>
+                <p class="subline mb-0" th:with="cc=${propertyCommentCounts.get(property.id)}">
+                    <span th:text="${cc} + ' ' + (${cc} == 1 ? 'comment' : 'comments')">0 comments</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="rating-flash rating-flash-err" th:if="${commentError != null}" th:text="${commentError}"></div>
+        <div class="rating-flash rating-flash-ok" th:if="${commentSuccess != null}" th:text="#{property.comments.saved}">Your comment was posted.</div>
+
+        <div class="rating-form-card" th:if="${currentUser != null}">
+            <h3 class="rating-form-title" th:text="#{property.comments.add}">Add a comment</h3>
+            <form th:action="@{/property/comment}" method="post" class="rating-form">
+                <input type="hidden" name="propertyId" th:value="${property.id}"/>
+                <label class="filter-section-label" for="propertyCommentText" th:text="#{property.comments.message}">Message</label>
+                <textarea id="propertyCommentText" name="comment" rows="4" maxlength="4000" required
+                          class="inp rating-textarea"
+                          th:placeholder="#{property.comments.placeholder}"></textarea>
+                <button type="submit" class="btn btn-primary" th:text="#{property.comments.post}">Post comment</button>
+            </form>
+        </div>
+        <p class="subline" th:if="${currentUser == null}">
+            <span th:text="#{property.comments.login}">Log in to write a comment.</span>
+        </p>
+
+        <div class="comments-thread" th:if="${propertyComments != null and !propertyComments.isEmpty()}">
+            <article class="comment-item" th:each="cmt : ${propertyComments}">
+                <div class="comment-item-head">
+                    <strong th:text="${cmt.authorDisplayName}">Author</strong>
+                    <span class="muted" th:text="${#temporals.format(cmt.createdAt, 'dd MMM yyyy')}">date</span>
+                </div>
+                <p class="comment-item-text" th:text="${cmt.text}">text</p>
+            </article>
+        </div>
+        <p class="empty-state muted" th:if="${propertyComments == null or propertyComments.isEmpty()}" th:text="#{property.comments.empty}">No comments yet.</p>
+    </section>
+
     <section class="panel wide" th:if="${!#lists.isEmpty(similarProperties)}">
         <div class="page-header">
             <div>
-                <h2 class="headline">Similar Listings</h2>
-                <p class="subline mb-0">Other properties with the same type.</p>
+                <h2 class="headline" th:text="#{property.details.similar.title}">Similar Listings</h2>
+                <p class="subline mb-0" th:text="#{property.details.similar.subline}">Other properties with the same type.</p>
             </div>
         </div>
         <div class="listing-grid">
@@ -177,29 +299,41 @@
                          th:src="@{/image/get(pic=${item.imageUrls[0]})}"
                          th:attr="data-full-image=@{/image/get(pic=${item.imageUrls[0]})}"
                          th:classappend="' image-zoom-trigger'"
-                         alt="Similar property image">
+                         th:alt="#{property.details.similar.alt}">
                     <div class="prop-card-img-placeholder"
                          th:if="${#lists.isEmpty(item.imageUrls)}">🏠</div>
                     <span class="prop-card-status"
                           th:classappend="${item.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
-                          th:text="${item.status}"></span>
+                          th:with="statusKey=|enum.propertyStatus.${item.status}|" th:text="#{__${statusKey}__}"></span>
                     <div class="prop-card-urgent-ribbon"
-                         th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, item.id)}">URGENT</div>
+                         th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, item.id)}" th:text="#{home.urgent.badge}">URGENT</div>
                 </div>
                 <div class="listing-content">
                     <h3 class="headline" th:text="${item.title}">Property title</h3>
                     <p class="subline">
                         <span th:text="${item.surface}">0</span>
                         <span> sq.m. | </span>
-                        <span th:text="${item.propertyType}">Apartment</span>
+                        <span th:with="typeKey=|enum.propertyType.${item.propertyType}|" th:text="#{__${typeKey}__}">Apartment</span>
+                    </p>
+                    <p class="similar-rating-line muted" th:with="srs=${propertyRatingSummaries.get(item.id)}"
+                       th:if="${srs != null and srs.reviewCount > 0}">
+                        <span class="rating-stars-inline">★</span>
+                        <span th:text="${srs.averageStars}">0</span>/5
+                        <span th:text="' (' + ${srs.reviewCount} + ')'"></span>
                     </p>
                     <div class="actions">
-                        <span class="badge" th:text="${item.status}">status</span>
+                        <span class="badge" th:with="statusKey=|enum.propertyStatus.${item.status}|"
+                              th:text="#{__${statusKey}__}">status</span>
                         <strong th:text="${item.price}">0</strong>
                         <a class="btn btn-primary"
                            th:href="@{/property/details(propertyId=${item.id})}">
-                            details
+                            <span th:text="#{btn.details}">details</span>
                         </a>
+                        <a class="btn btn-ghost btn-sm"
+                           th:href="@{/property/details(propertyId=${item.id})}#ratings"
+                           th:if="${currentUser == null or currentUser.id != item.userId}" th:text="#{property.details.similar.rate}">Rate</a>
+                        <a class="btn btn-ghost btn-sm"
+                           th:href="@{/property/details(propertyId=${item.id})}#comments" th:text="#{property.details.similar.comments}">Comments</a>
                     </div>
                 </div>
             </div>
@@ -280,6 +414,54 @@
                 showImageAt(currentIndex + 1);
             }
         });
+    })();
+</script>
+<script>
+    (function () {
+        var input = document.getElementById('ratingStarsInput');
+        var wrap = document.getElementById('starRatingPicker');
+        if (!input || !wrap) {
+            return;
+        }
+        var labelEl = document.getElementById('starRatingValueLabel');
+        var btns = wrap.querySelectorAll('.star-rating-btn');
+        function setVal(n) {
+            n = Math.max(1, Math.min(5, n));
+            input.value = String(n);
+            if (labelEl) {
+                labelEl.textContent = String(n);
+            }
+            btns.forEach(function (b) {
+                var star = parseInt(b.getAttribute('data-star'), 10);
+                b.classList.toggle('is-on', star <= n);
+            });
+        }
+        var initial = parseInt(input.value, 10);
+        if (isNaN(initial) || initial < 1) {
+            initial = 5;
+        }
+        setVal(initial);
+        btns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setVal(parseInt(btn.getAttribute('data-star'), 10));
+            });
+        });
+    })();
+    (function () {
+        var hash = window.location.hash;
+        if (hash !== '#ratings' && hash !== '#comments') {
+            return;
+        }
+        var el = document.querySelector(hash);
+        if (!el) {
+            return;
+        }
+        setTimeout(function () {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            try {
+                el.focus({ preventScroll: true });
+            } catch (e) { /* ignore */ }
+        }, 80);
     })();
 </script>
 </body>

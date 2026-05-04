@@ -9,6 +9,10 @@ import org.example.dto.user.UserResponseDto;
 import org.example.dto.user.UserUpdateDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
+import org.example.dto.admin.AdminPlatformOverviewDto;
+import org.example.dto.admin.ManagerWorkloadDto;
+import org.example.dto.admin.PropertyMarketStatsDto;
+import org.example.service.AdminDashboardService;
 import org.example.service.PropertyService;
 import org.example.service.UserService;
 import org.example.service.security.SpringUser;
@@ -31,11 +35,18 @@ public class UserController {
 
     private final UserService userService;
     private final PropertyService propertyService;
+    private final AdminDashboardService adminDashboardService;
 
     @GetMapping("/admin/home")
     public String adminHomePage(ModelMap modelMap) {
         List<UserResponseDto> userList = userService.findAll();
         modelMap.addAttribute("users", userList);
+        PropertyMarketStatsDto propertyStats = adminDashboardService.getPropertyMarketStats();
+        AdminPlatformOverviewDto platformOverview = adminDashboardService.getPlatformOverview();
+        List<ManagerWorkloadDto> managerWorkloads = adminDashboardService.getManagerWorkloadsSorted();
+        modelMap.addAttribute("propertyStats", propertyStats);
+        modelMap.addAttribute("platformOverview", platformOverview);
+        modelMap.addAttribute("managerWorkloads", managerWorkloads);
         return "admin/adminHome";
     }
 
@@ -54,6 +65,7 @@ public class UserController {
         List<UserResponseDto> userList = userService.
                 findUserByRole(Role.USER);
         modelMap.addAttribute("users", userList);
+        modelMap.addAttribute("pendingPropertyCount", propertyService.countPendingModeration());
         return "manager/managerHome";
     }
 

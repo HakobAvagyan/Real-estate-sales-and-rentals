@@ -26,7 +26,14 @@ public enum ErrorCode {
     LOCATION_NAME_NOT_FOUND("Location name not found with id: %d"),
     INVALID_REQUEST_BODY("Request body is invalid"),
     PROFILE_EDIT_NOT_ALLOWED("You are not allowed to edit this user profile"),
-    URGENT_PLAN_NOT_FOUND("No active urgent sell plan found");
+    URGENT_PLAN_NOT_FOUND("No active urgent sell plan found"),
+    RATING_STARS_OUT_OF_RANGE("Rating must be between 1 and 5 stars"),
+    RATING_CANNOT_RATE_OWN_LISTING("You cannot rate your own listing"),
+    RATING_REVIEW_TEXT_TOO_LONG("Review text must be at most 2000 characters"),
+    COMMENT_TEXT_EMPTY("Comment cannot be empty"),
+    COMMENT_TEXT_TOO_LONG("Comment must be at most 4000 characters"),
+    PROPERTY_NOT_PENDING_MODERATION("This listing is not waiting for moderation"),
+    PROPERTY_NOT_APPROVED_YET("This listing is not published yet");
 
 
     private final String message;

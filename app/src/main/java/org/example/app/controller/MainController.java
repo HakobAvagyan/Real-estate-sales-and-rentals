@@ -9,12 +9,16 @@ import org.example.dto.property.PropertyResponseDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
+import org.example.model.enums.Role;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 import org.example.model.enums.Region;
+import org.example.dto.ratings.PropertyRatingSummaryDto;
+import org.example.service.CommentService;
 import org.example.service.LocationService;
 import org.example.service.PaymentService;
 import org.example.service.PropertyService;
+import org.example.service.RatingsService;
 import org.example.service.UserService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,6 +53,8 @@ public class MainController {
     private final LocationService locationService;
     private final UserService userService;
     private final PaymentService paymentService;
+    private final RatingsService ratingsService;
+    private final CommentService commentService;
 
     @GetMapping("/")
     public String mainPage() {
@@ -55,8 +62,12 @@ public class MainController {
     }
 
     @GetMapping("/property/details")
-    public String propertyDetails(@RequestParam Integer propertyId, ModelMap modelMap) {
-        PropertyResponseDto property = propertyService.findById(propertyId)
+    public String propertyDetails(@RequestParam Integer propertyId,
+                                  @AuthenticationPrincipal SpringUser userPrincipal,
+                                  ModelMap modelMap) {
+        Integer viewerId = userPrincipal != null ? userPrincipal.getUser().getId() : null;
+        Role viewerRole = userPrincipal != null ? userPrincipal.getUser().getRole() : null;
+        PropertyResponseDto property = propertyService.findByIdForDisplay(propertyId, viewerId, viewerRole)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
         List<PropertyResponseDto> similarProperties = propertyService.findAll().stream()
                 .filter(item -> item.getId() != property.getId())
@@ -66,6 +77,25 @@ public class MainController {
         modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
         modelMap.addAttribute("property", property);
         modelMap.addAttribute("similarProperties", similarProperties);
+
+        List<Integer> ratingIds = new ArrayList<>();
+        ratingIds.add(property.getId());
+        similarProperties.forEach(p -> ratingIds.add(p.getId()));
+        Map<Integer, PropertyRatingSummaryDto> ratingSummaries = ratingsService.getSummariesForPropertyIds(ratingIds);
+        modelMap.addAttribute("propertyRatingSummaries", ratingSummaries);
+        modelMap.addAttribute("propertyCommentCounts", commentService.getCommentCountsForPropertyIds(ratingIds));
+        modelMap.addAttribute("propertyReviews", ratingsService.listReviewsForProperty(propertyId));
+        modelMap.addAttribute("propertyComments", commentService.listPublicCommentsForProperty(propertyId));
+
+        User user = userPrincipal != null ? userPrincipal.getUser() : null;
+        if (user != null) {
+            modelMap.addAttribute("myPropertyReview", ratingsService.findReviewByUser(propertyId, user.getId()).orElse(null));
+            modelMap.addAttribute("canRateProperty", property.getUserId() != user.getId());
+        } else {
+            modelMap.addAttribute("myPropertyReview", null);
+            modelMap.addAttribute("canRateProperty", Boolean.FALSE);
+        }
+
         return "property/propertyDetails";
     }
 
@@ -81,6 +111,9 @@ public class MainController {
 
         List<PropertyResponseDto> properties = propertyService.findAllFiltered(filter);
         modelMap.addAttribute("properties", properties);
+        List<Integer> propertyIds = properties.stream().map(PropertyResponseDto::getId).toList();
+        modelMap.addAttribute("propertyRatingSummaries", ratingsService.getSummariesForPropertyIds(propertyIds));
+        modelMap.addAttribute("propertyCommentCounts", commentService.getCommentCountsForPropertyIds(propertyIds));
         modelMap.addAttribute("filter", filter);
         modelMap.addAttribute("propertyTypes", PropertyType.values());
         modelMap.addAttribute("propertyStatuses", new PropertyStatus[]{PropertyStatus.FOR_SALE, PropertyStatus.FOR_RENT});

@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.enums.PropertyModerationStatus;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 
@@ -67,4 +68,8 @@ public class Property {
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private PropertyType propertyType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "moderation_status", nullable = false, length = 32)
+    private PropertyModerationStatus moderationStatus = PropertyModerationStatus.APPROVED;
 }

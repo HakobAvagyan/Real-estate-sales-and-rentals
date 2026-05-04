@@ -7,11 +7,14 @@ import org.example.model.Location;
 import org.example.model.Property;
 import org.example.model.PropertyImage;
 import org.example.model.User;
+import org.example.model.enums.PropertyModerationStatus;
+import org.example.model.enums.Role;
 import org.example.repository.LocationNameRepository;
 import org.example.repository.LocationRepository;
 import org.example.repository.PropertyImageRepository;
 import org.example.repository.PropertyRepository;
 import org.example.repository.UserRepository;
+import org.example.service.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,6 +52,8 @@ class PropertyServiceImplTest {
     private LocationNameRepository locationNameRepository;
     @Mock
     private PropertyCreateRequestMapper propertyCreateRequestMapper;
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private PropertyServiceImpl propertyService;
@@ -57,6 +62,7 @@ class PropertyServiceImplTest {
     void addProperty_shouldCreateProperty_withoutImages() throws Exception {
         User user = new User();
         user.setId(7);
+        user.setRole(Role.USER);
 
         Location location = new Location();
         location.setId(11);
@@ -95,6 +101,7 @@ class PropertyServiceImplTest {
         assertEquals(101, response.getId());
         assertEquals(7, response.getUserId());
         assertEquals(11, response.getLocationId());
+        assertEquals(PropertyModerationStatus.PENDING, response.getModerationStatus());
         assertNotNull(response.getImageUrls());
         assertTrue(response.getImageUrls().isEmpty());
         verify(propertyRepository).save(any(Property.class));

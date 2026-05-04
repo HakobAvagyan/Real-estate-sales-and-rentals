@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>My Notifications</title>
+    <title th:text="#{notification.page.title}">Notifications</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -12,28 +12,28 @@
     <div class="nav">
       <div>
         <h1 class="headline">
-          Notifications for <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
+          <span th:text="#{notification.headline.prefix}">Notifications for</span> <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
         </h1>
-        <p class="subline mb-0">Your recent account updates and system messages.</p>
+        <p class="subline mb-0" th:text="#{notification.subline}">Your recent account updates and system messages.</p>
       </div>
       <div class="actions mt-0">
-        <a class="btn btn-ghost btn-sm" th:href="@{/home}">Back</a>
-        <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
+        <a class="btn btn-ghost btn-sm" th:href="@{/home}" th:text="#{btn.back}">Back</a>
+        <a class="btn btn-ghost btn-sm" href="/logout" th:text="#{btn.logout}">Logout</a>
       </div>
     </div>
   </section>
 
   <section class="panel">
     <div class="stack" th:if="${#lists.isEmpty(notifications)}">
-      <p>No notifications yet.</p>
+      <p th:text="#{notification.empty}">No notifications yet.</p>
     </div>
     <div class="table-wrap" th:if="${!#lists.isEmpty(notifications)}">
       <table>
         <thead>
         <tr>
-          <th>Title</th>
-          <th>Date</th>
-          <th>Actions</th>
+          <th th:text="#{notification.table.title}">Title</th>
+          <th th:text="#{notification.table.date}">Date</th>
+          <th th:text="#{notification.table.actions}">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -41,9 +41,9 @@
           <td th:text="${notification.title}"></td>
           <td th:text="${#temporals.format(notification.createdAt, 'yyyy-MM-dd')}"></td>
           <td>
-            <a class="link-inline" th:href="@{/notifications/{id}(id=${notification.id})}">Open</a>
+            <a class="link-inline" th:href="@{/notifications/{id}(id=${notification.id})}" th:text="#{notification.action.open}">Open</a>
             <span>|</span>
-            <a class="link-inline danger" th:href="@{/notifications/{id}/delete(id=${notification.id})}">Delete</a>
+            <a class="link-inline danger" th:href="@{/notifications/{id}/delete(id=${notification.id})}" th:text="#{notification.action.delete}">Delete</a>
           </td>
         </tr>
         </tbody>
