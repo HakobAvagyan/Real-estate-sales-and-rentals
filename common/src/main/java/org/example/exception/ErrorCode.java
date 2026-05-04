@@ -34,6 +34,8 @@ public enum ErrorCode {
     COMMENT_TEXT_TOO_LONG("Comment must be at most 4000 characters"),
     PROPERTY_NOT_PENDING_MODERATION("This listing is not waiting for moderation"),
     PROPERTY_NOT_APPROVED_YET("This listing is not published yet");
+    FAVORITES_NOT_FOUND("No favorites found with id: %d"),
+    FAVORITES_NOT_FOUND_WHIT_USER_ID_OR_PROPERTY_ID("No favorites found with user_id: %d or property_id: %d");
 
 
     private final String message;

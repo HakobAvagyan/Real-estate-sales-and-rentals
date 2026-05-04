@@ -27,6 +27,12 @@
             <a class="btn btn-ghost" th:href="@{/notifications}" th:text="#{user.home.nav.notifications}">My Notifications</a>
             <a class="btn btn-ghost" th:href="@{/messages}" th:text="#{user.home.nav.messages}">Messages</a>
             <a class="btn btn-primary" th:href="@{/user/property/create}" th:text="#{user.home.nav.addProperty}">Add Property</a>
+            <a class="btn btn-ghost" href="/home">Main Page</a>
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
+            <a class="btn btn-ghost" th:href="@{/favorite}">Favorite List</a>
+            <a class="btn btn-primary" th:href="@{/user/property/create}">Add Property</a>
         </div>
     </section>
     <section class="panel wide">

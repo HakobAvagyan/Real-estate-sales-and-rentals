@@ -42,17 +42,12 @@ public enum NotificationType {
     PROPERTY_RENTED_NOTIFICATION("Congratulations %s %s!\n" +
                     "Your property has been marked as rented and is no longer visible on our platform."),
 
+    PROPERTY_ADD_FAVORITE_LIST_NOTIFICATION("Dear %s %s,\n" +
+                    "Your property has been added to the favorites list successfully.\n" +
+                    "You can view your favorite properties in your profile and contact the sellers directly."),
 
-    AD_APPROVED_NOTIFICATION("Congratulations %s %s!\n" +
-                    "Your advertisement has been approved and is now visible on our platform."),
-    AD_REJECTED_NOTIFICATION("Dear %s %s,\n" +
-                    "Your advertisement has been rejected.\n" +
-                    "Please review our advertising guidelines and resubmit it after making the necessary changes."),
-    AD_REMOVED_NOTIFICATION("Dear %s %s,\n" +
-                    "Your advertisement has been removed from our platform."),
-    AD_PUBLISHED_NOTIFICATION("Congratulations %s %s!\n" +
-                    "Your advertisement has been published and is now visible to potential customers."),
-
+    PROPERTY_REMOVE_FAVORITE_LIST_NOTIFICATION("Dear %s %s,\n" +
+            "Your property has been removed from the favorites list successfully."),
 
     PAYMENT_FOR_AD_NOTIFICATION("Payment successful.\n" +
                     "Dear %s %s, your advertisement has been published and is now visible to potential customers."),
