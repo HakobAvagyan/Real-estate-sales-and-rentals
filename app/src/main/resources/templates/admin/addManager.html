@@ -1,63 +1,63 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Manager | Real Estate Hub</title>
+    <title th:text="#{admin.addManager.title} + ' | Real Estate Hub'">Add Manager</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
     <section class="panel">
-        <h1 class="headline">Add Manager</h1>
+        <h1 class="headline" th:text="#{admin.addManager.title}">Add Manager</h1>
         <p class="subline">Create a new manager account with platform access.</p>
 
         <form method="post" action="/admin/add/manager" enctype="multipart/form-data">
             <div class="grid">
                 <div class="field">
-                    <label for="name">Name</label>
-                    <input id="name" type="text" name="name" placeholder="First name" required>
+                    <label for="name" th:text="#{register.name}">Name</label>
+                    <input id="name" type="text" name="name" th:placeholder="#{register.placeholder.first}" required>
                 </div>
                 <div class="field">
-                    <label for="surname">Surname</label>
-                    <input id="surname" type="text" name="surname" placeholder="Last name" required>
+                    <label for="surname" th:text="#{register.surname}">Surname</label>
+                    <input id="surname" type="text" name="surname" th:placeholder="#{register.placeholder.last}" required>
                 </div>
                 <div class="field">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" name="email" placeholder="you@example.com" required>
+                    <label for="email" th:text="#{register.email}">Email</label>
+                    <input id="email" type="email" name="email" th:placeholder="#{register.placeholder.email}" required>
                 </div>
                 <div class="field">
-                    <label for="phone">Phone</label>
-                    <input id="phone" type="tel" name="phone" placeholder="+374 ..." required>
+                    <label for="phone" th:text="#{register.phone}">Phone</label>
+                    <input id="phone" type="tel" name="phone" th:placeholder="#{register.placeholder.phone}" required>
                 </div>
                 <div class="field">
-                    <label for="password">Password</label>
-                    <input id="password" type="password" name="password" placeholder="Create password" required>
+                    <label for="password" th:text="#{register.password}">Password</label>
+                    <input id="password" type="password" name="password" th:placeholder="#{register.placeholder.password}" required>
                 </div>
                 <div class="field">
-                    <label for="birthDate">Birth Date</label>
-                    <input id="birthDate" type="date" name="birthDate" placeholder="YYYY-MM-DD" required>
+                    <label for="birthDate" th:text="#{register.birthDate}">Birth Date</label>
+                    <input id="birthDate" type="date" name="birthDate" th:placeholder="#{register.placeholder.date}" required>
                 </div>
                 <div class="field">
-                    <label for="passportDetails">Passport Detail</label>
-                    <input id="passportDetails" type="text" name="passportDetails" placeholder="Passport number">
+                    <label for="passportDetails" th:text="#{register.passport}">Passport Detail</label>
+                    <input id="passportDetails" type="text" name="passportDetails" th:placeholder="#{register.placeholder.passport}">
                 </div>
                 <div class="field row-full">
-                    <label for="pic">Profile Picture</label>
+                    <label for="pic" th:text="#{register.pic}">Profile Picture</label>
                     <input id="pic" type="file" name="pic">
                 </div>
                 <div class="field row-full">
-                    <label>Gender</label>
+                    <label th:text="#{register.gender}">Gender</label>
                     <div class="role-group">
-                        <label class="role-group"><input type="radio" name="gender" value="MALE"> Male</label>
-                        <label class="role-group"><input type="radio" name="gender" value="FEMALE"> Female</label>
+                        <label class="role-group"><input type="radio" name="gender" value="MALE"> <span th:text="#{register.gender.male}">Male</span></label>
+                        <label class="role-group"><input type="radio" name="gender" value="FEMALE"> <span th:text="#{register.gender.female}">Female</span></label>
                     </div>
                 </div>
             </div>
             <div class="actions">
-                <button class="btn btn-primary" type="submit">Add Manager</button>
-                <a class="btn btn-ghost" href="/admin/home">Back to Dashboard</a>
+                <button class="btn btn-primary" type="submit" th:text="#{admin.addManager.title}">Add Manager</button>
+                <a class="btn btn-ghost" href="/admin/home" th:text="#{btn.back}">Back</a>
             </div>
         </form>
     </section>

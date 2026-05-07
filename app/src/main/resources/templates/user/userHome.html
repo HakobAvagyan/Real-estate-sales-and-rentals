@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard | Real Estate Hub</title>
+    <title th:text="#{page.user.home.title}">User Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -12,16 +12,21 @@
     <section class="panel welcome">
         <div class="nav">
             <div>
-                <h1 class="headline">User Dashboard</h1>
-                <p class="subline mb-0">Your personal workspace on Real Estate Hub.</p>
+                <h1 class="headline" th:text="#{user.home.welcome}">User Dashboard</h1>
+                <p class="subline mb-0" th:text="#{user.home.subline}">Your personal workspace on Real Estate Hub.</p>
             </div>
             <div class="actions mt-0">
-                <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
+                <a class="btn btn-ghost btn-sm" href="/logout" th:text="#{btn.logout}">Logout</a>
             </div>
         </div>
     </section>
     <section class="panel">
         <div class="nav-links">
+            <a class="btn btn-ghost" href="/home" th:text="#{user.home.nav.main}">Main Page</a>
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}" th:text="#{user.home.nav.profile}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}" th:text="#{user.home.nav.notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}" th:text="#{user.home.nav.messages}">Messages</a>
+            <a class="btn btn-primary" th:href="@{/user/property/create}" th:text="#{user.home.nav.addProperty}">Add Property</a>
             <a class="btn btn-ghost" href="/home">Main Page</a>
             <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
             <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
@@ -33,25 +38,26 @@
     <section class="panel wide">
         <div class="page-header">
             <div>
-                <h2 class="headline">My Properties</h2>
-                <p class="subline mb-0">Products added by you.</p>
+                <h2 class="headline" th:text="#{user.home.properties.title}">My Properties</h2>
+                <p class="subline mb-0" th:text="#{user.home.properties.subline}">Products added by you.</p>
             </div>
         </div>
         <div th:if="${#lists.isEmpty(properties)}">
-            <p>You have not added any properties yet.</p>
+            <p th:text="#{user.home.properties.empty}">You have not added any properties yet.</p>
         </div>
         <div class="table-wrap" th:if="${!#lists.isEmpty(properties)}">
             <table>
                 <thead>
                 <tr>
-                    <th>Image</th>
-                    <th>Title</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Type</th>
-                    <th>Location ID</th>
-                    <th>Surface</th>
-                    <th>Actions</th>
+                    <th th:text="#{user.home.table.image}">Image</th>
+                    <th th:text="#{user.home.table.title}">Title</th>
+                    <th th:text="#{user.home.table.price}">Price</th>
+                    <th th:text="#{user.home.table.status}">Status</th>
+                    <th th:text="#{user.home.table.moderation}">Moderation</th>
+                    <th th:text="#{user.home.table.type}">Type</th>
+                    <th th:text="#{user.home.table.location}">Location ID</th>
+                    <th th:text="#{user.home.table.surface}">Surface</th>
+                    <th th:text="#{user.home.table.actions}">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -60,18 +66,23 @@
                         <img class="avatar"
                              th:if="${!#lists.isEmpty(property.imageUrls)}"
                              th:src="@{/image/get(pic=${property.imageUrls[0]})}"
-                             alt="Property image">
-                        <span th:if="${#lists.isEmpty(property.imageUrls)}">No image</span>
+                             th:alt="#{home.card.alt}">
+                        <span th:if="${#lists.isEmpty(property.imageUrls)}" th:text="#{user.home.noImage}">No image</span>
                     </td>
                     <td th:text="${property.title}"></td>
                     <td th:text="${property.price}"></td>
-                    <td><span class="badge" th:text="${property.status}"></span></td>
-                    <td th:text="${property.propertyType}"></td>
+                    <td><span class="badge" th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                              th:text="#{__${statusKey}__}"></span></td>
+                    <td><span class="badge" th:text="${property.moderationStatus}">APPROVED</span></td>
+                    <td th:with="typeKey=|enum.propertyType.${property.propertyType}|"
+                        th:text="#{__${typeKey}__}"></td>
                     <td th:text="${property.locationId}"></td>
                     <td th:text="${property.surface}"></td>
                     <td>
                         <a class="btn btn-sm btn-urgent"
-                           th:href="@{/payment/urgent(propertyId=${property.id})}">URGENT</a>
+                           th:if="${property.moderationStatus != null and property.moderationStatus.name() == 'APPROVED'}"
+                           th:href="@{/payment/urgent(propertyId=${property.id})}" th:text="#{user.home.urgent}">URGENT</a>
+                        <span class="muted" th:if="${property.moderationStatus == null or property.moderationStatus.name() != 'APPROVED'}">—</span>
                     </td>
                 </tr>
                 </tbody>

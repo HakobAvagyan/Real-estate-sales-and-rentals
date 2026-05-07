@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment | Real Estate Hub</title>
+    <title th:text="#{page.payment.title}">Payment</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -13,41 +13,41 @@
     <section class="panel welcome">
         <div class="nav">
             <div>
-                <h1 class="headline">Payment</h1>
-                <p class="subline mb-0">Enter your card details to complete the payment.</p>
+                <h1 class="headline" th:text="#{payment.headline}">Payment</h1>
+                <p class="subline mb-0" th:text="#{payment.subline}">Enter your card details to complete the payment.</p>
             </div>
             <div class="actions mt-0">
-                <a class="btn btn-ghost btn-sm" href="/home">Cancel</a>
+                <a class="btn btn-ghost btn-sm" href="/home" th:text="#{btn.cancel}">Cancel</a>
             </div>
         </div>
     </section>
 
     <section class="panel">
-        <h2 class="headline">Order Summary</h2>
+        <h2 class="headline" th:text="#{payment.summary.title}">Order Summary</h2>
 
         <th:block th:if="${type == 'BOOKING'}">
-            <p class="subline mb-0"><strong th:text="${propertyTitle}"></strong> — rental booking</p>
+            <p class="subline mb-0"><strong th:text="${propertyTitle}"></strong> — <span th:text="#{payment.summary.booking}">rental booking</span></p>
             <p class="order-summary-detail">
                 <span th:text="${startDate}"></span> → <span th:text="${endDate}"></span>
-                &nbsp;·&nbsp; <span th:text="${guests}"></span> guest(s)
+                &nbsp;·&nbsp; <span th:text="${guests}"></span> <span th:text="#{payment.summary.guests}">guest(s)</span>
             </p>
         </th:block>
 
         <th:block th:if="${type == 'URGENT'}">
-            <p class="subline mb-0"><strong>Urgent Plan — 30 days</strong></p>
-            <p class="order-summary-detail">Property: <span th:text="${propertyTitle}"></span></p>
-            <p class="order-summary-note">Your listing will appear in the Urgent section on the home page.</p>
+            <p class="subline mb-0"><strong th:text="#{payment.urgent.title}">Urgent Plan — 30 days</strong></p>
+            <p class="order-summary-detail"><span th:text="#{payment.urgent.property}">Property:</span> <span th:text="${propertyTitle}"></span></p>
+            <p class="order-summary-note" th:text="#{payment.urgent.note}">Your listing will appear in the Urgent section on the home page.</p>
         </th:block>
 
         <div class="payment-total-box">
-            <span class="payment-total-label">Total</span>
+            <span class="payment-total-label" th:text="#{payment.total}">Total</span>
             <span class="payment-total-amount"
                   th:text="'$' + ${#numbers.formatDecimal(amount, 0, 'COMMA', 2, 'POINT')}"></span>
         </div>
     </section>
 
     <section class="panel">
-        <h2 class="headline">Card Details</h2>
+        <h2 class="headline" th:text="#{payment.card.title}">Card Details</h2>
         <form method="post" action="/payment/confirm">
             <input type="hidden" name="type" th:value="${type}">
             <input type="hidden" name="propertyId" th:value="${propertyId}">
@@ -57,22 +57,22 @@
             <input type="hidden" name="guests" th:value="${guests}">
             <div class="grid">
                 <div class="field row-full">
-                    <label for="cardNumber">Card Number</label>
-                    <input id="cardNumber" type="text" placeholder="1234 5678 9012 3456"
+                    <label for="cardNumber" th:text="#{payment.card.number}">Card Number</label>
+                    <input id="cardNumber" type="text" th:placeholder="#{payment.card.number.placeholder}"
                            maxlength="19" autocomplete="cc-number" required>
                 </div>
                 <div class="field row-full">
-                    <label for="cardHolder">Cardholder Name</label>
-                    <input id="cardHolder" type="text" placeholder="JOHN DOE"
+                    <label for="cardHolder" th:text="#{payment.card.holder}">Cardholder Name</label>
+                    <input id="cardHolder" type="text" th:placeholder="#{payment.card.holder.placeholder}"
                            autocomplete="cc-name" required>
                 </div>
                 <div class="field">
-                    <label for="expiry">Expiry (MM/YY)</label>
-                    <input id="expiry" type="text" placeholder="MM/YY"
+                    <label for="expiry" th:text="#{payment.card.expiry}">Expiry (MM/YY)</label>
+                    <input id="expiry" type="text" th:placeholder="#{payment.card.expiry.placeholder}"
                            maxlength="5" autocomplete="cc-exp" required>
                 </div>
                 <div class="field">
-                    <label for="cvv">CVV</label>
+                    <label for="cvv" th:text="#{payment.card.cvv}">CVV</label>
                     <input id="cvv" type="password" placeholder="•••"
                            maxlength="4" autocomplete="cc-csc" required>
                 </div>
@@ -80,7 +80,7 @@
 
             <div class="actions">
                 <button class="btn btn-primary" type="submit"
-                        th:text="'Pay $' + ${#numbers.formatDecimal(amount, 0, 'COMMA', 2, 'POINT')}">Pay</button>
+                        th:text="#{payment.pay.prefix} + ' $' + ${#numbers.formatDecimal(amount, 0, 'COMMA', 2, 'POINT')}">Pay</button>
             </div>
         </form>
     </section>

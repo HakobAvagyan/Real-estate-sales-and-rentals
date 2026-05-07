@@ -2,6 +2,7 @@ package org.example.dto.property;
 
 import lombok.Builder;
 import lombok.Value;
+import org.example.model.enums.PropertyModerationStatus;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 
@@ -26,5 +27,6 @@ public class PropertyResponseDto {
     LocalDate createdAt;
     PropertyStatus status;
     PropertyType propertyType;
+    PropertyModerationStatus moderationStatus;
     List<String> imageUrls;
 }

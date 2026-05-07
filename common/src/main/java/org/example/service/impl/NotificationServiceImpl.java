@@ -85,6 +85,14 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notificationRequestMapper.toNotification(notificationRequestDto));
     }
 
+    @Override
+    public void createNotificationForUser(int userId, String title, String message) {
+        NotificationRequestDto dto = new NotificationRequestDto();
+        dto.setUserId(userId);
+        dto.setTitle(title);
+        dto.setMessage(message);
+        notificationRepository.save(notificationRequestMapper.toNotification(dto));
+    }
 
     private Integer getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

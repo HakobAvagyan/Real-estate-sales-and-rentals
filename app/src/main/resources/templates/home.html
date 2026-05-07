@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Hub</title>
+    <title th:text="#{page.home.title}">Listings</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -16,147 +16,159 @@
 <!-- Filter panel -->
 <div id="filterPanel" class="filter-panel">
     <div class="filter-panel-header">
-        <span class="filter-panel-title">Filters</span>
-        <button class="filter-panel-close" type="button" onclick="closeFilterPanel()">&#x2715;</button>
+        <span class="filter-panel-title" th:text="#{home.filters.title}">Filters</span>
+        <button class="filter-panel-close" type="button" onclick="closeFilterPanel()"
+                th:title="#{home.filters.close}" th:aria-label="#{home.filters.close}">&#x2715;</button>
     </div>
     <form id="filterForm" method="get" th:action="@{/home}" class="filter-form">
-        <!-- Property Type -->
         <div class="filter-section">
-            <div class="filter-section-label">Property Type</div>
+            <div class="filter-section-label" th:text="#{home.filter.type}">Property Type</div>
             <div class="filter-checkboxes">
                 <label class="filter-checkbox-label" th:each="type : ${propertyTypes}">
                     <input type="radio" name="propertyType" th:value="${type}"
                            th:checked="${filter.propertyType == type}">
-                    <span th:text="${type}"></span>
+                    <span th:with="msgKey=|enum.propertyType.${type}|" th:text="#{__${msgKey}__}"></span>
                 </label>
                 <label class="filter-checkbox-label">
                     <input type="radio" name="propertyType" value=""
                            th:checked="${filter.propertyType == null}">
-                    <span>Any</span>
+                    <span th:text="#{home.filter.any}">Any</span>
                 </label>
             </div>
         </div>
 
-        <!-- Status -->
         <div class="filter-section">
-            <div class="filter-section-label">Status</div>
+            <div class="filter-section-label" th:text="#{home.filter.status}">Status</div>
             <div class="filter-checkboxes">
                 <label class="filter-checkbox-label" th:each="st : ${propertyStatuses}">
                     <input type="radio" name="status" th:value="${st}"
                            th:checked="${filter.status == st}">
-                    <span th:text="${st}"></span>
+                    <span th:with="msgKey=|enum.propertyStatus.${st}|" th:text="#{__${msgKey}__}"></span>
                 </label>
                 <label class="filter-checkbox-label">
                     <input type="radio" name="status" value=""
                            th:checked="${filter.status == null}">
-                    <span>Any</span>
+                    <span th:text="#{home.filter.any}">Any</span>
                 </label>
             </div>
         </div>
 
-        <!-- Price -->
         <div class="filter-section">
-            <div class="filter-section-label">Price ($)</div>
+            <div class="filter-section-label" th:text="#{home.filter.price}">Price</div>
             <div class="filter-range-row">
-                <input type="number" name="minPrice" placeholder="From"
+                <input type="number" name="minPrice" th:placeholder="#{home.placeholder.from}"
                        th:value="${filter.minPrice}" min="0" step="1000">
                 <span class="filter-range-sep">—</span>
-                <input type="number" name="maxPrice" placeholder="To"
+                <input type="number" name="maxPrice" th:placeholder="#{home.placeholder.to}"
                        th:value="${filter.maxPrice}" min="0" step="1000">
             </div>
         </div>
 
-        <!-- Surface -->
         <div class="filter-section">
-            <div class="filter-section-label">Area (sq.m.)</div>
+            <div class="filter-section-label" th:text="#{home.filter.area}">Area</div>
             <div class="filter-range-row">
-                <input type="number" name="minSurface" placeholder="From"
+                <input type="number" name="minSurface" th:placeholder="#{home.placeholder.from}"
                        th:value="${filter.minSurface}" min="0">
                 <span class="filter-range-sep">—</span>
-                <input type="number" name="maxSurface" placeholder="To"
+                <input type="number" name="maxSurface" th:placeholder="#{home.placeholder.to}"
                        th:value="${filter.maxSurface}" min="0">
             </div>
         </div>
 
-        <!-- Rooms -->
         <div class="filter-section">
-            <div class="filter-section-label">Rooms</div>
+            <div class="filter-section-label" th:text="#{home.filter.rooms}">Rooms</div>
             <div class="filter-range-row">
-                <input type="number" name="minRooms" placeholder="From"
+                <input type="number" name="minRooms" th:placeholder="#{home.placeholder.from}"
                        th:value="${filter.minRooms}" min="1">
                 <span class="filter-range-sep">—</span>
-                <input type="number" name="maxRooms" placeholder="To"
+                <input type="number" name="maxRooms" th:placeholder="#{home.placeholder.to}"
                        th:value="${filter.maxRooms}" min="1">
             </div>
         </div>
 
-        <!-- Bathrooms -->
         <div class="filter-section">
-            <div class="filter-section-label">Bathrooms (min)</div>
-            <input type="number" name="minBathrooms" placeholder="e.g. 1"
+            <div class="filter-section-label" th:text="#{home.filter.bathrooms}">Bathrooms</div>
+            <input type="number" name="minBathrooms" th:placeholder="#{home.placeholder.bathrooms}"
                    th:value="${filter.minBathrooms}" min="1">
         </div>
 
-        <!-- Floor -->
         <div class="filter-section">
-            <div class="filter-section-label">Floor</div>
+            <div class="filter-section-label" th:text="#{home.filter.floor}">Floor</div>
             <div class="filter-range-row">
-                <input type="number" name="minFloor" placeholder="From"
+                <input type="number" name="minFloor" th:placeholder="#{home.placeholder.from}"
                        th:value="${filter.minFloor}" min="0">
                 <span class="filter-range-sep">—</span>
-                <input type="number" name="maxFloor" placeholder="To"
+                <input type="number" name="maxFloor" th:placeholder="#{home.placeholder.to}"
                        th:value="${filter.maxFloor}" min="0">
             </div>
         </div>
 
-        <!-- Region -->
         <div class="filter-section">
-            <div class="filter-section-label">Region</div>
+            <div class="filter-section-label" th:text="#{home.filter.region}">Region</div>
             <select name="region">
-                <option value="" th:selected="${filter.region == null}">Any</option>
+                <option value="" th:selected="${filter.region == null}" th:text="#{home.filter.any}">Any</option>
                 <option th:each="reg : ${regions}" th:value="${reg}" th:text="${reg}"
                         th:selected="${filter.region == reg}"></option>
             </select>
         </div>
 
-        <!-- City -->
         <div class="filter-section">
-            <div class="filter-section-label">City</div>
-            <input type="text" name="city" placeholder="City name"
+            <div class="filter-section-label" th:text="#{home.filter.city}">City</div>
+            <input type="text" name="city" th:placeholder="#{home.placeholder.city}"
                    th:value="${filter.city}">
         </div>
 
         <div class="filter-actions">
-            <button type="submit" class="btn btn-primary filter-apply-btn">Apply</button>
-            <a th:href="@{/home}" class="btn btn-ghost filter-reset-btn">Reset</a>
+            <button type="submit" class="btn btn-primary filter-apply-btn" th:text="#{home.filter.apply}">Apply</button>
+            <a th:href="@{/home}" class="btn btn-ghost filter-reset-btn" th:text="#{home.filter.reset}">Reset</a>
         </div>
     </form>
 </div>
 
 <main class="catalog-layout">
     <section class="panel wide urgent-panel">
-        <!-- hero headings removed as requested -->
         <div th:if="${urgentPropertyIds != null and !#lists.isEmpty(urgentPropertyIds)}" class="prop-grid urgent-grid">
             <div class="prop-card" th:each="property : ${properties}" th:if="${urgentPropertyIds.contains(property.id)}">
                 <div class="prop-card-img-wrap">
                     <a th:href="@{/property/details(propertyId=${property.id})}">
-                        <img class="prop-card-img" th:if="${!#lists.isEmpty(property.imageUrls)}" th:src="@{/image/get(pic=${property.imageUrls[0]})}" alt="Property image">
+                        <img class="prop-card-img" th:if="${!#lists.isEmpty(property.imageUrls)}"
+                             th:src="@{/image/get(pic=${property.imageUrls[0]})}" th:alt="#{home.card.alt}">
                         <div class="prop-card-img-placeholder" th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
                     </a>
-                    <div class="prop-card-urgent-ribbon">URGENT</div>
+                    <div class="prop-card-urgent-ribbon" th:text="#{home.urgent.badge}">URGENT</div>
                 </div>
                 <div class="prop-card-body">
-                    <div class="prop-card-type" th:text="${property.propertyType}"></div>
+                    <div class="prop-card-type" th:with="msgKey=|enum.propertyType.${property.propertyType}|"
+                         th:text="#{__${msgKey}__}"></div>
+                    <div class="prop-card-rating-line muted"
+                         th:with="urs=${propertyRatingSummaries != null ? propertyRatingSummaries.get(property.id) : null}"
+                         th:if="${urs != null and urs.reviewCount > 0}">
+                        <span class="rating-stars-inline">★</span>
+                        <span th:text="${urs.averageStars}"></span>/5
+                        <span th:text="' (' + ${urs.reviewCount} + ')'"></span>
+                    </div>
                     <div class="prop-card-location" th:if="${locationMap != null and locationMap[property.locationId] != null}">
                         <span th:text="${locationMap[property.locationId].city}"></span>
                     </div>
                     <div class="prop-card-price" th:text="'$' + ${#numbers.formatDecimal(property.price,0,'COMMA',0,'POINT')}"></div>
+                    <div class="prop-card-extra-links">
+                        <a class="prop-card-rate-link"
+                           th:href="@{/property/details(propertyId=${property.id})}#ratings"
+                           th:if="${currentUser == null or currentUser.id != property.userId}"
+                           th:text="${currentUser == null} ? #{home.rate.signInToReview} : #{home.rate.listing}">Rate</a>
+                        <a class="prop-card-comment-link"
+                           th:href="@{/property/details(propertyId=${property.id})}#comments"
+                           th:with="cc=${propertyCommentCounts != null ? propertyCommentCounts.get(property.id) : 0}">
+                            <span th:if="${cc > 0}" th:text="#{home.comments.count(${cc})}"></span>
+                            <span th:unless="${cc > 0}" th:text="#{home.comments}"></span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div th:if="${urgentPropertyIds == null or #lists.isEmpty(urgentPropertyIds)}" class="empty-state">
-            <p>No urgent listings at the moment.</p>
+            <p th:text="#{home.urgent.empty}">No urgent listings.</p>
         </div>
     </section>
 
@@ -169,8 +181,9 @@
                 <line x1="8" y1="12" x2="16" y2="12"/>
                 <line x1="11" y1="18" x2="13" y2="18"/>
             </svg>
-            Filters
-            <span class="filter-active-badge" th:if="${filter != null and !filter.isEmpty()}">Active</span>
+            <span th:text="#{home.filter.toolbar}">Filters</span>
+            <span class="filter-active-badge" th:if="${filter != null and !filter.isEmpty()}"
+                  th:text="#{home.filter.active}">Active</span>
         </button>
     </div>
 
@@ -178,7 +191,7 @@
 
     <div th:if="${properties == null or #lists.isEmpty(properties)}" class="empty-state">
         <span class="empty-icon">🏠</span>
-        <p>No properties found at the moment.</p>
+        <p th:text="#{home.empty.noProperties}">No properties.</p>
     </div>
 
     <div class="prop-grid" th:if="${properties != null and !#lists.isEmpty(properties)}">
@@ -189,17 +202,27 @@
                 <img class="prop-card-img"
                      th:if="${!#lists.isEmpty(property.imageUrls)}"
                      th:src="@{/image/get(pic=${property.imageUrls[0]})}"
-                     alt="Property image">
+                     th:alt="#{home.card.alt}">
                 <div class="prop-card-img-placeholder"
                      th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
                 <span class="prop-card-status"
                       th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
-                      th:text="${property.status}"></span>
+                      th:with="sk=|enum.propertyStatus.${property.status}|"
+                      th:text="#{__${sk}__}"></span>
                 <div class="prop-card-urgent-ribbon"
-                     th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}">URGENT</div>
+                     th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}"
+                     th:text="#{home.urgent.badge}">URGENT</div>
             </div>
             <div class="prop-card-body">
-                <div class="prop-card-type" th:text="${property.propertyType}"></div>
+                <div class="prop-card-type" th:with="tk=|enum.propertyType.${property.propertyType}|"
+                     th:text="#{__${tk}__}"></div>
+                <div class="prop-card-rating-line muted"
+                     th:with="rs=${propertyRatingSummaries != null ? propertyRatingSummaries.get(property.id) : null}"
+                     th:if="${rs != null and rs.reviewCount > 0}">
+                    <span class="rating-stars-inline">★</span>
+                    <span th:text="${rs.averageStars}"></span>/5
+                    <span th:text="' (' + ${rs.reviewCount} + ')'"></span>
+                </div>
 
                 <div class="prop-card-location"
                      th:if="${locationMap != null and locationMap[property.locationId] != null}">
@@ -225,7 +248,7 @@
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                             <polyline points="9 22 9 12 15 12 15 22"/>
                         </svg>
-                        <span th:text="${property.roomsCount} + ' rm.'"></span>
+                        <span th:text="#{home.meta.rm(${property.roomsCount})}"></span>
                     </span>
                     <span class="prop-card-meta-item" th:if="${property.surface > 0}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -233,7 +256,7 @@
                              stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                         </svg>
-                        <span th:text="${property.surface} + ' sq.m.'"></span>
+                        <span th:text="#{home.meta.sqm(${property.surface})}"></span>
                     </span>
                     <span class="prop-card-meta-item"
                           th:if="${property.floorCount != null and property.floorCount > 0}">
@@ -243,40 +266,55 @@
                             <line x1="12" y1="2" x2="12" y2="22"/>
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                         </svg>
-                        <span th:text="${property.floor} + '/' + ${property.floorCount} + ' fl.'"></span>
+                        <span th:text="#{home.meta.fl(${property.floor}, ${property.floorCount})}"></span>
                     </span>
                 </div>
 
+                <div class="prop-card-extra-links">
+                    <a class="prop-card-rate-link"
+                       th:href="@{/property/details(propertyId=${property.id})}#ratings"
+                       th:if="${currentUser == null or currentUser.id != property.userId}"
+                       th:text="${currentUser == null} ? #{home.rate.signInToReview} : #{home.rate.listing}">Rate</a>
+                    <a class="prop-card-comment-link"
+                       th:href="@{/property/details(propertyId=${property.id})}#comments"
+                       th:with="cc=${propertyCommentCounts != null ? propertyCommentCounts.get(property.id) : 0}">
+                        <span th:if="${cc > 0}" th:text="#{home.comments.count(${cc})}"></span>
+                        <span th:unless="${cc > 0}" th:text="#{home.comments}"></span>
+                    </a>
+                </div>
+
                 <th:block th:if="${property.status.name() == 'FOR_RENT'}">
-                    <a class="prop-card-book-btn" th:if="${currentUser == null}" href="/loginPage">BOOK</a>
+                    <a class="prop-card-book-btn" th:if="${currentUser == null}" href="/loginPage" th:text="#{btn.book}">BOOK</a>
                     <a class="prop-card-book-btn" href="#"
                        th:if="${currentUser != null and property.userId == currentUser.id}"
-                       onclick="showOwnListing(event)">BOOK</a>
+                       onclick="showOwnListing(event)" th:text="#{btn.book}">BOOK</a>
                     <a class="prop-card-book-btn"
                        th:if="${currentUser != null and property.userId != currentUser.id}"
-                       th:href="@{/booking/form(propertyId=${property.id})}">BOOK</a>
+                       th:href="@{/booking/form(propertyId=${property.id})}" th:text="#{btn.book}">BOOK</a>
                 </th:block>
 
 
 
                 <th:block th:if="${property.status.name() == 'FOR_SALE'}">
                     <div class="prop-card-actions">
-                        <a class="prop-card-write-btn" th:if="${currentUser == null}" href="/loginPage">WRITE</a>
-                        <a class="prop-card-phone-btn" th:if="${currentUser == null}" href="/loginPage">PHONE</a>
+                        <a class="prop-card-write-btn" th:if="${currentUser == null}" href="/loginPage" th:text="#{btn.write}">WRITE</a>
+                        <a class="prop-card-phone-btn" th:if="${currentUser == null}" href="/loginPage" th:text="#{btn.phone}">PHONE</a>
 
                         <a class="prop-card-write-btn" href="#"
                            th:if="${currentUser != null and property.userId == currentUser.id}"
-                           onclick="showOwnListing(event)">WRITE</a>
+                           onclick="showOwnListing(event)" th:text="#{btn.write}">WRITE</a>
                         <button class="prop-card-phone-btn" type="button"
                                 th:if="${currentUser != null and property.userId == currentUser.id}"
-                                onclick="showOwnListing(event)">PHONE</button>
+                                onclick="showOwnListing(event)" th:text="#{btn.phone}">PHONE</button>
 
                         <a class="prop-card-write-btn"
                            th:if="${currentUser != null and property.userId != currentUser.id}"
-                           th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}">WRITE</a>
+                           th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}"
+                           th:text="#{btn.write}">WRITE</a>
                         <button class="prop-card-phone-btn" type="button"
                                 th:if="${currentUser != null and property.userId != currentUser.id}"
                                 th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
+                                onclick="openPhonePopup(this)" th:text="#{btn.phone}">PHONE</button>
                                 onclick="openPhonePopup(this)">PHONE</button>
 
                         <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post">
@@ -297,16 +335,23 @@
 
 <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 
-<div id="ownListingToast" class="own-listing-toast">This is your listing</div>
+<div id="ownListingToast" class="own-listing-toast" th:text="#{home.toast.ownListing}"></div>
 
 <div id="phonePopup" class="phone-popup">
     <div class="phone-popup-card">
-        <p class="phone-popup-label">Seller's phone</p>
+        <p class="phone-popup-label" th:text="#{home.phone.title}">Seller's phone</p>
         <p id="phonePopupNumber" class="phone-popup-number"></p>
-        <button class="btn btn-ghost btn-sm" type="button" onclick="closePhonePopup()">Close</button>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closePhonePopup()" th:text="#{btn.close}">Close</button>
     </div>
 </div>
 
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.__i18nHome = {
+        phoneNotProvided: /*[[#{home.phone.notProvided}]]*/ 'Not provided'
+    };
+    /*]]>*/
+</script>
 <script>
     function openFilterPanel() {
         document.getElementById('filterPanel').classList.add('open');
@@ -329,7 +374,8 @@
 
     function openPhonePopup(btn) {
         var phone = btn.dataset.phone;
-        document.getElementById('phonePopupNumber').textContent = phone || 'Not provided';
+        var emptyMsg = (window.__i18nHome && window.__i18nHome.phoneNotProvided) ? window.__i18nHome.phoneNotProvided : 'Not provided';
+        document.getElementById('phonePopupNumber').textContent = phone || emptyMsg;
         document.getElementById('phonePopup').classList.add('open');
     }
     function closePhonePopup() {

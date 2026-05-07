@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="supportFab">
-    <a class="support-fab" th:href="@{/messages/open/support}" title="Contact support">Support</a>
+    <a class="support-fab" th:href="@{/messages/open/support}"
+       th:title="#{chat.support.title}" th:text="#{chat.support.label}">Support</a>
 </th:block>
 </body>
 </html>

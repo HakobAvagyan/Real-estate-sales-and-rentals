@@ -3,6 +3,7 @@ package org.example.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.property.PropertyCreateRequestDto;
 import org.example.dto.property.PropertyResponseDto;
+import org.example.model.enums.PropertyModerationStatus;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 import org.example.service.LocationService;
@@ -40,6 +41,9 @@ public class PropertyController {
                               @AuthenticationPrincipal SpringUser principal) {
         requestDto.setUserId(principal.getUser().getId());
         PropertyResponseDto createdProperty = propertyService.create(requestDto, images);
+        if (createdProperty.getModerationStatus() == PropertyModerationStatus.PENDING) {
+            return "redirect:/user/property/create?pendingReview=true";
+        }
         return "redirect:/user/property/create?successId=" + createdProperty.getId();
     }
 }

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Dashboard | Real Estate Hub</title>
+    <title th:text="#{page.manager.home.title}">Manager Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -14,45 +14,50 @@
         <div class="nav">
             <div>
                 <h1 class="headline">
-                    Welcome, <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
+                    <span th:text="#{manager.home.welcome}">Welcome</span>, <span th:text="${currentUser.name} + ' ' + ${currentUser.surname}"></span>
                 </h1>
-                <p class="subline mb-0">Manager Dashboard</p>
+                <p class="subline mb-0" th:text="#{manager.home.subline}">Manager Dashboard</p>
             </div>
             <div class="actions mt-0">
-                <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
+                <a class="btn btn-ghost btn-sm" href="/logout" th:text="#{btn.logout}">Logout</a>
             </div>
         </div>
     </section>
     <section class="panel">
         <div class="nav-links">
-            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
-            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
-            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
+            <a class="btn btn-primary" th:href="@{/manager/properties/pending}">
+                <span th:text="#{manager.home.reviewNew}">Review new listings</span>
+                <span th:if="${pendingPropertyCount != null and pendingPropertyCount > 0}"
+                      class="filter-active-badge" th:text="${pendingPropertyCount}">0</span>
+            </a>
+            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}" th:text="#{user.home.nav.profile}">My Profile</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}" th:text="#{user.home.nav.notifications}">My Notifications</a>
+            <a class="btn btn-ghost" th:href="@{/messages}" th:text="#{user.home.nav.messages}">Messages</a>
         </div>
     </section>
 
     <section class="panel wide">
         <div class="page-header">
             <div>
-                <h2 class="headline">User Directory</h2>
-                <p class="subline mb-0">Accounts visible to your role.</p>
+                <h2 class="headline" th:text="#{manager.home.users.title}">User Directory</h2>
+                <p class="subline mb-0" th:text="#{manager.home.users.subline}">Accounts visible to your role.</p>
             </div>
         </div>
         <div class="table-wrap">
             <table>
                 <thead>
                 <tr>
-                    <th>Photo</th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Passport</th>
-                    <th>BirthDate</th>
-                    <th>Role</th>
-                    <th>Registered</th>
-                    <th>Actions</th>
+                    <th th:text="#{manager.home.table.photo}">Photo</th>
+                    <th th:text="#{manager.home.table.id}">ID</th>
+                    <th th:text="#{manager.home.table.name}">Name</th>
+                    <th th:text="#{manager.home.table.surname}">Surname</th>
+                    <th th:text="#{manager.home.table.email}">Email</th>
+                    <th th:text="#{manager.home.table.phone}">Phone</th>
+                    <th th:text="#{manager.home.table.passport}">Passport</th>
+                    <th th:text="#{manager.home.table.birthDate}">BirthDate</th>
+                    <th th:text="#{manager.home.table.role}">Role</th>
+                    <th th:text="#{manager.home.table.registered}">Registered</th>
+                    <th th:text="#{manager.home.table.actions}">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -60,10 +65,10 @@
                     <td>
                         <img class="avatar"
                              th:if="${user.getPicName() != null && !user.getPicName().equals('')}"
-                             th:src="@{/image/get(pic=${user.picName})}" alt="User photo">
+                             th:src="@{/image/get(pic=${user.picName})}" th:alt="#{manager.home.table.photo}">
                         <img class="avatar"
                              th:if="${user.getPicName() == null || user.getPicName().equals('')}"
-                             th:src="@{/image/img.png}" alt="Default photo">
+                             th:src="@{/image/img.png}" th:alt="#{user.home.noImage}">
                     </td>
                     <td th:text="${user.id}"></td>
                     <td th:text="${user.name}"></td>
@@ -76,9 +81,9 @@
                     <td th:text="${user.createdAt}"></td>
                     <td>
                         <a class="link-inline" th:if="${currentUser != null && user.id != currentUser.id}"
-                           th:href="@{/messages/open/direct(otherUserId=${user.id})}">Message</a>
-                        <a class="link-inline danger" th:if="${user.isBlocked() == false}" th:href="@{/blocked(id=${user.id})}">Block</a>
-                        <a class="link-inline danger" th:if="${user.isBlocked() == true}" th:href="@{/blocked(id=${user.id})}">Unblock</a>
+                           th:href="@{/messages/open/direct(otherUserId=${user.id})}" th:text="#{btn.openChat}">Message</a>
+                        <a class="link-inline danger" th:if="${user.isBlocked() == false}" th:href="@{/blocked(id=${user.id})}" th:text="#{manager.home.action.block}">Block</a>
+                        <a class="link-inline danger" th:if="${user.isBlocked() == true}" th:href="@{/blocked(id=${user.id})}" th:text="#{manager.home.action.unblock}">Unblock</a>
                     </td>
                 </tr>
                 </tbody>

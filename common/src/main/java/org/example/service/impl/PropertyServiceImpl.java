@@ -13,11 +13,14 @@ import org.example.model.LocationName;
 import org.example.model.Property;
 import org.example.model.PropertyImage;
 import org.example.model.User;
+import org.example.model.enums.PropertyModerationStatus;
+import org.example.model.enums.Role;
 import org.example.repository.LocationNameRepository;
 import org.example.repository.LocationRepository;
 import org.example.repository.PropertyImageRepository;
 import org.example.repository.PropertyRepository;
 import org.example.repository.UserRepository;
+import org.example.service.NotificationService;
 import org.example.service.PropertyService;
 import org.example.specification.PropertySpecification;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +54,7 @@ public class PropertyServiceImpl implements PropertyService {
     private final LocationRepository locationRepository;
     private final LocationNameRepository locationNameRepository;
     private final PropertyCreateRequestMapper propertyCreateRequestMapper;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -63,6 +67,11 @@ public class PropertyServiceImpl implements PropertyService {
         property.setUser(user);
         property.setLocation(location);
         property.setCreatedAt(LocalDate.now());
+        if (user.getRole() == Role.USER) {
+            property.setModerationStatus(PropertyModerationStatus.PENDING);
+        } else {
+            property.setModerationStatus(PropertyModerationStatus.APPROVED);
+        }
 
         Property savedProperty = propertyRepository.save(property);
 
@@ -73,21 +82,20 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public List<PropertyResponseDto> findAll() {
-        return propertyRepository.findAll().stream().map(property -> {
-            List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
-                    .stream()
-                    .map(PropertyImage::getImagesUrl)
-                    .toList();
-            return toResponse(property, imageUrls);
-        }).toList();
+        return propertyRepository.findAll(PropertySpecification.withFilter(new PropertyFilterDto())).stream()
+                .map(property -> {
+                    List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                            .stream()
+                            .map(PropertyImage::getImagesUrl)
+                            .toList();
+                    return toResponse(property, imageUrls);
+                }).toList();
     }
 
     @Override
     public List<PropertyResponseDto> findAllFiltered(PropertyFilterDto filter) {
-        if (filter == null || filter.isEmpty()) {
-            return findAll();
-        }
-        return propertyRepository.findAll(PropertySpecification.withFilter(filter)).stream()
+        PropertyFilterDto f = filter != null ? filter : new PropertyFilterDto();
+        return propertyRepository.findAll(PropertySpecification.withFilter(f)).stream()
                 .map(property -> {
                     List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
                             .stream()
@@ -106,6 +114,78 @@ public class PropertyServiceImpl implements PropertyService {
                     .toList();
             return toResponse(property, imageUrls);
         });
+    }
+
+    @Override
+    public Optional<PropertyResponseDto> findByIdForDisplay(int propertyId, Integer viewerUserId, Role viewerRole) {
+        return propertyRepository.findById(propertyId).flatMap(property -> {
+            boolean isOwner = viewerUserId != null && property.getUser().getId() == viewerUserId;
+            boolean isStaff = viewerRole == Role.MANAGER || viewerRole == Role.ADMIN;
+            boolean isPublic = property.getModerationStatus() == PropertyModerationStatus.APPROVED;
+            if (!isPublic && !isOwner && !isStaff) {
+                return Optional.empty();
+            }
+            List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                    .stream()
+                    .map(PropertyImage::getImagesUrl)
+                    .toList();
+            return Optional.of(toResponse(property, imageUrls));
+        });
+    }
+
+    @Override
+    public List<PropertyResponseDto> findPendingModeration() {
+        return propertyRepository.findAllByModerationStatusOrderByCreatedAtDesc(PropertyModerationStatus.PENDING)
+                .stream()
+                .map(property -> {
+                    List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                            .stream()
+                            .map(PropertyImage::getImagesUrl)
+                            .toList();
+                    return toResponse(property, imageUrls);
+                })
+                .toList();
+    }
+
+    @Override
+    public long countPendingModeration() {
+        return propertyRepository.countByModerationStatus(PropertyModerationStatus.PENDING);
+    }
+
+    @Override
+    @Transactional
+    public void approveListing(int propertyId) {
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        if (property.getModerationStatus() != PropertyModerationStatus.PENDING) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_PENDING_MODERATION);
+        }
+        property.setModerationStatus(PropertyModerationStatus.APPROVED);
+        propertyRepository.save(property);
+        int ownerId = property.getUser().getId();
+        String title = property.getTitle() != null ? property.getTitle() : ("#" + property.getId());
+        notificationService.createNotificationForUser(ownerId, "Listing approved",
+                "Your listing \"" + title + "\" has been approved and is now visible on the site.");
+    }
+
+    @Override
+    @Transactional
+    public void rejectListing(int propertyId, String reason) {
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        if (property.getModerationStatus() != PropertyModerationStatus.PENDING) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_PENDING_MODERATION);
+        }
+        property.setModerationStatus(PropertyModerationStatus.REJECTED);
+        propertyRepository.save(property);
+        int ownerId = property.getUser().getId();
+        String title = property.getTitle() != null ? property.getTitle() : ("#" + property.getId());
+        StringBuilder msg = new StringBuilder();
+        msg.append("Your listing \"").append(title).append("\" was not approved and will not appear in the catalog.");
+        if (StringUtils.hasText(reason)) {
+            msg.append(" Details: ").append(reason.trim());
+        }
+        notificationService.createNotificationForUser(ownerId, "Listing not approved", msg.toString());
     }
 
     @Override
@@ -213,6 +293,7 @@ public class PropertyServiceImpl implements PropertyService {
                 .createdAt(property.getCreatedAt())
                 .status(property.getStatus())
                 .propertyType(property.getPropertyType())
+                .moderationStatus(property.getModerationStatus())
                 .imageUrls(imageUrls)
                 .build();
     }
