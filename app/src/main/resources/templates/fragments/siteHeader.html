@@ -3,14 +3,20 @@
     <div class="site-header-inner">
       <div class="site-brand">
         <a class="site-logo" th:href="@{/home}">
-          <img class="site-logo-img" th:src="@{/image/get(pic='logo.png')}" alt="Logo" />
+          <img class="site-logo-img" th:src="@{/image/get(pic='logo.png')}" th:alt="#{app.brand}" />
         </a>
 
         <div class="site-cats">
-          <a class="site-cat-link" th:href="@{/home(category='Apartment')}">Apartment</a>
-          <a class="site-cat-link" th:href="@{/home(category='House')}">House</a>
-          <a class="site-cat-link" th:href="@{/home(category='Commercial')}">Commercial</a>
+          <a class="site-cat-link" th:href="@{/home(category='Apartment')}" th:text="#{nav.cat.apartment}">Apartment</a>
+          <a class="site-cat-link" th:href="@{/home(category='House')}" th:text="#{nav.cat.house}">House</a>
+          <a class="site-cat-link" th:href="@{/home(category='Commercial')}" th:text="#{nav.cat.commercial}">Commercial</a>
         </div>
+      </div>
+
+      <div class="site-lang-switch" role="navigation" aria-label="Language">
+        <a class="site-lang-link" th:href="@{/locale(lang=en)}" th:text="#{lang.en}">EN</a>
+        <a class="site-lang-link" th:href="@{/locale(lang=ru)}" th:text="#{lang.ru}">RU</a>
+        <a class="site-lang-link" th:href="@{/locale(lang=hy)}" th:text="#{lang.hy}">HY</a>
       </div>
 
       <nav class="site-nav">
@@ -22,13 +28,10 @@
         </th:block>
 
         <th:block th:if="${currentUser == null}">
-          <a class="site-auth-btn site-auth-signin" th:href="@{/loginPage}">Sign In</a>
-          <a class="site-auth-btn site-auth-register" th:href="@{/register}">Register</a>
+          <a class="site-auth-btn site-auth-signin" th:href="@{/loginPage}" th:text="#{nav.signIn}">Sign In</a>
+          <a class="site-auth-btn site-auth-register" th:href="@{/register}" th:text="#{nav.register}">Register</a>
         </th:block>
       </nav>
     </div>
   </header>
 </th:block>
-
-
-

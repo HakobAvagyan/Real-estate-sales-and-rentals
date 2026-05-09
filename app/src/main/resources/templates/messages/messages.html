@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages | Real Estate Hub</title>
+    <title th:text="#{page.messages.title}">Messages</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -12,30 +12,30 @@
     <section class="panel wide">
         <div class="nav">
             <div>
-                <h1 class="headline">Messages</h1>
-                <p class="subline">Direct chats and support</p>
+                <h1 class="headline" th:text="#{messages.headline}">Messages</h1>
+                <p class="subline" th:text="#{messages.subline}">Direct chats and support</p>
             </div>
             <div class="actions">
-                <a class="btn btn-ghost btn-sm" href="/home">Home</a>
+                <a class="btn btn-ghost btn-sm" href="/home" th:text="#{btn.home}">Home</a>
             </div>
         </div>
     </section>
 
     <div class="chat-shell panel wide">
         <aside class="chat-sidebar">
-            <h2 class="chat-sidebar-title">Conversations</h2>
+            <h2 class="chat-sidebar-title" th:text="#{messages.sidebar.title}">Conversations</h2>
             <ul class="chat-conv-list">
                 <li th:each="c : ${conversations}">
                     <a th:href="@{/messages(conversationId=${c.id})}"
                        th:classappend="${selectedConversationId != null && selectedConversationId == c.id} ? ' active'"
                        class="chat-conv-item">
                         <span class="chat-conv-name"
-                              th:text="${c.conversationType.name() == 'SUPPORT' ? 'Support' : c.otherUserName}">Chat</span>
-                        <span class="chat-conv-meta" th:if="${c.unreadCount > 0}" th:text="'(' + ${c.unreadCount} + ' new)'"></span>
+                              th:text="${c.conversationType.name() == 'SUPPORT'} ? #{messages.support} : ${c.otherUserName}">Chat</span>
+                        <span class="chat-conv-meta" th:if="${c.unreadCount > 0}" th:text="#{messages.new(${c.unreadCount})}"></span>
                     </a>
                 </li>
             </ul>
-            <p class="muted" th:if="${#lists.isEmpty(conversations)}">No conversations yet.</p>
+            <p class="muted" th:if="${#lists.isEmpty(conversations)}" th:text="#{messages.empty}">No conversations yet.</p>
         </aside>
         <section class="chat-main" th:if="${selectedConversationId != null}">
             <div id="chat-page-config" hidden
@@ -51,13 +51,13 @@
             </div>
             <form class="chat-compose" th:action="@{/messages/send}" method="post">
                 <input type="hidden" name="conversationId" th:value="${selectedConversationId}">
-                <input type="text" name="text" placeholder="Type a message…" required maxlength="2000" class="chat-input">
-                <button type="submit" class="btn btn-primary">Send</button>
+                <input type="text" name="text" th:placeholder="#{messages.compose.placeholder}" required maxlength="2000" class="chat-input">
+                <button type="submit" class="btn btn-primary" th:text="#{btn.send}">Send</button>
             </form>
-            <p class="chat-live muted" id="chat-live-hint">Live updates enabled (WebSocket).</p>
+            <p class="chat-live muted" id="chat-live-hint" th:text="#{messages.live}">Live updates enabled (WebSocket).</p>
         </section>
         <section class="chat-main chat-empty" th:if="${selectedConversationId == null}">
-            <p class="muted">Select a conversation or start a new chat from a profile.</p>
+            <p class="muted" th:text="#{messages.select}">Select a conversation or start a new chat from a profile.</p>
         </section>
     </div>
     <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>

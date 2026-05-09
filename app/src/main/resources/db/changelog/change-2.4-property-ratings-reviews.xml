@@ -1,0 +1,41 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2.4.1-ratings-review-columns" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="ratings" columnName="review_text"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="ratings">
+            <column name="review_text" type="varchar(2000)"/>
+            <column name="rated_at" type="datetime"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2.4.2-ratings-backfill-rated-at" author="system">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ratings" columnName="rated_at"/>
+        </preConditions>
+        <sql>UPDATE ratings SET rated_at = CURRENT_TIMESTAMP WHERE rated_at IS NULL</sql>
+    </changeSet>
+
+    <changeSet id="2.4.3-ratings-rated-at-not-null" author="system">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="ratings" columnName="rated_at"/>
+        </preConditions>
+        <addNotNullConstraint tableName="ratings" columnName="rated_at" columnDataType="datetime"
+                              validate="true"/>
+    </changeSet>
+
+    <changeSet id="2.4.4-ratings-unique-user-property" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="ratings_property_user_uq" tableName="ratings"/>
+            </not>
+        </preConditions>
+        <addUniqueConstraint tableName="ratings" columnNames="property_id, user_id"
+                             constraintName="ratings_property_user_uq"/>
+    </changeSet>
+</databaseChangeLog>

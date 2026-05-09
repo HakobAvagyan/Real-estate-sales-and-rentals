@@ -15,4 +15,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findUserByRole(Role role);
 
     Optional<User> findFirstByRoleInAndIdNot(Collection<Role> roles, int userId);
+
+    long countByRole(Role role);
+
+    long countByIsBlockedTrue();
 }

@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.dto.property.PropertyCreateRequestDto;
 import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
+import org.example.model.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -10,10 +11,24 @@ import java.util.Optional;
 
 public interface PropertyService {
     PropertyResponseDto addProperty(PropertyCreateRequestDto request, List<MultipartFile> images);
+
     List<PropertyResponseDto> findAll();
+
     List<PropertyResponseDto> findAllFiltered(PropertyFilterDto filter);
+
     List<PropertyResponseDto> findAllByUserId(Integer userId);
+
     Optional<PropertyResponseDto> findById(int id);
+
+    Optional<PropertyResponseDto> findByIdForDisplay(int propertyId, Integer viewerUserId, Role viewerRole);
+
+    List<PropertyResponseDto> findPendingModeration();
+
+    long countPendingModeration();
+
+    void approveListing(int propertyId);
+
+    void rejectListing(int propertyId, String reason);
 
     default PropertyResponseDto create(PropertyCreateRequestDto request, List<MultipartFile> images) {
         return addProperty(request, images);

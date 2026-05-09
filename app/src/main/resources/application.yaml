@@ -1,6 +1,10 @@
 spring:
   application:
     name: rent-sell
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
   liquibase:
     change-log: classpath:/db/master.xml
     enabled: true

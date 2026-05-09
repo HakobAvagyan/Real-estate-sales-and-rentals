@@ -12,6 +12,7 @@ import org.example.model.PropertyUrgent;
 import org.example.model.UrgentSellPlan;
 import org.example.model.User;
 import org.example.model.enums.PaymentStatus;
+import org.example.model.enums.PropertyModerationStatus;
 import org.example.model.enums.PropertyStatus;
 import org.example.repository.BookingRepository;
 import org.example.repository.PaymentRepository;
@@ -43,7 +44,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Optional<PropertyResponseDto> getRentableProperty(int propertyId) {
         return propertyService.findById(propertyId)
-                .filter(p -> p.getStatus() == PropertyStatus.FOR_RENT);
+                .filter(p -> p.getStatus() == PropertyStatus.FOR_RENT)
+                .filter(p -> p.getModerationStatus() == PropertyModerationStatus.APPROVED);
     }
 
     @Override
@@ -63,6 +65,9 @@ public class PaymentServiceImpl implements PaymentService {
     public void confirmBooking(int propertyId, BigDecimal amount, LocalDate startDate, LocalDate endDate, int guests, User user) {
         var property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        if (property.getModerationStatus() != PropertyModerationStatus.APPROVED) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_APPROVED_YET);
+        }
 
         Payment payment = new Payment();
         payment.setAmount(amount);
@@ -86,6 +91,9 @@ public class PaymentServiceImpl implements PaymentService {
     public void confirmUrgent(int propertyId, User user) {
         var property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        if (property.getModerationStatus() != PropertyModerationStatus.APPROVED) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_APPROVED_YET);
+        }
 
         UrgentSellPlan plan = urgentSellPlanRepository.findFirstByIsActiveTrue()
                 .orElseThrow(() -> new BusinessException(ErrorCode.URGENT_PLAN_NOT_FOUND));

@@ -1,20 +1,24 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Property</title>
+    <title th:text="#{page.property.create.title}">Create Property</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
     <section class="panel">
-        <h1 class="headline">Create Property</h1>
-        <p class="subline">Fill in property details and upload one or more images.</p>
+        <h1 class="headline" th:text="#{property.create.headline}">Create Property</h1>
+        <p class="subline" th:text="#{property.create.subline}">Fill in property details and upload one or more images.</p>
+
+        <div th:if="${param.pendingReview}" class="success-note" style="border-color: var(--warn-bd); background: var(--warn-bg);">
+            <span th:text="#{property.create.pending}">Your listing was submitted for manager review. It will appear on the site after approval. You will get a notification if it is rejected.</span>
+        </div>
 
         <div th:if="${param.successId}" class="success-note">
-            Property created successfully. ID:
+            <span th:text="#{property.create.success}">Property created successfully. ID:</span>
             <strong th:text="${param.successId}"></strong>
         </div>
 
@@ -53,7 +57,7 @@
 
             <label>Location Name
                 <select name="locationNameId" required>
-                    <option value="">Select region and city</option>
+                    <option value="" th:text="#{property.create.selectRegionCity}">Select region and city</option>
                     <option th:each="locationName : ${locationNames}"
                             th:value="${locationName.id}"
                             th:text="${locationName.region + ', ' + locationName.city}">
@@ -71,15 +75,17 @@
 
             <label>Status
                 <select name="status" required>
-                    <option value="">Select status</option>
-                    <option th:each="status : ${propertyStatuses}" th:value="${status}" th:text="${status}"></option>
+                    <option value="" th:text="#{property.create.selectStatus}">Select status</option>
+                    <option th:each="status : ${propertyStatuses}" th:value="${status}" th:with="statusKey=|enum.propertyStatus.${status}|"
+                            th:text="#{__${statusKey}__}"></option>
                 </select>
             </label>
 
             <label>Type
                 <select name="propertyType" required>
-                    <option value="">Select type</option>
-                    <option th:each="type : ${propertyTypes}" th:value="${type}" th:text="${type}"></option>
+                    <option value="" th:text="#{property.create.selectType}">Select type</option>
+                    <option th:each="type : ${propertyTypes}" th:value="${type}" th:with="typeKey=|enum.propertyType.${type}|"
+                            th:text="#{__${typeKey}__}"></option>
                 </select>
             </label>
             <label class="field row-full">Images
@@ -87,8 +93,8 @@
             </label>
 
             <div class="actions row-full">
-                <button class="btn btn-primary" type="submit">Create</button>
-                <a class="btn btn-ghost" href="/user/home">Back</a>
+                <button class="btn btn-primary" type="submit" th:text="#{create.property.submit}">Create</button>
+                <a class="btn btn-ghost" href="/user/home" th:text="#{btn.back}">Back</a>
             </div>
         </form>
     </section>

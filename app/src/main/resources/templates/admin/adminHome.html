@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Real Estate Hub</title>
+    <title th:text="#{page.admin.home.title}">Admin Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -19,6 +19,7 @@
                 <p class="subline mb-0">Admin Dashboard</p>
             </div>
             <div class="actions mt-0">
+                <a class="btn btn-primary btn-sm" href="/manager/properties/pending">Review listings queue</a>
                 <a class="btn btn-ghost btn-sm" href="/admin/add/manager">+ Add Manager</a>
                 <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
             </div>
@@ -29,6 +30,140 @@
         <div class="nav-links">
             <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
             <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
+        </div>
+    </section>
+
+    <section class="panel wide" th:if="${propertyStats != null}">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">Listing statistics</h2>
+                <p class="subline mb-0">Properties on the platform by status and type.</p>
+            </div>
+        </div>
+        <div class="admin-stat-grid">
+            <div class="stat-card stat-card-warn">
+                <span class="stat-value" th:text="${propertyStats.pendingModeration}">0</span>
+                <span class="stat-label">Awaiting manager review</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.totalListings}">0</span>
+                <span class="stat-label">Total listings</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.forSale}">0</span>
+                <span class="stat-label">For sale</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.forRent}">0</span>
+                <span class="stat-label">For rent</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.sold}">0</span>
+                <span class="stat-label">Sold</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.rented}">0</span>
+                <span class="stat-label">Rented</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.typeHouse}">0</span>
+                <span class="stat-label">House</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.typeApartment}">0</span>
+                <span class="stat-label">Apartment</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${propertyStats.typeLand}">0</span>
+                <span class="stat-label">Land</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel wide" th:if="${platformOverview != null}">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">Platform overview</h2>
+                <p class="subline mb-0">Users, engagement, and bookings at a glance.</p>
+            </div>
+        </div>
+        <div class="admin-stat-grid">
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.totalUsers}">0</span>
+                <span class="stat-label">Registered users</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.usersRoleUser}">0</span>
+                <span class="stat-label">Clients (USER)</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.usersRoleManager}">0</span>
+                <span class="stat-label">Managers</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.usersRoleAdmin}">0</span>
+                <span class="stat-label">Admins</span>
+            </div>
+            <div class="stat-card stat-card-warn">
+                <span class="stat-value" th:text="${platformOverview.blockedUsers}">0</span>
+                <span class="stat-label">Blocked accounts</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.totalComments}">0</span>
+                <span class="stat-label">Comments (all)</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.totalRatings}">0</span>
+                <span class="stat-label">Ratings (all)</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" th:text="${platformOverview.totalBookings}">0</span>
+                <span class="stat-label">Bookings</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel wide">
+        <div class="page-header">
+            <div>
+                <h2 class="headline">Manager workload</h2>
+                <p class="subline mb-0">Activity in support chat: messages sent, distinct conversations, last message time.</p>
+            </div>
+        </div>
+        <p class="subline muted" th:if="${managerWorkloads == null or managerWorkloads.isEmpty()}">
+            No managers registered yet. Use “Add Manager” above.
+        </p>
+        <div class="table-wrap" th:if="${managerWorkloads != null and !managerWorkloads.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Messages sent</th>
+                    <th>Chats (with reply)</th>
+                    <th>Last message</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="m : ${managerWorkloads}">
+                    <td th:text="${m.managerId}">0</td>
+                    <td th:text="${m.displayName}">—</td>
+                    <td th:text="${m.email}">—</td>
+                    <td th:text="${m.messagesSent}">0</td>
+                    <td th:text="${m.chatsHandled}">0</td>
+                    <td>
+                        <span th:if="${m.lastMessageAt != null}"
+                              th:text="${#temporals.format(m.lastMessageAt, 'dd MMM yyyy HH:mm')}">—</span>
+                        <span class="muted" th:if="${m.lastMessageAt == null}">No messages yet</span>
+                    </td>
+                    <td>
+                        <a class="link-inline" th:href="@{/messages/open/direct(otherUserId=${m.managerId})}">Open chat</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 

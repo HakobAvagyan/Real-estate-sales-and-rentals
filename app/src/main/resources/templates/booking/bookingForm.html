@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Property | Real Estate Hub</title>
+    <title th:text="#{page.booking.title}">Book Property</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -13,11 +13,11 @@
     <section class="panel welcome">
         <div class="nav">
             <div>
-                <h1 class="headline">Book Property</h1>
-                <p class="subline mb-0">Choose your stay dates and number of guests.</p>
+                <h1 class="headline" th:text="#{booking.headline}">Book Property</h1>
+                <p class="subline mb-0" th:text="#{booking.subline}">Choose your stay dates and number of guests.</p>
             </div>
             <div class="actions mt-0">
-                <a class="btn btn-ghost btn-sm" href="/home">Back</a>
+                <a class="btn btn-ghost btn-sm" href="/home" th:text="#{btn.back}">Back</a>
             </div>
         </div>
     </section>
@@ -26,7 +26,7 @@
         <p class="property-summary-title" th:text="${property.title}"></p>
         <p class="property-summary-type" th:text="${property.propertyType}"></p>
         <p class="property-summary-price">
-            Price per night:
+            <span th:text="#{booking.summary.priceLabel}">Price per night:</span>
             <strong th:text="'$' + ${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}"></strong>
         </p>
     </section>
@@ -38,26 +38,26 @@
 
             <div class="grid">
                 <div class="field">
-                    <label for="startDate">Check-in date</label>
+                    <label for="startDate" th:text="#{booking.checkin}">Check-in date</label>
                     <input id="startDate" name="startDate" type="date" required>
                 </div>
                 <div class="field">
-                    <label for="endDate">Check-out date</label>
+                    <label for="endDate" th:text="#{booking.checkout}">Check-out date</label>
                     <input id="endDate" name="endDate" type="date" required>
                 </div>
                 <div class="field">
-                    <label for="guests">Number of guests</label>
+                    <label for="guests" th:text="#{booking.guests}">Number of guests</label>
                     <input id="guests" name="guests" type="number" min="1" value="1" required>
                 </div>
                 <div class="field">
-                    <label>Total amount</label>
+                    <label th:text="#{booking.total}">Total amount</label>
                     <input id="totalDisplay" type="text" readonly value="—">
                     <input id="amountHidden" name="amount" type="hidden" value="0">
                 </div>
             </div>
 
             <div class="actions">
-                <button class="btn btn-primary" type="submit">Proceed to Payment</button>
+                <button class="btn btn-primary" type="submit" th:text="#{booking.proceed}">Proceed to Payment</button>
             </div>
         </form>
     </section>

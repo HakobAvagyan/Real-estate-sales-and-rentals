@@ -20,4 +20,6 @@ public interface NotificationService {
 
     void notifyUserBlocked(User user);
 
+    void createNotificationForUser(int userId, String title, String message);
+
 }

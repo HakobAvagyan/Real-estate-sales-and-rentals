@@ -6,6 +6,7 @@ import org.example.dto.property.PropertyFilterDto;
 import org.example.model.Location;
 import org.example.model.LocationName;
 import org.example.model.Property;
+import org.example.model.enums.PropertyModerationStatus;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 import org.example.model.enums.Region;
@@ -18,7 +19,8 @@ import java.util.List;
 public class PropertySpecification {
 
     public static Specification<Property> withFilter(PropertyFilterDto filter) {
-        Specification<Property> spec = (root, q, cb) -> null;
+        Specification<Property> spec = (root, q, cb) ->
+                cb.equal(root.get("moderationStatus"), PropertyModerationStatus.APPROVED);
         spec = spec.and(hasType(filter.getPropertyType()));
         spec = spec.and(hasStatus(filter.getStatus()));
         spec = spec.and(priceGte(filter.getMinPrice()));
@@ -34,7 +36,7 @@ public class PropertySpecification {
         return spec;
     }
 
-    private static final Specification<Property> NOOP = (root, q, cb) -> null;
+    private static final Specification<Property> NOOP = (root, q, cb) -> cb.conjunction();
 
     private static Specification<Property> hasType(PropertyType type) {
         return type == null ? NOOP : (root, q, cb) -> cb.equal(root.get("propertyType"), type);
