@@ -1,14 +1,19 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{notification.page.title}">Notifications</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
 <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
-  <section class="panel welcome">
+  <section class="panel welcome" data-reveal>
     <div class="nav">
       <div>
         <h1 class="headline">
@@ -23,7 +28,7 @@
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" data-reveal>
     <div class="stack" th:if="${#lists.isEmpty(notifications)}">
       <p th:text="#{notification.empty}">No notifications yet.</p>
     </div>
@@ -36,7 +41,7 @@
           <th th:text="#{notification.table.actions}">Actions</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody data-reveal-stagger>
         <tr th:each="notification : ${notifications}">
           <td th:text="${notification.title}"></td>
           <td th:text="${#temporals.format(notification.createdAt, 'yyyy-MM-dd')}"></td>
@@ -51,5 +56,8 @@
     </div>
   </section>
 </main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

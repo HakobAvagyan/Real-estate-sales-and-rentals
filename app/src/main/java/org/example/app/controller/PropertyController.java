@@ -10,8 +10,10 @@ import org.example.service.LocationService;
 import org.example.service.PropertyService;
 import org.example.service.security.SpringUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,9 +38,18 @@ public class PropertyController {
     }
 
     @PostMapping("/user/property/create")
-    public String addProperty(@ModelAttribute PropertyCreateRequestDto requestDto,
+    public String addProperty(@Valid @ModelAttribute PropertyCreateRequestDto requestDto,
+                              BindingResult errors,
                               @RequestParam(value = "images", required = false) List<MultipartFile> images,
-                              @AuthenticationPrincipal SpringUser principal) {
+                              @AuthenticationPrincipal SpringUser principal,
+                              ModelMap modelMap) {
+        if (errors.hasErrors()) {
+            modelMap.addAttribute("validationErrors", errors.getAllErrors());
+            modelMap.addAttribute("locationNames", locationService.getAllLocationNames());
+            modelMap.addAttribute("propertyTypes", PropertyType.values());
+            modelMap.addAttribute("propertyStatuses", new PropertyStatus[]{PropertyStatus.FOR_SALE, PropertyStatus.FOR_RENT});
+            return "property/createProperty";
+        }
         requestDto.setUserId(principal.getUser().getId());
         PropertyResponseDto createdProperty = propertyService.create(requestDto, images);
         if (createdProperty.getModerationStatus() == PropertyModerationStatus.PENDING) {

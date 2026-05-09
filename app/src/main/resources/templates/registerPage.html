@@ -1,69 +1,76 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{page.register.title}">Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
 <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
-<main class="layout">
-    <section class="panel">
-        <h1 class="headline">Create Account</h1>
-        <p class="subline">Add your profile to access platform operations.</p>
+<main class="layout auth-layout">
+    <section class="panel" data-reveal="scale">
+        <h1 class="headline" th:text="#{register.headline}">Create Account</h1>
+        <p class="subline" th:text="#{register.subline}">Add your profile to access platform operations.</p>
 
         <div class="alert alert-error" th:if="${msg} != null" th:text="${msg}"></div>
 
         <form method="post" action="/register" enctype="multipart/form-data">
             <div class="grid">
                 <div class="field">
-                    <label for="name">Name</label>
-                    <input id="name" type="text" name="name" placeholder="First name" required>
+                    <label for="name" th:text="#{register.field.name}">Name</label>
+                    <input id="name" type="text" name="name" th:placeholder="#{register.placeholder.name}" required>
                 </div>
                 <div class="field">
-                    <label for="surname">Surname</label>
-                    <input id="surname" type="text" name="surname" placeholder="Last name" required>
+                    <label for="surname" th:text="#{register.field.surname}">Surname</label>
+                    <input id="surname" type="text" name="surname" th:placeholder="#{register.placeholder.surname}" required>
                 </div>
                 <div class="field">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" name="email" placeholder="you@example.com" required>
+                    <label for="email" th:text="#{pwd.email}">Email</label>
+                    <input id="email" type="email" name="email" th:placeholder="#{register.placeholder.email}" required>
                 </div>
                 <div class="field">
-                    <label for="phone">Phone</label>
-                    <input id="phone" type="tel" name="phone" placeholder="+374 ..." required>
+                    <label for="phone" th:text="#{register.field.phone}">Phone</label>
+                    <input id="phone" type="tel" name="phone" th:placeholder="#{register.placeholder.phone}" required>
                 </div>
                 <div class="field">
-                    <label for="password">Password</label>
-                    <input id="password" type="password" name="password" placeholder="Create password" required>
+                    <label for="password" th:text="#{login.field.password}">Password</label>
+                    <input id="password" type="password" name="password" th:placeholder="#{pwd.placeholder.new}" required>
                 </div>
                 <div class="field">
-                    <label for="birthDate">Birth Date</label>
-                    <input id="birthDate" type="date" name="birthDate" placeholder="YYYY-MM-DD" required>
+                    <label for="birthDate" th:text="#{register.field.birthDate}">Birth Date</label>
+                    <input id="birthDate" type="date" name="birthDate" required>
                 </div>
                 <div class="field">
-                    <label for="passportDetails">Passport Detail</label>
-                    <input id="passportDetails" type="text" name="passportDetails" placeholder="Passport number">
+                    <label for="passportDetails" th:text="#{register.field.passport}">Passport Detail</label>
+                    <input id="passportDetails" type="text" name="passportDetails" th:placeholder="#{register.placeholder.passport}">
                 </div>
                 <div class="field row-full">
-                    <label for="pic">Profile Picture</label>
+                    <label for="pic" th:text="#{register.field.pic}">Profile Picture</label>
                     <input id="pic" type="file" name="pic">
                 </div>
                 <div class="field row-full">
-                    <label>Gender</label>
+                    <label th:text="#{register.field.gender}">Gender</label>
                     <div class="role-group">
-                        <label class="role-group"><input type="radio" name="gender" value="MALE"> Male</label>
-                        <label class="role-group"><input type="radio" name="gender" value="FEMALE"> Female</label>
+                        <label class="role-option"><input type="radio" name="gender" value="MALE"> Male</label>
+                        <label class="role-option"><input type="radio" name="gender" value="FEMALE"> Female</label>
                     </div>
                 </div>
                 <input type="hidden" name="role" value="USER">
             </div>
             <div class="actions">
-                <button class="btn btn-primary" type="submit">Register</button>
-                <a class="btn btn-ghost" href="/">Back to Login</a>
+                <button class="btn btn-primary" type="submit" th:text="#{register.submit}">Register</button>
+                <a class="btn btn-ghost" th:href="@{/loginPage}" th:text="#{register.backToLogin}">Back to Login</a>
             </div>
         </form>
     </section>
 </main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

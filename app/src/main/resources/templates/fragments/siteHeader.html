@@ -1,37 +1,107 @@
 <th:block th:fragment="siteHeader">
-  <header class="site-header brand">
+  <header class="site-header brand" role="banner">
     <div class="site-header-inner">
       <div class="site-brand">
         <a class="site-logo" th:href="@{/home}">
-          <img class="site-logo-img" th:src="@{/image/get(pic='logo.png')}" th:alt="#{app.brand}" />
+          <img class="site-logo-img" th:src="@{/image/get(pic='logo.png')}" th:alt="#{app.brand}" onerror="this.style.display='none'">
+          <span th:text="#{app.brand}">Real Estate Hub</span>
         </a>
-
         <div class="site-cats">
           <a class="site-cat-link" th:href="@{/home(category='Apartment')}" th:text="#{nav.cat.apartment}">Apartment</a>
-          <a class="site-cat-link" th:href="@{/home(category='House')}" th:text="#{nav.cat.house}">House</a>
+          <a class="site-cat-link" th:href="@{/home(category='House')}"     th:text="#{nav.cat.house}">House</a>
           <a class="site-cat-link" th:href="@{/home(category='Commercial')}" th:text="#{nav.cat.commercial}">Commercial</a>
         </div>
       </div>
 
-      <div class="site-lang-switch" role="navigation" aria-label="Language">
-        <a class="site-lang-link" th:href="@{/locale(lang=en)}" th:text="#{lang.en}">EN</a>
-        <a class="site-lang-link" th:href="@{/locale(lang=ru)}" th:text="#{lang.ru}">RU</a>
-        <a class="site-lang-link" th:href="@{/locale(lang=hy)}" th:text="#{lang.hy}">HY</a>
-      </div>
-
       <nav class="site-nav">
+
+        <!-- Language select -->
+        <div class="hdr-select-wrap" role="navigation" aria-label="Language">
+          <span class="hdr-select-icon">🌐</span>
+          <select class="hdr-select" id="langSelect" aria-label="Language"
+                  onchange="window.location.href=this.value">
+            <option th:value="@{/locale(lang=en)}" th:selected="${#locale.language == 'en'}" th:text="#{lang.en}">EN</option>
+            <option th:value="@{/locale(lang=ru)}" th:selected="${#locale.language == 'ru'}" th:text="#{lang.ru}">RU</option>
+            <option th:value="@{/locale(lang=hy)}" th:selected="${#locale.language == 'hy'}" th:text="#{lang.hy}">HY</option>
+          </select>
+        </div>
+
+        <!-- Currency select -->
+        <div class="hdr-select-wrap" th:if="${availableCurrencies != null}" role="navigation" aria-label="Currency">
+          <span class="hdr-select-icon">💱</span>
+          <select class="hdr-select" id="currencySelect" aria-label="Currency"
+                  onchange="window.location.href=this.value">
+            <option th:each="cur : ${availableCurrencies}"
+                    th:value="@{/home(currency=${cur})}"
+                    th:selected="${selectedCurrency == cur}"
+                    th:text="${cur}"></option>
+          </select>
+        </div>
+
         <th:block th:if="${currentUser != null}">
           <a class="site-user-link" th:href="${dashboardUrl}">
             <span class="site-user-avatar" th:text="${#strings.substring(currentUser.name, 0, 1).toUpperCase()}"></span>
             <span th:text="${currentUser.name + ' ' + currentUser.surname}"></span>
           </a>
         </th:block>
-
         <th:block th:if="${currentUser == null}">
-          <a class="site-auth-btn site-auth-signin" th:href="@{/loginPage}" th:text="#{nav.signIn}">Sign In</a>
-          <a class="site-auth-btn site-auth-register" th:href="@{/register}" th:text="#{nav.register}">Register</a>
+          <a class="site-auth-btn site-auth-signin"  th:href="@{/loginPage}"  th:text="#{nav.signIn}">Sign In</a>
+          <a class="site-auth-btn site-auth-register" th:href="@{/register}"  th:text="#{nav.register}">Register</a>
         </th:block>
       </nav>
+
+      <button class="nav-hamburger" aria-label="Menu" aria-expanded="false" aria-controls="mobileNavDrawer" type="button">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile nav drawer -->
+  <div id="mobileNavOverlay" class="mobile-nav-overlay"></div>
+  <div id="mobileNavDrawer" class="mobile-nav-drawer" role="dialog" aria-label="Navigation menu">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-brand-text" th:text="#{app.brand}">Real Estate Hub</span>
+      <button class="mobile-nav-close" type="button" aria-label="Close menu">&times;</button>
+    </div>
+    <div class="mobile-nav-body">
+      <div class="mobile-nav-section">
+        <span class="mobile-nav-label">Browse</span>
+        <a class="mobile-nav-link" th:href="@{/home(category='Apartment')}" th:text="#{nav.cat.apartment}">Apartment</a>
+        <a class="mobile-nav-link" th:href="@{/home(category='House')}"     th:text="#{nav.cat.house}">House</a>
+        <a class="mobile-nav-link" th:href="@{/home(category='Commercial')}" th:text="#{nav.cat.commercial}">Commercial</a>
+      </div>
+      <div class="mobile-nav-section">
+        <span class="mobile-nav-label">Language &amp; Currency</span>
+        <div class="mobile-lang-row">
+          <div class="hdr-select-wrap mobile-hdr-select">
+            <span class="hdr-select-icon">🌐</span>
+            <select class="hdr-select" onchange="window.location.href=this.value">
+              <option th:value="@{/locale(lang=en)}" th:selected="${#locale.language == 'en'}" th:text="#{lang.en}">EN</option>
+              <option th:value="@{/locale(lang=ru)}" th:selected="${#locale.language == 'ru'}" th:text="#{lang.ru}">RU</option>
+              <option th:value="@{/locale(lang=hy)}" th:selected="${#locale.language == 'hy'}" th:text="#{lang.hy}">HY</option>
+            </select>
+          </div>
+          <div class="hdr-select-wrap mobile-hdr-select" th:if="${availableCurrencies != null}">
+            <span class="hdr-select-icon">💱</span>
+            <select class="hdr-select" onchange="window.location.href=this.value">
+              <option th:each="cur : ${availableCurrencies}"
+                      th:value="@{/home(currency=${cur})}"
+                      th:selected="${selectedCurrency == cur}"
+                      th:text="${cur}"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-nav-section">
+        <th:block th:if="${currentUser != null}">
+          <a class="mobile-nav-link" th:href="${dashboardUrl}" th:text="${currentUser.name + ' ' + currentUser.surname}">Dashboard</a>
+          <a class="mobile-nav-link" href="/logout">Logout</a>
+        </th:block>
+        <th:block th:if="${currentUser == null}">
+          <a class="mobile-nav-link" th:href="@{/loginPage}"  th:text="#{nav.signIn}">Sign In</a>
+          <a class="mobile-nav-link" th:href="@{/register}"   th:text="#{nav.register}">Register</a>
+        </th:block>
+      </div>
+    </div>
+  </div>
 </th:block>

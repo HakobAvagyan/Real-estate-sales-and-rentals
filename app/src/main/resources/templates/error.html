@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{error.page.title}">Error</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
+</head>
+<body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<main class="layout error-layout">
+    <section class="panel" data-reveal="scale">
+        <div class="error-code display-headline" th:if="${errorCode != null}" th:text="${errorCode}">404</div>
+        <div class="error-code display-headline" th:if="${errorCode == null}">!</div>
+        <h1 class="headline" th:text="#{error.headline}">Something went wrong</h1>
+        <p class="subline" th:if="${errorMessage != null}" th:text="${errorMessage}">An unexpected error occurred.</p>
+        <p class="subline" th:if="${errorMessage == null}" th:text="#{error.defaultMessage}">An unexpected error occurred.</p>
+        <div class="actions">
+            <a class="btn btn-primary" th:href="@{/home}" th:text="#{error.goHome}">Go to Home</a>
+            <button class="btn btn-ghost" type="button" onclick="history.back()" th:text="#{error.goBack}">Go Back</button>
+        </div>
+    </section>
+</main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
+</body>
+</html>

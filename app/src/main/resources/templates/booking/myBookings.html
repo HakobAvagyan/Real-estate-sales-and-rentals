@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.myBookings.title}">My Bookings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
+</head>
+<body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<div class="header-style-2">
+    <div class="container">
+        <div class="left-side">
+            <h2 class="headline" th:text="#{myBookings.headline}">My Bookings</h2>
+            <p class="subline mb-0" th:text="#{myBookings.subline}">Your rental reservations.</p>
+        </div>
+        <div class="right-side header-widget">
+            <a class="header-widget-item btn btn-ghost" th:href="@{/home}" th:text="#{property.details.back}">Back to listings</a>
+        </div>
+    </div>
+</div>
+<main class="layout">
+    <section class="panel wide" data-reveal>
+        <div th:if="${bookings != null and !bookings.isEmpty()}">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th th:text="#{myBookings.table.property}">Property</th>
+                        <th th:text="#{myBookings.table.startDate}">Start Date</th>
+                        <th th:text="#{myBookings.table.endDate}">End Date</th>
+                        <th th:text="#{myBookings.table.price}">Price</th>
+                        <th th:text="#{myBookings.table.actions}">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="booking : ${bookings}">
+                        <td>
+                            <a th:if="${booking.property != null}"
+                               th:href="@{/property/details(propertyId=${booking.property.id})}"
+                               th:text="${booking.property.title}">Property</a>
+                        </td>
+                        <td th:text="${booking.startDate}">—</td>
+                        <td th:text="${booking.endDate}">—</td>
+                        <td th:text="'$' + ${booking.price}">0</td>
+                        <td>
+                            <a class="btn btn-ghost btn-sm"
+                               th:href="@{/bookings/delete(bookingId=${booking.id})}"
+                               onclick="return confirm('Cancel this booking?')"
+                               th:text="#{myBookings.cancel}">Cancel</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div th:if="${bookings == null or bookings.isEmpty()}" class="empty-state">
+            <p class="muted" th:text="#{myBookings.empty}">You have no bookings yet.</p>
+            <a class="btn btn-primary" th:href="@{/home}" th:text="#{myBookings.browse}">Browse listings</a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
+</body>
+</html>

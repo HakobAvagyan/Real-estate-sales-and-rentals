@@ -1,0 +1,79 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   REAL ESTATE HUB — Animations
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Keyframes ─────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(13,148,136,.35); }
+  70%  { box-shadow: 0 0 0 10px rgba(13,148,136,0); }
+  100% { box-shadow: 0 0 0 0 rgba(13,148,136,0); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+/* ─── Page load fade-in ─────────────────────────────────────────────────── */
+body { animation: fadeIn .32s ease both; }
+
+/* ─── Support FAB pulse ─────────────────────────────────────────────────── */
+.support-fab { animation: pulse-ring 2.6s ease-out infinite; }
+
+/* ─── Scroll-reveal base ────────────────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .65s cubic-bezier(.4,0,.2,1),
+              transform .65s cubic-bezier(.4,0,.2,1);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+[data-reveal="scale"] {
+  transform: scale(.95);
+}
+[data-reveal="scale"].is-visible {
+  transform: none;
+}
+
+[data-reveal="left"] {
+  transform: translateX(-22px);
+}
+[data-reveal="left"].is-visible {
+  transform: none;
+}
+
+[data-reveal="right"] {
+  transform: translateX(22px);
+}
+[data-reveal="right"].is-visible {
+  transform: none;
+}
+
+/* ─── Stagger delays (assigned by animations.js) ────────────────────────── */
+[data-reveal-delay="0"] { transition-delay:   0ms; }
+[data-reveal-delay="1"] { transition-delay:  70ms; }
+[data-reveal-delay="2"] { transition-delay: 140ms; }
+[data-reveal-delay="3"] { transition-delay: 210ms; }
+[data-reveal-delay="4"] { transition-delay: 280ms; }
+[data-reveal-delay="5"] { transition-delay: 350ms; }
+[data-reveal-delay="6"] { transition-delay: 420ms; }
