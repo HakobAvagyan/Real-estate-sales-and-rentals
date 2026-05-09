@@ -1,28 +1,32 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{page.payment.title}">Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
 <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
 
-    <section class="panel welcome">
+    <section class="panel welcome" data-reveal>
         <div class="nav">
             <div>
                 <h1 class="headline" th:text="#{payment.headline}">Payment</h1>
                 <p class="subline mb-0" th:text="#{payment.subline}">Enter your card details to complete the payment.</p>
             </div>
             <div class="actions mt-0">
-                <a class="btn btn-ghost btn-sm" href="/home" th:text="#{btn.cancel}">Cancel</a>
+                <a class="btn btn-ghost btn-sm" th:href="@{/home}" th:text="#{btn.cancel}">Cancel</a>
             </div>
         </div>
     </section>
 
-    <section class="panel">
+    <section class="panel" data-reveal>
         <h2 class="headline" th:text="#{payment.summary.title}">Order Summary</h2>
 
         <th:block th:if="${type == 'BOOKING'}">
@@ -46,7 +50,7 @@
         </div>
     </section>
 
-    <section class="panel">
+    <section class="panel" data-reveal>
         <h2 class="headline" th:text="#{payment.card.title}">Card Details</h2>
         <form method="post" action="/payment/confirm">
             <input type="hidden" name="type" th:value="${type}">
@@ -88,17 +92,7 @@
     <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </main>
 
-<script>
-    document.getElementById('cardNumber').addEventListener('input', function () {
-        let val = this.value.replace(/\D/g, '').substring(0, 16);
-        this.value = val.replace(/(.{4})/g, '$1 ').trim();
-    });
-
-    document.getElementById('expiry').addEventListener('input', function () {
-        let val = this.value.replace(/\D/g, '').substring(0, 4);
-        if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2);
-        this.value = val;
-    });
-</script>
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

@@ -1,23 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Favorite Properties</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.favorite.title}">Favorite Properties</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
-<main>
-    <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<main class="layout">
+    <section class="panel wide" data-reveal>
+        <div class="page-header">
+            <div>
+                <h1 class="headline" th:text="#{favorite.headline}">Favorite Properties</h1>
+                <p class="subline mb-0" th:text="#{favorite.subline}">Properties you have saved.</p>
+            </div>
+            <div class="actions mt-0">
+                <a class="btn btn-ghost btn-sm" th:href="@{/home}" th:text="#{btn.back}">Back</a>
+            </div>
+        </div>
+    </section>
 
-    <h1>Favorite Properties</h1>
     <div class="listings-area">
-
         <div th:if="${favoritePageData.properties == null or #lists.isEmpty(favoritePageData.properties)}" class="empty-state">
             <span class="empty-icon">🏠</span>
-            <p>No properties found at the moment.</p>
+            <p th:text="#{home.empty}">No properties found at the moment.</p>
         </div>
 
-        <div class="prop-grid" th:if="${favoritePageData.properties != null and !#lists.isEmpty(favoritePageData.properties)}">
+        <div class="prop-grid" data-reveal-stagger
+             th:if="${favoritePageData.properties != null and !#lists.isEmpty(favoritePageData.properties)}">
             <div class="prop-card" th:each="property : ${favoritePageData.properties}">
                 <a class="prop-card-overlay-link" th:href="@{/property/details(propertyId=${property.id})}"></a>
 
@@ -25,20 +40,22 @@
                     <img class="prop-card-img"
                          th:if="${!#lists.isEmpty(property.imageUrls)}"
                          th:src="@{/image/get(pic=${property.imageUrls[0]})}"
-                         alt="Property image">
+                         th:alt="#{home.card.alt}">
                     <div class="prop-card-img-placeholder"
-                         th:if="${#lists.isEmpty(property.imageUrls)}">🏠
-                    </div>
+                         th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
                     <span class="prop-card-status"
                           th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
-                          th:text="${property.status}"></span>
+                          th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                          th:text="#{__${statusKey}__}"></span>
                     <div class="prop-card-urgent-ribbon"
-                         th:if="${favoritePageData.urgentPropertyIds != null and #lists.contains(favoritePageData.urgentPropertyIds, property.id)}">URGENT
-                    </div>
+                         th:if="${favoritePageData.urgentPropertyIds != null and #lists.contains(favoritePageData.urgentPropertyIds, property.id)}"
+                         th:text="#{home.urgent.badge}">URGENT</div>
                 </div>
 
                 <div class="prop-card-body">
-                    <div class="prop-card-type" th:text="${property.propertyType}"></div>
+                    <div class="prop-card-type"
+                         th:with="typeKey=|enum.propertyType.${property.propertyType}|"
+                         th:text="#{__${typeKey}__}"></div>
 
                     <div class="prop-card-location"
                          th:if="${favoritePageData.locationMap != null and favoritePageData.locationMap[property.locationId] != null}">
@@ -49,8 +66,8 @@
                             <circle cx="12" cy="10" r="3"/>
                         </svg>
                         <span th:text="${favoritePageData.locationMap[property.locationId].city
-                        + (favoritePageData.locationMap[property.locationId].district != null
-                           ? ', ' + favoritePageData.locationMap[property.locationId].district : '')}"></span>
+                            + (favoritePageData.locationMap[property.locationId].district != null
+                               ? ', ' + favoritePageData.locationMap[property.locationId].district : '')}"></span>
                     </div>
 
                     <div class="prop-card-price"
@@ -66,7 +83,6 @@
                             </svg>
                             <span th:text="${property.roomsCount} + ' rm.'"></span>
                         </span>
-
                         <span class="prop-card-meta-item" th:if="${property.surface > 0}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2"
@@ -75,7 +91,6 @@
                             </svg>
                             <span th:text="${property.surface} + ' sq.m.'"></span>
                         </span>
-
                         <span class="prop-card-meta-item"
                               th:if="${property.floorCount != null and property.floorCount > 0}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -89,57 +104,68 @@
                     </div>
 
                     <th:block th:if="${property.status.name() == 'FOR_RENT'}">
-                        <a class="prop-card-book-btn" th:if="${currentUser == null}" href="/loginPage">BOOK</a>
+                        <a class="prop-card-book-btn" th:if="${currentUser == null}" th:href="@{/loginPage}" th:text="#{btn.book}">BOOK</a>
                         <a class="prop-card-book-btn" href="#"
                            th:if="${currentUser != null and property.userId == currentUser.id}"
-                           onclick="showOwnListing(event)">BOOK</a>
+                           onclick="showOwnListing(event)" th:text="#{btn.book}">BOOK</a>
                         <a class="prop-card-book-btn"
                            th:if="${currentUser != null and property.userId != currentUser.id}"
-                           th:href="@{/booking/form(propertyId=${property.id})}">BOOK</a>
+                           th:href="@{/booking/form(propertyId=${property.id})}" th:text="#{btn.book}">BOOK</a>
                     </th:block>
 
                     <th:block th:if="${property.status.name() == 'FOR_SALE'}">
                         <div class="prop-card-actions">
-                            <a class="prop-card-write-btn" th:if="${currentUser == null}" href="/loginPage">WRITE</a>
-                            <a class="prop-card-phone-btn" th:if="${currentUser == null}" href="/loginPage">PHONE</a>
+                            <a class="prop-card-write-btn" th:if="${currentUser == null}" th:href="@{/loginPage}" th:text="#{btn.write}">WRITE</a>
+                            <a class="prop-card-phone-btn" th:if="${currentUser == null}" th:href="@{/loginPage}" th:text="#{btn.phone}">PHONE</a>
 
                             <a class="prop-card-write-btn" href="#"
                                th:if="${currentUser != null and property.userId == currentUser.id}"
-                               onclick="showOwnListing(event)">WRITE</a>
+                               onclick="showOwnListing(event)" th:text="#{btn.write}">WRITE</a>
                             <button class="prop-card-phone-btn" type="button"
                                     th:if="${currentUser != null and property.userId == currentUser.id}"
-                                    onclick="showOwnListing(event)">PHONE
-                            </button>
+                                    onclick="showOwnListing(event)" th:text="#{btn.phone}">PHONE</button>
 
                             <a class="prop-card-write-btn"
                                th:if="${currentUser != null and property.userId != currentUser.id}"
-                               th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}">WRITE</a>
+                               th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}"
+                               th:text="#{btn.write}">WRITE</a>
                             <button class="prop-card-phone-btn" type="button"
                                     th:if="${currentUser != null and property.userId != currentUser.id}"
                                     th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
-                                    onclick="openPhonePopup(this)">PHONE
-                            </button>
+                                    onclick="openPhonePopup(this)" th:text="#{btn.phone}">PHONE</button>
 
                             <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post">
                                 <input type="hidden" name="propertyId" th:value="${property.id}">
-                                <button type="submit">
-                                    ❤️
-                                </button>
+                                <button type="submit">❤️</button>
                             </form>
                         </div>
                     </th:block>
-
                 </div>
             </div>
         </div>
-
     </div>
 </main>
 
+<div id="ownListingToast" class="own-listing-toast" th:text="#{home.toast.ownListing}"></div>
 
+<div id="phonePopup" class="phone-popup">
+    <div class="phone-popup-card">
+        <p class="phone-popup-label" th:text="#{home.phone.title}">Seller's phone</p>
+        <p id="phonePopupNumber" class="phone-popup-number"></p>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closePhonePopup()" th:text="#{btn.close}">Close</button>
+    </div>
+</div>
 
 <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 
-
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.__i18nHome = {
+        phoneNotProvided: /*[[#{home.phone.notProvided}]]*/ 'Not provided'
+    };
+    /*]]>*/
+</script>
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

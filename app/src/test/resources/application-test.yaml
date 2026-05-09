@@ -11,6 +11,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  mail:
+    host: localhost
+    port: 2525
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 system:
   upload:

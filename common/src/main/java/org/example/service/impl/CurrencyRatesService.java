@@ -3,24 +3,52 @@ package org.example.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class CurrencyRatesService {
-    private final RestTemplate restTemplate = new RestTemplate();
+
+    private static final List<String> SUPPORTED = List.of("USD", "EUR", "RUB", "AMD");
     private static final String API_URL = "https://api.exchangerate-api.com/v4/latest/USD";
+    private static final long CACHE_TTL_SECONDS = 3600;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private Map<String, Double> cachedRates = new HashMap<>();
+    private Instant lastFetched = Instant.EPOCH;
+
+    public List<String> getSupportedCurrencies() {
+        return SUPPORTED;
+    }
 
     public double convert(double amountInUsd, String toCurrency) {
-        double rate = getRate(toCurrency);
-        return amountInUsd * rate;
+        return amountInUsd * getRate(toCurrency);
     }
 
     public double getRate(String currencyCode) {
-        Map<?, ?> response = restTemplate.getForObject(API_URL, Map.class);
-        if (response == null) return 1.0;
-        Object rates = response.get("rates");
-        if (!(rates instanceof Map)) return 1.0;
-        Object value = ((Map<?, ?>) rates).get(currencyCode);
-        return value instanceof Number ? ((Number) value).doubleValue() : 1.0;
+        refreshIfStale();
+        return cachedRates.getOrDefault(currencyCode, 1.0);
+    }
+
+    private synchronized void refreshIfStale() {
+        if (Instant.now().minusSeconds(CACHE_TTL_SECONDS).isBefore(lastFetched)) {
+            return;
+        }
+        try {
+            Map<?, ?> response = restTemplate.getForObject(API_URL, Map.class);
+            if (response != null && response.get("rates") instanceof Map<?, ?> rates) {
+                Map<String, Double> fresh = new HashMap<>();
+                for (String code : SUPPORTED) {
+                    Object v = rates.get(code);
+                    fresh.put(code, v instanceof Number n ? n.doubleValue() : 1.0);
+                }
+                cachedRates = fresh;
+                lastFetched = Instant.now();
+            }
+        } catch (Exception ignored) {
+            // keep stale cache on failure
+        }
     }
 }

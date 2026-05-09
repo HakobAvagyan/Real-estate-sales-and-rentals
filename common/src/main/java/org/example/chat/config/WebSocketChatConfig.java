@@ -66,7 +66,7 @@ public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor acc = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (acc != null && acc.getUser() instanceof Authentication authentication) {
-                    log.error("Setting authentication for STOMP message: " + authentication.getName());
+                    log.debug("Setting authentication for STOMP message: " + authentication.getName());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
                 return message;

@@ -17,9 +17,11 @@ import org.example.dto.ratings.PropertyRatingSummaryDto;
 import org.example.service.CommentService;
 import org.example.service.LocationService;
 import org.example.service.PaymentService;
+import org.example.service.Property360Service;
 import org.example.service.PropertyService;
 import org.example.service.RatingsService;
 import org.example.service.UserService;
+import org.example.service.impl.CurrencyRatesService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,11 +35,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,6 +61,8 @@ public class MainController {
     private final PaymentService paymentService;
     private final RatingsService ratingsService;
     private final CommentService commentService;
+    private final Property360Service property360Service;
+    private final CurrencyRatesService currencyRatesService;
 
     @GetMapping("/")
     public String mainPage() {
@@ -64,6 +72,7 @@ public class MainController {
     @GetMapping("/property/details")
     public String propertyDetails(@RequestParam Integer propertyId,
                                   @AuthenticationPrincipal SpringUser userPrincipal,
+                                  HttpSession session,
                                   ModelMap modelMap) {
         Integer viewerId = userPrincipal != null ? userPrincipal.getUser().getId() : null;
         Role viewerRole = userPrincipal != null ? userPrincipal.getUser().getRole() : null;
@@ -87,6 +96,26 @@ public class MainController {
         modelMap.addAttribute("propertyReviews", ratingsService.listReviewsForProperty(propertyId));
         modelMap.addAttribute("propertyComments", commentService.listPublicCommentsForProperty(propertyId));
 
+        Map<Integer, LocationDto> locationMap = locationService.getAll()
+                .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
+        modelMap.addAttribute("locationMap", locationMap);
+
+        String sellerPhone = userService.getSellerPhoneMap(List.of(property.getUserId()))
+                .get(property.getUserId());
+        modelMap.addAttribute("sellerPhone", sellerPhone);
+        modelMap.addAttribute("view360", property360Service.getByPropertyId(propertyId).orElse(null));
+
+        String selectedCurrency = resolveCurrency(null, session);
+        modelMap.addAttribute("selectedCurrency", selectedCurrency);
+        modelMap.addAttribute("availableCurrencies", currencyRatesService.getSupportedCurrencies());
+        if (!"USD".equals(selectedCurrency)) {
+            double rate = currencyRatesService.getRate(selectedCurrency);
+            BigDecimal convertedPrice = property.getPrice()
+                    .multiply(BigDecimal.valueOf(rate))
+                    .setScale(0, RoundingMode.HALF_UP);
+            modelMap.addAttribute("convertedPrice", convertedPrice);
+        }
+
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
         if (user != null) {
             modelMap.addAttribute("myPropertyReview", ratingsService.findReviewByUser(propertyId, user.getId()).orElse(null));
@@ -102,12 +131,16 @@ public class MainController {
     @GetMapping("/home")
     public String homePage(@AuthenticationPrincipal SpringUser userPrincipal,
                            @ModelAttribute PropertyFilterDto filter,
+                           @RequestParam(required = false) String currency,
+                           HttpSession session,
                            ModelMap modelMap) {
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
 
         if (user != null && user.isBlocked()) {
             return "redirect:/loginPage?msg=" + ErrorCode.PROFILE_IS_BLOCKED.format(user.getEmail());
         }
+
+        String selectedCurrency = resolveCurrency(currency, session);
 
         List<PropertyResponseDto> properties = propertyService.findAllFiltered(filter);
         modelMap.addAttribute("properties", properties);
@@ -122,6 +155,7 @@ public class MainController {
                 .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
         modelMap.addAttribute("locationMap", locationMap);
         modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
+        addCurrencyAttributes(modelMap, selectedCurrency, properties);
 
         if (user != null) {
             List<Integer> sellerIds = properties.stream()
@@ -141,6 +175,33 @@ public class MainController {
         }
 
         return "home";
+    }
+
+    private String resolveCurrency(String currencyParam, HttpSession session) {
+        List<String> supported = currencyRatesService.getSupportedCurrencies();
+        if (currencyParam != null && supported.contains(currencyParam)) {
+            session.setAttribute("currency", currencyParam);
+            return currencyParam;
+        }
+        String fromSession = (String) session.getAttribute("currency");
+        return fromSession != null && supported.contains(fromSession) ? fromSession : "USD";
+    }
+
+    private void addCurrencyAttributes(ModelMap modelMap, String selectedCurrency,
+                                       List<PropertyResponseDto> properties) {
+        modelMap.addAttribute("selectedCurrency", selectedCurrency);
+        modelMap.addAttribute("availableCurrencies", currencyRatesService.getSupportedCurrencies());
+        if (!"USD".equals(selectedCurrency)) {
+            double rate = currencyRatesService.getRate(selectedCurrency);
+            Map<Integer, BigDecimal> convertedPriceMap = new LinkedHashMap<>();
+            for (PropertyResponseDto p : properties) {
+                BigDecimal converted = p.getPrice()
+                        .multiply(BigDecimal.valueOf(rate))
+                        .setScale(0, RoundingMode.HALF_UP);
+                convertedPriceMap.put(p.getId(), converted);
+            }
+            modelMap.addAttribute("convertedPriceMap", convertedPriceMap);
+        }
     }
 
     @GetMapping("/image/get")

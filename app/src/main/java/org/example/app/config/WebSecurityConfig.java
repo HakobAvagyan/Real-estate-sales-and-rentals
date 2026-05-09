@@ -28,7 +28,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/blocked").hasAnyAuthority("ADMIN", "MANAGER")
                                 .requestMatchers("/user/**").hasAuthority("USER")
                                 .requestMatchers("/personalPage", "/remove/user/picture", "/change/password","/favorite/**",
-                                        "/messages", "/messages/**","/booking/**", "/payment/**"
+                                        "/messages", "/messages/**","/booking/**", "/bookings/**", "/payment/**"
                                         ).hasAnyAuthority("ADMIN", "MANAGER", "USER")
                                 .requestMatchers("/ws-chat/**").authenticated()
                                 .anyRequest().authenticated()

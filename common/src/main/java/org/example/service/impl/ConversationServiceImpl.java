@@ -51,11 +51,11 @@ public class ConversationServiceImpl implements ConversationService {
 
         Property property = null;
         if (propertyId != null) {
-            log.error("User {} is trying to create/get direct conversation with user); {} for property {}", currentUserId, otherUserId, propertyId);
+            log.info("User {} is trying to create/get direct conversation with user {} for property {}", currentUserId, otherUserId, propertyId);
             property = propertyRepository.findById(propertyId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
             if (property.getUser().getId() != otherUserId) {
-                log.error("User {} is trying to create/get direct conversation with user); {} for property {} that does not belong to the other user", currentUserId, otherUserId, propertyId);
+                log.error("User {} is trying to create/get direct conversation with user {} for property {} that does not belong to the other user", currentUserId, otherUserId, propertyId);
                 throw new BusinessException(ErrorCode.CONVERSATION_ACCESS_DENIED);
             }
         }

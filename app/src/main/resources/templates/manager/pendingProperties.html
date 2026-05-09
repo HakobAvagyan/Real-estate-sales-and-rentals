@@ -1,19 +1,23 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{manager.pending.title}">Review listings</title>
+    <title th:text="#{manager.pending.title}">Review Listings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
 <div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
-    <section class="panel welcome">
+    <section class="panel welcome" data-reveal>
         <div class="nav">
             <div>
                 <h1 class="headline" th:text="#{manager.pending.headline}">Listings pending review</h1>
-                <p class="subline mb-0" th:text="#{manager.pending.subline}">Approve to publish on the site, or reject - the owner receives a notification.</p>
+                <p class="subline mb-0" th:text="#{manager.pending.subline}">Approve to publish on the site, or reject — the owner receives a notification.</p>
             </div>
             <div class="actions mt-0">
                 <a class="btn btn-ghost btn-sm" th:href="@{/manager/home}" th:text="#{manager.pending.back}">Back to dashboard</a>
@@ -24,7 +28,7 @@
     <div class="rating-flash rating-flash-ok" th:if="${moderationSuccess != null}" th:text="${moderationSuccess}"></div>
     <div class="rating-flash rating-flash-err" th:if="${moderationError != null}" th:text="${moderationError}"></div>
 
-    <section class="panel wide">
+    <section class="panel wide" data-reveal>
         <p class="subline muted" th:if="${pendingProperties == null or pendingProperties.isEmpty()}">
             <span th:text="#{manager.pending.empty}">There are no listings waiting for approval.</span>
         </p>
@@ -34,7 +38,7 @@
                 <tr>
                     <th>ID</th>
                     <th th:text="#{user.home.table.title}">Title</th>
-                    <th th:text="#{manager.pending.table.owner}">Owner user ID</th>
+                    <th th:text="#{manager.pending.table.owner}">Owner</th>
                     <th th:text="#{user.home.table.type}">Type</th>
                     <th th:text="#{user.home.table.status}">Status</th>
                     <th th:text="#{user.home.table.price}">Price</th>
@@ -52,7 +56,7 @@
                     <td th:text="${p.price}">0</td>
                     <td>
                         <a class="btn btn-sm btn-ghost" th:href="@{/property/details(propertyId=${p.id})}" th:text="#{manager.pending.action.preview}">Preview</a>
-                        <form th:action="@{/manager/property/approve}" method="post" style="display:inline;">
+                        <form th:action="@{/manager/property/approve}" method="post" class="form-inline-block">
                             <input type="hidden" name="propertyId" th:value="${p.id}"/>
                             <button type="submit" class="btn btn-sm btn-primary" th:text="#{manager.pending.action.approve}">Approve</button>
                         </form>
@@ -68,12 +72,11 @@
             </table>
         </div>
     </section>
+
     <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
 </main>
-<style>
-    .reject-inline-form { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: 8px; vertical-align: middle; }
-    .inp-sm { max-width: 220px; font-size: .85rem; padding: 6px 8px; }
-    .btn.danger { color: var(--danger); border-color: #fecdd3; }
-</style>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

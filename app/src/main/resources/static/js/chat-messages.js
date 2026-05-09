@@ -28,6 +28,9 @@
         return;
     }
     
+    var list = document.getElementById('msg-list');
+    if (list) { list.scrollTop = list.scrollHeight; }
+
     var socket = new SockJS('/ws-chat');
     var client = Stomp.over(socket);
     client.debug = null;
