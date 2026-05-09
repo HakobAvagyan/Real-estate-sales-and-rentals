@@ -6,7 +6,7 @@ spring:
     encoding: UTF-8
     fallback-to-system-locale: false
   liquibase:
-    change-log: classpath:/db/master.xml
+    change-log: classpath:db/master.xml
     enabled: true
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/rent_sell}
