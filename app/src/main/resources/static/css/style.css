@@ -2638,18 +2638,46 @@ td .link-inline + span { color: var(--border-mid); margin: 0 3px; }
 
 /* ─── Google AdSense ──────────────────────────────────────────────────────── */
 .adsense-banner {
+  position: relative;
   width: 100%;
   margin: 24px 0;
   text-align: center;
   min-height: 90px;
-  overflow: hidden;
+  overflow: visible;
+  border: 2px dashed #94a3b8;
+  border-radius: 6px;
 }
 
 .adsense-sidebar {
+  position: relative;
   width: 100%;
   margin: 20px 0 0;
   min-height: 250px;
-  overflow: hidden;
+  overflow: visible;
+  border: 2px dashed #94a3b8;
+  border-radius: 6px;
+}
+
+.adsense-banner .adsbygoogle,
+.adsense-sidebar .adsbygoogle {
+  min-height: inherit;
+}
+
+.adsense-banner::before,
+.adsense-sidebar::before {
+  content: 'Google Ad';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 1;
+  white-space: nowrap;
 }
 
 .badge-success {
