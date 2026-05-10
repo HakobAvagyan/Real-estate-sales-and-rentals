@@ -106,6 +106,15 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
+    public List<PropertyResponseDto> findSimilarProperties(PropertyResponseDto property, int limit) {
+        return findAll().stream()
+                .filter(item -> item.getId() != property.getId())
+                .filter(item -> item.getPropertyType() == property.getPropertyType())
+                .limit(limit)
+                .toList();
+    }
+
+    @Override
     public Optional<PropertyResponseDto> findById(int id) {
         return propertyRepository.findById(id).map(property -> {
             List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())

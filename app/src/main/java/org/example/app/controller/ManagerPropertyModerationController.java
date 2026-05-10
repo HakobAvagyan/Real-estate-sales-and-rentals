@@ -1,4 +1,4 @@
-package org.example.app.controller.manager;
+package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.property.PropertyResponseDto;
