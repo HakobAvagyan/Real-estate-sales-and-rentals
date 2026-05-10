@@ -1,5 +1,6 @@
 package org.example.app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.property.PropertyCreateRequestDto;
 import org.example.dto.property.PropertyResponseDto;
@@ -10,7 +11,6 @@ import org.example.service.LocationService;
 import org.example.service.PropertyService;
 import org.example.service.security.SpringUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;

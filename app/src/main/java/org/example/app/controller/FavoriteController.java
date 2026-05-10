@@ -1,4 +1,4 @@
-package org.example.app.controller.favorite;
+package org.example.app.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

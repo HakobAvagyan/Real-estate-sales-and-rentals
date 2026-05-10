@@ -1,4 +1,4 @@
-package org.example.app.controller.notifications;
+package org.example.app.controller;
 
 import lombok.AllArgsConstructor;
 import org.example.dto.notification.NotificationRequestDto;
