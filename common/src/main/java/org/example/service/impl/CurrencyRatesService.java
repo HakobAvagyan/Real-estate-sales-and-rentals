@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,14 @@ public class CurrencyRatesService {
 
     public double convert(double amountInUsd, String toCurrency) {
         return amountInUsd * getRate(toCurrency);
+    }
+
+    public BigDecimal convertPrice(BigDecimal price, String toCurrency) {
+        if ("USD".equals(toCurrency)) {
+            return price;
+        }
+        double rate = getRate(toCurrency);
+        return price.multiply(BigDecimal.valueOf(rate)).setScale(0, RoundingMode.HALF_UP);
     }
 
     public double getRate(String currencyCode) {

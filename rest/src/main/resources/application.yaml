@@ -29,5 +29,5 @@ server:
   port: 8081
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:my-super-secret-jwt-key-for-development-minimum-256-bits-required}
   expiration: 3600000

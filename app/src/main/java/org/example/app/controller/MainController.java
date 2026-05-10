@@ -1,26 +1,21 @@
 package org.example.app.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.example.dto.location.LocationDto;
 import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
+import org.example.dto.ratings.PropertyRatingSummaryDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
-import org.example.model.enums.Role;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 import org.example.model.enums.Region;
-import org.example.dto.ratings.PropertyRatingSummaryDto;
-import org.example.service.CommentService;
-import org.example.service.LocationService;
-import org.example.service.PaymentService;
-import org.example.service.Property360Service;
-import org.example.service.PropertyService;
-import org.example.service.RatingsService;
-import org.example.service.UserService;
+import org.example.model.enums.Role;
+import org.example.service.*;
 import org.example.service.impl.CurrencyRatesService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,11 +30,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -78,11 +71,7 @@ public class MainController {
         Role viewerRole = userPrincipal != null ? userPrincipal.getUser().getRole() : null;
         PropertyResponseDto property = propertyService.findByIdForDisplay(propertyId, viewerId, viewerRole)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
-        List<PropertyResponseDto> similarProperties = propertyService.findAll().stream()
-                .filter(item -> item.getId() != property.getId())
-                .filter(item -> item.getPropertyType() == property.getPropertyType())
-                .limit(6)
-                .toList();
+        List<PropertyResponseDto> similarProperties = propertyService.findSimilarProperties(property, 6);
         modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
         modelMap.addAttribute("property", property);
         modelMap.addAttribute("similarProperties", similarProperties);
@@ -109,11 +98,7 @@ public class MainController {
         modelMap.addAttribute("selectedCurrency", selectedCurrency);
         modelMap.addAttribute("availableCurrencies", currencyRatesService.getSupportedCurrencies());
         if (!"USD".equals(selectedCurrency)) {
-            double rate = currencyRatesService.getRate(selectedCurrency);
-            BigDecimal convertedPrice = property.getPrice()
-                    .multiply(BigDecimal.valueOf(rate))
-                    .setScale(0, RoundingMode.HALF_UP);
-            modelMap.addAttribute("convertedPrice", convertedPrice);
+            modelMap.addAttribute("convertedPrice", currencyRatesService.convertPrice(property.getPrice(), selectedCurrency));
         }
 
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
@@ -192,13 +177,9 @@ public class MainController {
         modelMap.addAttribute("selectedCurrency", selectedCurrency);
         modelMap.addAttribute("availableCurrencies", currencyRatesService.getSupportedCurrencies());
         if (!"USD".equals(selectedCurrency)) {
-            double rate = currencyRatesService.getRate(selectedCurrency);
             Map<Integer, BigDecimal> convertedPriceMap = new LinkedHashMap<>();
             for (PropertyResponseDto p : properties) {
-                BigDecimal converted = p.getPrice()
-                        .multiply(BigDecimal.valueOf(rate))
-                        .setScale(0, RoundingMode.HALF_UP);
-                convertedPriceMap.put(p.getId(), converted);
+                convertedPriceMap.put(p.getId(), currencyRatesService.convertPrice(p.getPrice(), selectedCurrency));
             }
             modelMap.addAttribute("convertedPriceMap", convertedPriceMap);
         }

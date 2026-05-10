@@ -18,6 +18,8 @@ public interface PropertyService {
 
     List<PropertyResponseDto> findAllByUserId(Integer userId);
 
+    List<PropertyResponseDto> findSimilarProperties(PropertyResponseDto property, int limit);
+
     Optional<PropertyResponseDto> findById(int id);
 
     Optional<PropertyResponseDto> findByIdForDisplay(int propertyId, Integer viewerUserId, Role viewerRole);

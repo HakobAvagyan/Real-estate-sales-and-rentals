@@ -1,4 +1,4 @@
-package org.example.app.controller.chat;
+package org.example.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.model.User;
