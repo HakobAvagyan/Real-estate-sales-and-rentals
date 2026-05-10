@@ -17,9 +17,10 @@ import java.util.List;
 public class PropertyCreateRequestDto {
     private int userId;
 
-    @Min(value = 1, message = "Location must be selected")
     private int locationId;
 
+    @NotNull(message = "Location must be selected")
+    @Min(value = 1, message = "Location must be selected")
     private Integer locationNameId;
     private String district;
     private String street;

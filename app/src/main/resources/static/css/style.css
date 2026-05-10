@@ -1089,6 +1089,9 @@ h2.headline { font-size: 1.3rem; font-weight: 600; }
 
 /* ─── 21. Labels & Inputs ───────────────────────────────────────────────── */
 label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   font-size: .72rem;
   font-weight: 700;
   color: var(--muted);
