@@ -1,7 +1,6 @@
 package org.example.security.jwt;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -74,8 +73,6 @@ public class JwtService {
         try {
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
             return true;
-        } catch (ExpiredJwtException e) {
-            return false;
         } catch (JwtException e) {
             return false;
         }

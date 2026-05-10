@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -84,6 +83,6 @@ public class ChatRestController {
         if (principal == null) {
             throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
-        return userService.getIdByEmail(principal.getName());
+        return userService.findByEmail(principal.getName()).getId();
     }
 }

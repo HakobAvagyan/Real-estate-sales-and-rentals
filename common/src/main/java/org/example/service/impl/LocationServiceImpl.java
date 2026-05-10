@@ -15,7 +15,9 @@ import org.example.service.LocationService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,30 +28,9 @@ public class LocationServiceImpl implements LocationService {
     private final LocationMapper locationMapper;
 
     @Override
-    public Optional<LocationDto> findByRegion(Region region) {
-        return locationRepository.findByLocationNameRegion(region).map(locationMapper::toLocationDto);
-    }
-
-    @Override
-    public Optional<LocationDto> findByCity(String city) {
-        return locationRepository.findByLocationNameCity(city).map(locationMapper::toLocationDto);
-    }
-
-    @Override
-    public Optional<LocationDto> findByDistrict(String district) {
-        return locationRepository.findByDistrict(district).map(locationMapper::toLocationDto);
-    }
-
-    @Override
-    public Optional<LocationDto> findByStreet(String street) {
-        return locationRepository.findByStreet(street).map(locationMapper::toLocationDto);
-    }
-
-    @Override
-    public Optional<LocationDto> findByRegionAndCityAndDistrictAndStreet(Region region, String city, String district, String street) {
-        return locationRepository
-                .findByLocationNameRegionAndLocationNameCityAndDistrictAndStreet(region, city, district, street)
-                .map(locationMapper::toLocationDto);
+    public Map<Integer, LocationDto> getLocationMap() {
+        return locationRepository.findAll()
+            .stream().collect(Collectors.toMap(Location::getId, locationMapper::toLocationDto));
     }
 
     @Override
@@ -76,11 +57,6 @@ public class LocationServiceImpl implements LocationService {
         location.setLocationName(getOrCreateLocationName(locationDto.getRegion(), locationDto.getCity()));
         Location updatedLocation = locationRepository.save(location);
         return locationMapper.toLocationDto(updatedLocation);
-    }
-
-    @Override
-    public void deleteByID(int id) {
-        locationRepository.deleteById(id);
     }
 
     @Override

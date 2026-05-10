@@ -1,0 +1,20 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+   <changeSet id="2.6" author="Rob Poghosyan">
+
+           <dropForeignKeyConstraint
+                   baseTableName="property_images"
+                   constraintName="prop_img_prop_FK"/>
+
+           <addForeignKeyConstraint
+                   baseTableName="property_images"
+                   baseColumnNames="property_id"
+                   referencedTableName="properties"
+                   referencedColumnNames="id"
+                   constraintName="prop_img_prop_FK"
+                   onDelete="CASCADE"/>
+
+       </changeSet>
+</databaseChangeLog>

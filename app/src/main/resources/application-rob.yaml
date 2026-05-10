@@ -19,8 +19,23 @@ spring:
             enable: true
   servlet:
     multipart:
+      enabled: true
       max-file-size: 20MB
       max-request-size: 20MB
+server:
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: -1
+    max-part-count: -1
+
+logging:
+  file:
+    name: logs/app.log
+  logback:
+    rollingpolicy:
+      max-file-size: 20MB
+      max-history: 7
+
 system:
   upload:
     images:

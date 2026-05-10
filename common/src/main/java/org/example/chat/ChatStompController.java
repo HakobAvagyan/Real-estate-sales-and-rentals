@@ -1,6 +1,7 @@
 package org.example.chat;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.chat.SendChatMessagePayload;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
@@ -15,6 +16,7 @@ import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class ChatStompController {
 
     private final ConversationService conversationService;
@@ -28,6 +30,7 @@ public class ChatStompController {
 
     private int resolveUserId(Principal principal) {
         if (principal == null) {
+            log.error("Principal is null");
             throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
         if (principal instanceof org.springframework.security.core.Authentication authentication) {
@@ -39,6 +42,7 @@ public class ChatStompController {
                     .map(User::getId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND_BY_EMAIL, email));
         }
+        log.error("Principal is not a SpringUser");
         throw new BusinessException(ErrorCode.USER_NOT_AUTHENTICATED);
     }
 }

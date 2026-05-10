@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.payment.title}">Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
+</head>
+<body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<main class="layout">
+
+    <section class="panel welcome" data-reveal>
+        <div class="nav">
+            <div>
+                <h1 class="headline" th:text="#{payment.headline}">Payment</h1>
+                <p class="subline mb-0" th:text="#{payment.subline}">Enter your card details to complete the payment.</p>
+            </div>
+            <div class="actions mt-0">
+                <a class="btn btn-ghost btn-sm" th:href="@{/home}" th:text="#{btn.cancel}">Cancel</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel" data-reveal>
+        <h2 class="headline" th:text="#{payment.summary.title}">Order Summary</h2>
+
+        <th:block th:if="${type == 'BOOKING'}">
+            <p class="subline mb-0"><strong th:text="${propertyTitle}"></strong> — <span th:text="#{payment.summary.booking}">rental booking</span></p>
+            <p class="order-summary-detail">
+                <span th:text="${startDate}"></span> → <span th:text="${endDate}"></span>
+                &nbsp;·&nbsp; <span th:text="${guests}"></span> <span th:text="#{payment.summary.guests}">guest(s)</span>
+            </p>
+        </th:block>
+
+        <th:block th:if="${type == 'URGENT'}">
+            <p class="subline mb-0"><strong th:text="#{payment.urgent.title}">Urgent Plan — 30 days</strong></p>
+            <p class="order-summary-detail"><span th:text="#{payment.urgent.property}">Property:</span> <span th:text="${propertyTitle}"></span></p>
+            <p class="order-summary-note" th:text="#{payment.urgent.note}">Your listing will appear in the Urgent section on the home page.</p>
+        </th:block>
+
+        <div class="payment-total-box">
+            <span class="payment-total-label" th:text="#{payment.total}">Total</span>
+            <span class="payment-total-amount"
+                  th:text="'$' + ${#numbers.formatDecimal(amount, 0, 'COMMA', 2, 'POINT')}"></span>
+        </div>
+    </section>
+
+    <section class="panel" data-reveal>
+        <h2 class="headline" th:text="#{payment.card.title}">Card Details</h2>
+        <form method="post" action="/payment/confirm">
+            <input type="hidden" name="type" th:value="${type}">
+            <input type="hidden" name="propertyId" th:value="${propertyId}">
+            <input type="hidden" name="amount" th:value="${amount}">
+            <input type="hidden" name="startDate" th:value="${startDate}">
+            <input type="hidden" name="endDate" th:value="${endDate}">
+            <input type="hidden" name="guests" th:value="${guests}">
+            <div class="grid">
+                <div class="field row-full">
+                    <label for="cardNumber" th:text="#{payment.card.number}">Card Number</label>
+                    <input id="cardNumber" type="text" th:placeholder="#{payment.card.number.placeholder}"
+                           maxlength="19" autocomplete="cc-number" required>
+                </div>
+                <div class="field row-full">
+                    <label for="cardHolder" th:text="#{payment.card.holder}">Cardholder Name</label>
+                    <input id="cardHolder" type="text" th:placeholder="#{payment.card.holder.placeholder}"
+                           autocomplete="cc-name" required>
+                </div>
+                <div class="field">
+                    <label for="expiry" th:text="#{payment.card.expiry}">Expiry (MM/YY)</label>
+                    <input id="expiry" type="text" th:placeholder="#{payment.card.expiry.placeholder}"
+                           maxlength="5" autocomplete="cc-exp" required>
+                </div>
+                <div class="field">
+                    <label for="cvv" th:text="#{payment.card.cvv}">CVV</label>
+                    <input id="cvv" type="password" placeholder="•••"
+                           maxlength="4" autocomplete="cc-csc" required>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit"
+                        th:text="#{payment.pay.prefix} + ' $' + ${#numbers.formatDecimal(amount, 0, 'COMMA', 2, 'POINT')}">Pay</button>
+            </div>
+        </form>
+    </section>
+
+    <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+</main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
+</body>
+</html>

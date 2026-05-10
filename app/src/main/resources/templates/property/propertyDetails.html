@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.property.details.title}">Property Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
+</head>
+<body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+
+<!-- Back button bar -->
+<div class="pd-back-bar">
+    <div class="pd-back-inner">
+        <a class="btn btn-ghost btn-sm pd-back-btn" th:href="@{/home}" th:text="#{property.details.back}">← Back to listings</a>
+    </div>
+</div>
+
+<main class="pd-layout" th:if="${property != null}">
+    <div class="pd-container">
+
+        <!-- ── MODERATION banners ── -->
+        <div class="rating-flash rating-flash-err moderation-banner"
+             th:if="${property.moderationStatus != null and property.moderationStatus.name() == 'PENDING'}">
+            <span th:utext="#{property.details.moderation.pendingHtml}"></span>
+        </div>
+        <div class="rating-flash rating-flash-err moderation-banner"
+             th:if="${property.moderationStatus != null and property.moderationStatus.name() == 'REJECTED'}">
+            <span th:utext="#{property.details.moderation.rejectedHtml}"></span>
+        </div>
+
+        <!-- ── HERO IMAGE ── -->
+        <div class="pd-hero" data-reveal>
+            <div class="pd-hero-img-wrap">
+                <img class="pd-hero-img image-zoom-trigger"
+                     th:if="${!#lists.isEmpty(property.imageUrls)}"
+                     th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                     th:attr="data-full-image=@{/image/get(pic=${property.imageUrls[0]})}"
+                     th:alt="#{home.card.alt}">
+                <div class="pd-hero-placeholder" th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
+                <div class="pd-hero-overlay"></div>
+                <!-- Status badge on hero -->
+                <span class="pd-hero-status"
+                      th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
+                      th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                      th:text="#{__${statusKey}__}"></span>
+                <!-- Urgent ribbon -->
+                <div class="prop-card-urgent-ribbon"
+                     th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, property.id)}"
+                     th:text="#{home.urgent.badge}">URGENT</div>
+                <!-- Favorite button on hero -->
+                <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post" class="pd-fav-form">
+                    <input type="hidden" name="propertyId" th:value="${property.id}">
+                    <button type="submit" class="pd-fav-btn" title="Add to favourites">♡</button>
+                </form>
+            </div>
+
+            <!-- Thumbnail gallery strip -->
+            <div class="pd-gallery-strip" th:if="${property.imageUrls.size() > 1}" data-reveal-stagger>
+                <th:block th:each="imageUrl, iterStat : ${property.imageUrls}">
+                    <div class="pd-thumb" th:if="${iterStat.index > 0}">
+                        <img class="pd-thumb-img image-zoom-trigger"
+                             th:src="@{/image/get(pic=${imageUrl})}"
+                             th:attr="data-full-image=@{/image/get(pic=${imageUrl})}"
+                             th:alt="#{property.details.gallery.alt}">
+                    </div>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- ── TWO-COLUMN BODY ── -->
+        <div class="pd-body">
+
+            <!-- LEFT: main content -->
+            <div class="pd-main" data-reveal>
+
+                <!-- Title & meta -->
+                <div class="pd-title-block">
+                    <h1 class="pd-title" th:text="${property.title}">Property title</h1>
+                    <p class="pd-meta-line">
+                        <span th:with="typeKey=|enum.propertyType.${property.propertyType}|" th:text="#{__${typeKey}__}">Apartment</span>
+                        <span th:if="${locationMap != null and locationMap[property.locationId] != null}">
+                            <span class="pd-meta-sep">·</span>
+                            <span th:text="${locationMap[property.locationId].city
+                                + (locationMap[property.locationId].district != null
+                                   ? ', ' + locationMap[property.locationId].district : '')}"></span>
+                        </span>
+                    </p>
+                    <!-- Rating line -->
+                    <div class="pd-rating-line" th:with="rs=${propertyRatingSummaries.get(property.id)}">
+                        <span th:if="${rs != null and rs.reviewCount > 0}">
+                            <span class="rating-stars-inline">★</span>
+                            <strong th:text="${rs.averageStars}">0</strong>
+                            <span class="muted">/5</span>
+                            <span class="muted" th:text="#{property.details.reviewCount(${rs.reviewCount})}"></span>
+                        </span>
+                        <span class="muted" th:if="${rs == null or rs.reviewCount == 0}" th:text="#{property.details.noReviews}">No reviews yet</span>
+                    </div>
+                </div>
+
+                <!-- Quick stats row -->
+                <div class="pd-stats-row">
+                    <div class="pd-stat-chip">
+                        <span class="pd-stat-icon">📐</span>
+                        <span class="pd-stat-val" th:text="${property.surface} + ' m²'">0 m²</span>
+                        <span class="pd-stat-lbl" th:text="#{property.details.table.surface}">Surface</span>
+                    </div>
+                    <div class="pd-stat-chip">
+                        <span class="pd-stat-icon">🛏</span>
+                        <span class="pd-stat-val" th:text="${property.roomsCount}">0</span>
+                        <span class="pd-stat-lbl" th:text="#{property.details.table.rooms}">Rooms</span>
+                    </div>
+                    <div class="pd-stat-chip">
+                        <span class="pd-stat-icon">🚿</span>
+                        <span class="pd-stat-val" th:text="${property.bathroomsCount}">0</span>
+                        <span class="pd-stat-lbl" th:text="#{property.details.table.bathrooms}">Bathrooms</span>
+                    </div>
+                    <div class="pd-stat-chip">
+                        <span class="pd-stat-icon">🏢</span>
+                        <span class="pd-stat-val">
+                            <span th:text="${property.floor}">0</span>/<span th:text="${property.floorCount}">0</span>
+                        </span>
+                        <span class="pd-stat-lbl" th:text="#{property.details.table.floor}">Floor</span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="pd-section" th:if="${property.description != null and !#strings.isEmpty(property.description)}">
+                    <h2 class="pd-section-title">Description</h2>
+                    <p class="pd-description" th:text="${property.description}">Property description</p>
+                </div>
+
+                <!-- Details table -->
+                <div class="pd-section">
+                    <h2 class="pd-section-title" th:text="#{property.details.ratings.title}">Details</h2>
+                    <div class="pd-details-grid">
+                        <div class="pd-detail-row">
+                            <span class="pd-detail-key" th:text="#{property.details.table.surface}">Surface</span>
+                            <span class="pd-detail-val">
+                                <span th:text="${property.surface}">0</span>
+                                <span th:text="' ' + #{property.details.sqmUnit}">sq.m.</span>
+                            </span>
+                        </div>
+                        <div class="pd-detail-row">
+                            <span class="pd-detail-key" th:text="#{property.details.table.rooms}">Rooms</span>
+                            <span class="pd-detail-val" th:text="${property.roomsCount}">0</span>
+                        </div>
+                        <div class="pd-detail-row">
+                            <span class="pd-detail-key" th:text="#{property.details.table.bathrooms}">Bathrooms</span>
+                            <span class="pd-detail-val" th:text="${property.bathroomsCount}">0</span>
+                        </div>
+                        <div class="pd-detail-row">
+                            <span class="pd-detail-key" th:text="#{property.details.table.floor}">Floor</span>
+                            <span class="pd-detail-val">
+                                <span th:text="${property.floor}">0</span> / <span th:text="${property.floorCount}">0</span>
+                            </span>
+                        </div>
+                        <div class="pd-detail-row">
+                            <span class="pd-detail-key" th:text="#{property.details.table.published}">Published</span>
+                            <span class="pd-detail-val" th:text="${property.createdAt}">date</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D Virtual Tour -->
+                <div class="pd-section" id="tour360"
+                     th:if="${view360 != null or (currentUser != null and currentUser.id == property.userId)}">
+                    <h2 class="pd-section-title">3D Virtual Tour</h2>
+                    <div class="rating-flash rating-flash-ok" th:if="${view360Success != null}">3D tour saved.</div>
+                    <div class="rating-flash rating-flash-err" th:if="${view360Error != null}" th:text="${view360Error}"></div>
+
+                    <div th:if="${view360 != null}" class="pd-tour-row">
+                        <a class="btn btn-primary" th:href="${view360.viewUrl}" target="_blank" rel="noopener">Open 3D Tour</a>
+                        <form th:if="${currentUser != null and currentUser.id == property.userId}"
+                              th:action="@{/property/{id}/view360/delete(id=${property.id})}" method="post" class="form-inline-block">
+                            <button type="submit" class="btn btn-ghost btn-sm"
+                                    onclick="return confirm('Remove 3D tour?')">Remove</button>
+                        </form>
+                    </div>
+                    <p class="muted" th:if="${view360 == null}">No 3D tour added yet.</p>
+
+                    <div th:if="${currentUser != null and currentUser.id == property.userId}" class="rating-form-card mt-1">
+                        <h3 class="rating-form-title" th:text="${view360 != null} ? 'Update 3D Tour URL' : 'Add 3D Tour URL'">Add 3D Tour URL</h3>
+                        <form th:action="@{/property/{id}/view360(id=${property.id})}" method="post" class="rating-form">
+                            <label class="filter-section-label" for="view360Url">Matterport / Kuula / iframe URL</label>
+                            <input type="url" id="view360Url" name="viewUrl" required class="inp"
+                                   th:value="${view360 != null ? view360.viewUrl : ''}"
+                                   placeholder="https://my.matterport.com/show/?m=...">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: sticky sidebar card -->
+            <aside class="pd-sidebar">
+                <div class="pd-price-card">
+                    <!-- Price -->
+                    <div class="pd-price-block">
+                        <span class="pd-price-label" th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                              th:text="#{__${statusKey}__}">Status</span>
+                        <div class="pd-price-amount">
+                            <strong th:if="${convertedPrice != null}"
+                                    th:text="${selectedCurrency} + ' ' + ${#numbers.formatDecimal(convertedPrice,0,'COMMA',0,'POINT')}">$0</strong>
+                            <strong th:if="${convertedPrice == null}"
+                                    th:text="'$' + ${#numbers.formatDecimal(property.price,0,'COMMA',0,'POINT')}">$0</strong>
+                        </div>
+                    </div>
+
+                    <!-- Seller phone -->
+                    <div class="pd-seller-phone" th:if="${sellerPhone != null}">
+                        <span class="pd-seller-phone-label">📞 Seller</span>
+                        <span class="pd-seller-phone-num" th:text="${sellerPhone}"></span>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="pd-sidebar-actions">
+                        <a class="btn btn-primary pd-sidebar-btn"
+                           th:if="${currentUser != null and currentUser.id != property.userId}"
+                           th:href="@{/messages/open/direct(userId=${property.userId},propertyId=${property.id})}">
+                            💬 Message Seller
+                        </a>
+                        <a class="btn btn-ghost pd-sidebar-btn" href="#ratings" th:if="${canRateProperty}"
+                           th:text="#{property.details.cta.rate}">Rate this property</a>
+                        <a class="btn btn-ghost pd-sidebar-btn" href="#ratings" th:text="#{property.details.cta.reviews}">Reviews</a>
+                        <a class="btn btn-ghost pd-sidebar-btn" href="#comments" th:text="#{property.details.cta.comments}">Comments</a>
+                        <a class="btn btn-ghost pd-sidebar-btn" th:href="@{/loginPage}"
+                           th:if="${currentUser == null}" th:text="#{property.details.cta.signIn}">Sign in to rate</a>
+                    </div>
+
+                    <!-- Favorite -->
+                    <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post" class="pd-fav-full">
+                        <input type="hidden" name="propertyId" th:value="${property.id}">
+                        <button type="submit" class="btn btn-ghost pd-sidebar-btn pd-fav-sidebar-btn">♡ Save to Favourites</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ── RATINGS section ── -->
+        <section id="ratings" class="pd-section-card" tabindex="-1" data-reveal>
+            <div class="pd-section-card-header">
+                <h2 class="pd-section-card-title" th:text="#{property.details.ratings.title}">Ratings &amp; reviews</h2>
+                <p class="pd-section-card-sub" th:text="#{property.details.ratings.subline}">Average score and feedback from visitors.</p>
+            </div>
+
+            <div class="rating-flash rating-flash-err" th:if="${ratingError != null}" th:text="${ratingError}"></div>
+            <div class="rating-flash rating-flash-ok" th:if="${ratingSuccess != null}" th:text="#{property.details.rating.saved}">Your rating was saved.</div>
+
+            <div class="rating-form-card" th:if="${canRateProperty}">
+                <h3 class="rating-form-title" th:text="${myPropertyReview != null} ? #{property.details.rating.update} : #{property.details.rating.leave}">Leave a review</h3>
+                <form th:action="@{/property/rating}" method="post" class="rating-form" id="propertyRatingForm">
+                    <input type="hidden" name="propertyId" th:value="${property.id}"/>
+                    <label class="filter-section-label" id="ratingStarsLabel" th:text="#{property.details.rating.score}">Your score (tap stars)</label>
+                    <div class="star-rating-picker" id="starRatingPicker" aria-labelledby="ratingStarsLabel">
+                        <input type="hidden" name="stars" id="ratingStarsInput" required
+                               th:value="${myPropertyReview != null ? myPropertyReview.stars : 5}">
+                        <div class="star-rating-btns" role="radiogroup" aria-label="Rating from 1 to 5 stars">
+                            <button type="button" class="star-rating-btn" data-star="1" aria-label="1 star">★</button>
+                            <button type="button" class="star-rating-btn" data-star="2" aria-label="2 stars">★</button>
+                            <button type="button" class="star-rating-btn" data-star="3" aria-label="3 stars">★</button>
+                            <button type="button" class="star-rating-btn" data-star="4" aria-label="4 stars">★</button>
+                            <button type="button" class="star-rating-btn" data-star="5" aria-label="5 stars">★</button>
+                        </div>
+                        <p class="star-rating-hint muted" id="starRatingHint">Selected: <span id="starRatingValueLabel">5</span> / 5</p>
+                    </div>
+                    <label class="filter-section-label" for="ratingReviewText" th:text="#{property.details.rating.comment}">Comment (optional)</label>
+                    <textarea id="ratingReviewText" name="reviewText" rows="4" maxlength="2000" class="inp rating-textarea"
+                              th:text="${myPropertyReview != null and myPropertyReview.reviewText != null ? myPropertyReview.reviewText : ''}"></textarea>
+                    <button type="submit" class="btn btn-primary" th:text="#{property.details.rating.submit}">Submit</button>
+                </form>
+            </div>
+
+            <p class="subline" th:if="${currentUser == null}">
+                <span th:text="#{property.details.rating.login}">Log in to rate this property.</span>
+            </p>
+            <p class="subline muted"
+               th:if="${currentUser != null and !canRateProperty and currentUser.id == property.userId}">
+                <span th:text="#{property.details.rating.own}">You cannot rate your own listing.</span>
+            </p>
+
+            <div class="reviews-list" data-reveal-stagger th:if="${propertyReviews != null and !propertyReviews.isEmpty()}">
+                <article class="review-item" th:each="rev : ${propertyReviews}">
+                    <div class="review-item-head">
+                        <strong th:text="${rev.authorDisplayName}">Author</strong>
+                        <span class="review-item-stars" th:text="|★ ${rev.stars}/5|">★ 5/5</span>
+                        <span class="muted" th:text="${#temporals.format(rev.ratedAt, 'dd MMM yyyy, HH:mm')}">date</span>
+                    </div>
+                    <p class="review-item-text" th:if="${rev.reviewText != null and !#strings.isEmpty(rev.reviewText)}"
+                       th:text="${rev.reviewText}">text</p>
+                </article>
+            </div>
+            <p class="empty-state muted" th:if="${propertyReviews == null or propertyReviews.isEmpty()}" th:text="#{property.details.rating.noWritten}">No written reviews yet.</p>
+        </section>
+
+        <!-- ── COMMENTS section ── -->
+        <section id="comments" class="pd-section-card" tabindex="-1" data-reveal>
+            <div class="pd-section-card-header">
+                <h2 class="pd-section-card-title" th:text="#{property.comments.title}">Comments</h2>
+                <p class="pd-section-card-sub" th:with="cc=${propertyCommentCounts.get(property.id)}">
+                    <span th:text="${cc} + ' ' + (${cc} == 1 ? 'comment' : 'comments')">0 comments</span>
+                </p>
+            </div>
+
+            <div class="rating-flash rating-flash-err" th:if="${commentError != null}" th:text="${commentError}"></div>
+            <div class="rating-flash rating-flash-ok" th:if="${commentSuccess != null}" th:text="#{property.comments.saved}">Your comment was posted.</div>
+
+            <div class="rating-form-card" th:if="${currentUser != null}">
+                <h3 class="rating-form-title" th:text="#{property.comments.add}">Add a comment</h3>
+                <form th:action="@{/property/comment}" method="post" class="rating-form">
+                    <input type="hidden" name="propertyId" th:value="${property.id}"/>
+                    <label class="filter-section-label" for="propertyCommentText" th:text="#{property.comments.message}">Message</label>
+                    <textarea id="propertyCommentText" name="comment" rows="4" maxlength="4000" required
+                              class="inp rating-textarea"
+                              th:placeholder="#{property.comments.placeholder}"></textarea>
+                    <button type="submit" class="btn btn-primary" th:text="#{property.comments.post}">Post comment</button>
+                </form>
+            </div>
+            <p class="subline" th:if="${currentUser == null}">
+                <span th:text="#{property.comments.login}">Log in to write a comment.</span>
+            </p>
+
+            <div class="comments-thread" data-reveal-stagger th:if="${propertyComments != null and !propertyComments.isEmpty()}">
+                <article class="comment-item" th:each="cmt : ${propertyComments}">
+                    <div class="comment-item-head">
+                        <strong th:text="${cmt.authorDisplayName}">Author</strong>
+                        <span class="muted" th:text="${#temporals.format(cmt.createdAt, 'dd MMM yyyy')}">date</span>
+                    </div>
+                    <p class="comment-item-text" th:text="${cmt.text}">text</p>
+                </article>
+            </div>
+            <p class="empty-state muted" th:if="${propertyComments == null or propertyComments.isEmpty()}" th:text="#{property.comments.empty}">No comments yet.</p>
+        </section>
+
+        <!-- ── SIMILAR LISTINGS ── -->
+        <section class="pd-section-card" data-reveal th:if="${!#lists.isEmpty(similarProperties)}">
+            <div class="pd-section-card-header">
+                <h2 class="pd-section-card-title" th:text="#{property.details.similar.title}">Similar Listings</h2>
+                <p class="pd-section-card-sub" th:text="#{property.details.similar.subline}">Other properties with the same type.</p>
+            </div>
+            <div class="listing-grid" data-reveal-stagger>
+                <div class="panel listing-card" th:each="item : ${similarProperties}">
+                    <div class="prop-card-img-wrap">
+                        <img class="prop-card-img"
+                             th:if="${!#lists.isEmpty(item.imageUrls)}"
+                             th:src="@{/image/get(pic=${item.imageUrls[0]})}"
+                             th:attr="data-full-image=@{/image/get(pic=${item.imageUrls[0]})}"
+                             th:classappend="' image-zoom-trigger'"
+                             th:alt="#{property.details.similar.alt}">
+                        <div class="prop-card-img-placeholder" th:if="${#lists.isEmpty(item.imageUrls)}">🏠</div>
+                        <span class="prop-card-status"
+                              th:classappend="${item.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
+                              th:with="statusKey=|enum.propertyStatus.${item.status}|" th:text="#{__${statusKey}__}"></span>
+                        <div class="prop-card-urgent-ribbon"
+                             th:if="${urgentPropertyIds != null and #lists.contains(urgentPropertyIds, item.id)}"
+                             th:text="#{home.urgent.badge}">URGENT</div>
+                    </div>
+                    <div class="listing-content">
+                        <h3 class="headline" th:text="${item.title}">Property title</h3>
+                        <p class="subline">
+                            <span th:text="${item.surface}">0</span>
+                            <span> sq.m. | </span>
+                            <span th:with="typeKey=|enum.propertyType.${item.propertyType}|" th:text="#{__${typeKey}__}">Apartment</span>
+                        </p>
+                        <p class="similar-rating-line muted" th:with="srs=${propertyRatingSummaries.get(item.id)}"
+                           th:if="${srs != null and srs.reviewCount > 0}">
+                            <span class="rating-stars-inline">★</span>
+                            <span th:text="${srs.averageStars}">0</span>/5
+                            <span th:text="' (' + ${srs.reviewCount} + ')'"></span>
+                        </p>
+                        <div class="actions">
+                            <span class="badge" th:with="statusKey=|enum.propertyStatus.${item.status}|"
+                                  th:text="#{__${statusKey}__}">status</span>
+                            <strong th:text="${item.price}">0</strong>
+                            <a class="btn btn-primary" th:href="@{/property/details(propertyId=${item.id})}">
+                                <span th:text="#{btn.details}">details</span>
+                            </a>
+                            <a class="btn btn-ghost btn-sm"
+                               th:href="@{/property/details(propertyId=${item.id})}#ratings"
+                               th:if="${currentUser == null or currentUser.id != item.userId}"
+                               th:text="#{property.details.similar.rate}">Rate</a>
+                            <a class="btn btn-ghost btn-sm"
+                               th:href="@{/property/details(propertyId=${item.id})}#comments"
+                               th:text="#{property.details.similar.comments}">Comments</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- /pd-container -->
+</main>
+
+<!-- Lightbox -->
+<div id="imageLightbox" class="image-lightbox" aria-hidden="true">
+    <button id="imageLightboxPrev" class="image-lightbox-nav prev" type="button" aria-label="Previous image">&#8249;</button>
+    <button id="imageLightboxNext" class="image-lightbox-nav next" type="button" aria-label="Next image">&#8250;</button>
+    <button id="imageLightboxClose" class="image-lightbox-close" type="button" aria-label="Close image">&times;</button>
+    <img id="imageLightboxPreview" src="" alt="Full size property image">
+</div>
+
+<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
+</body>
+</html>

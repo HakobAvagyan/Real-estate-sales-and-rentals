@@ -1,5 +1,6 @@
 package org.example.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,15 +10,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.enums.PropertyModerationStatus;
 import org.example.model.enums.PropertyStatus;
 import org.example.model.enums.PropertyType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -67,4 +72,15 @@ public class Property {
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private PropertyType propertyType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "moderation_status", nullable = false, length = 32)
+    private PropertyModerationStatus moderationStatus = PropertyModerationStatus.APPROVED;
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Conversation> conversations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
 }

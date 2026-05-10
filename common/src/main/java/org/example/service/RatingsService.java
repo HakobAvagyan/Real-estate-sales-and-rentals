@@ -1,22 +1,22 @@
 package org.example.service;
 
+import org.example.dto.ratings.PropertyRatingSummaryDto;
+import org.example.dto.ratings.PropertyRatingViewDto;
 
-import org.example.dto.ratings.RatingsDto;
-
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface RatingsService {
 
-    Optional<RatingsDto> findById(Integer id);
+    PropertyRatingSummaryDto getSummary(int propertyId);
 
-    Optional<RatingsDto> findByUserId(Integer userId);
+    Map<Integer, PropertyRatingSummaryDto> getSummariesForPropertyIds(Collection<Integer> propertyIds);
 
-    Optional<RatingsDto> findByPropertyId(Integer propertyId);
+    List<PropertyRatingViewDto> listReviewsForProperty(int propertyId);
 
-    RatingsDto save(RatingsDto ratingsDto);
+    Optional<PropertyRatingViewDto> findReviewByUser(int propertyId, int userId);
 
-    void deleteById(Integer id);
-
-    RatingsDto update(RatingsDto ratingsDto);
-
+    void upsertReview(int userId, int propertyId, int stars, String reviewText);
 }

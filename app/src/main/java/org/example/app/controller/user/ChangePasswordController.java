@@ -3,6 +3,7 @@ package org.example.app.controller.user;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.user.ChangePasswordRequest;
 import org.example.dto.user.ResetPasswordRequest;
 import org.example.exception.BusinessException;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class ChangePasswordController {
 
     private final UserService userService;
@@ -54,6 +56,7 @@ public class ChangePasswordController {
                                 BindingResult error
     ) {
         if (error.hasErrors()) {
+            log.error("Reset Password Error: {}", error.getAllErrors().getFirst().getDefaultMessage());
             return "redirect:/loginPage?msg=" + ErrorCode.PASSWORD_CHANGE_FAILED.format(email);
         }
         userService.resetPassword(email, code, request.getNewPassword(), request.getConfirmPassword());
@@ -66,11 +69,13 @@ public class ChangePasswordController {
             ModelMap modelMap,
             @AuthenticationPrincipal SpringUser principal) {
         if (principal == null) {
+            log.error("Invalid user : {}, email: {} in GetMapping", principal, emailParam);
             return "redirect:/loginPage?msg=" + URLEncoder.encode(
                     ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
         }
         String email = principal.getUsername();
         if (emailParam != null && !emailParam.isBlank() && !emailParam.trim().equalsIgnoreCase(email)) {
+            log.error("Invalid email: {}", email);
             return "redirect:/verify/password";
         }
         userService.changePasswordByEmail(email);
@@ -85,10 +90,12 @@ public class ChangePasswordController {
             HttpSession session,
             @AuthenticationPrincipal SpringUser principal) {
         if (principal == null) {
+            log.error("Invalid user : {}, email: {} in PostMapping", principal, email);
             return "redirect:/loginPage?msg=" + URLEncoder.encode(
                     ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
         }
         if (!email.trim().equalsIgnoreCase(principal.getUsername())) {
+            log.error("Invalid email: {} or authentication email: {}", email, principal.getUser().getEmail());
             return "redirect:/loginPage?msg=" + URLEncoder.encode(
                     ErrorCode.TRY_AGAIN.format(), StandardCharsets.UTF_8);
         }
@@ -106,10 +113,11 @@ public class ChangePasswordController {
             RedirectAttributes ra,
             @AuthenticationPrincipal SpringUser principal) {
         if (principal == null) {
+            log.error("Invalid user : {} in GetMapping", principal);
             return "redirect:/loginPage?msg=" + URLEncoder.encode(
                     ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
         }
-        if (!userService.isRecentlyVerified(session)) {
+        if (userService.isRecentlyVerified(session)) {
             ra.addFlashAttribute("msg", "Please verify your email first");
             return "redirect:/verify/password";
         }
@@ -123,17 +131,20 @@ public class ChangePasswordController {
                                  HttpSession session,
                                  RedirectAttributes ra) {
         if (springUser == null) {
+            log.error("Invalid user : {}, email: {} for change password", springUser, request.getEmail());
             return "redirect:/loginPage?msg=" + URLEncoder.encode(
                     ErrorCode.USER_NOT_AUTHENTICATED.format(), StandardCharsets.UTF_8);
         }
         String email = springUser.getUsername();
-        if (!userService.isRecentlyVerified(session)) {
+        if (userService.isRecentlyVerified(session)) {
             ra.addFlashAttribute("msg", ErrorCode.VERIFICATION_FAILED.format(email));
+            log.error("Invalid verified with email: {}", email);
             return "redirect:/verify/password";
         }
         if (error.hasErrors()) {
             ra.addFlashAttribute("msg",
                     ErrorCode.PASSWORD_CHANGE_FAILED.format(email));
+            log.error("Change Password Error: {}", error.getAllErrors().getFirst().getDefaultMessage());
             return "redirect:/change/password";
         }
         try {
@@ -142,6 +153,7 @@ public class ChangePasswordController {
                     request.getNewPassword(),
                     request.getConfirmPassword());
         } catch (BusinessException ex) {
+            log.error("Failed to change password : {}, error: {}", email, ex.getMessage());
             ra.addFlashAttribute("msg", ex.getMessage());
             return "redirect:/change/password";
         }

@@ -5,9 +5,6 @@ public enum NotificationType {
     USER_REGISTERED_NOTIFICATION("Welcome %s %s!\n" +
                     "Your registration was successful.\n" +
                     "Your profile is now active. You can browse properties, connect with our real estate agents, and publish your own property listings."),
-    CUSTOMER_REGISTERED_NOTIFICATION("Welcome %s %s!\n" +
-                    "Your registration was successful.\n" +
-                    "Your profile is now active. Start exploring properties and publish your own advertisements anytime."),
     MANAGER_REGISTERED_NOTIFICATION("Welcome %s %s!\n" + "Your registration was successful.\n" +
                     "Your profile is now active. You can now manage properties, assist customers, and oversee real estate transactions."),
     PROFILE_REMOVED_NOTIFICATION("Dear %s %s,\n" +
@@ -45,17 +42,12 @@ public enum NotificationType {
     PROPERTY_RENTED_NOTIFICATION("Congratulations %s %s!\n" +
                     "Your property has been marked as rented and is no longer visible on our platform."),
 
+    PROPERTY_ADD_FAVORITE_LIST_NOTIFICATION("Dear %s %s,\n" +
+                    "Your property has been added to the favorites list successfully.\n" +
+                    "You can view your favorite properties in your profile and contact the sellers directly."),
 
-    AD_APPROVED_NOTIFICATION("Congratulations %s %s!\n" +
-                    "Your advertisement has been approved and is now visible on our platform."),
-    AD_REJECTED_NOTIFICATION("Dear %s %s,\n" +
-                    "Your advertisement has been rejected.\n" +
-                    "Please review our advertising guidelines and resubmit it after making the necessary changes."),
-    AD_REMOVED_NOTIFICATION("Dear %s %s,\n" +
-                    "Your advertisement has been removed from our platform."),
-    AD_PUBLISHED_NOTIFICATION("Congratulations %s %s!\n" +
-                    "Your advertisement has been published and is now visible to potential customers."),
-
+    PROPERTY_REMOVE_FAVORITE_LIST_NOTIFICATION("Dear %s %s,\n" +
+            "Your property has been removed from the favorites list successfully."),
 
     PAYMENT_FOR_AD_NOTIFICATION("Payment successful.\n" +
                     "Dear %s %s, your advertisement has been published and is now visible to potential customers."),

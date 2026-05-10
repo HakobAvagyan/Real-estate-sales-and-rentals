@@ -1,11 +1,27 @@
 package org.example.app.controller;
 
-import org.apache.commons.io.FileUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.example.dto.location.LocationDto;
+import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
+import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.model.User;
+import org.example.model.enums.Role;
+import org.example.model.enums.PropertyStatus;
+import org.example.model.enums.PropertyType;
+import org.example.model.enums.Region;
+import org.example.dto.ratings.PropertyRatingSummaryDto;
+import org.example.service.CommentService;
+import org.example.service.LocationService;
+import org.example.service.PaymentService;
+import org.example.service.Property360Service;
 import org.example.service.PropertyService;
+import org.example.service.RatingsService;
+import org.example.service.UserService;
+import org.example.service.impl.CurrencyRatesService;
 import org.example.service.security.SpringUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,56 +31,183 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class MainController {
 
     @Value("${system.upload.images.directory.path}")
     private String imageDirectoryPath;
     private final PropertyService propertyService;
+    private final LocationService locationService;
+    private final UserService userService;
+    private final PaymentService paymentService;
+    private final RatingsService ratingsService;
+    private final CommentService commentService;
+    private final Property360Service property360Service;
+    private final CurrencyRatesService currencyRatesService;
 
     @GetMapping("/")
     public String mainPage() {
-        return "redirect:/index";
+        return "redirect:/home";
     }
 
-    @GetMapping("/index")
-    public String indexPage(ModelMap modelMap) {
-        java.util.List<PropertyResponseDto> properties = propertyService.findAll();
-        modelMap.addAttribute("properties", properties);
-        return "index";
+    @GetMapping("/property/details")
+    public String propertyDetails(@RequestParam Integer propertyId,
+                                  @AuthenticationPrincipal SpringUser userPrincipal,
+                                  HttpSession session,
+                                  ModelMap modelMap) {
+        Integer viewerId = userPrincipal != null ? userPrincipal.getUser().getId() : null;
+        Role viewerRole = userPrincipal != null ? userPrincipal.getUser().getRole() : null;
+        PropertyResponseDto property = propertyService.findByIdForDisplay(propertyId, viewerId, viewerRole)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        List<PropertyResponseDto> similarProperties = propertyService.findAll().stream()
+                .filter(item -> item.getId() != property.getId())
+                .filter(item -> item.getPropertyType() == property.getPropertyType())
+                .limit(6)
+                .toList();
+        modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
+        modelMap.addAttribute("property", property);
+        modelMap.addAttribute("similarProperties", similarProperties);
+
+        List<Integer> ratingIds = new ArrayList<>();
+        ratingIds.add(property.getId());
+        similarProperties.forEach(p -> ratingIds.add(p.getId()));
+        Map<Integer, PropertyRatingSummaryDto> ratingSummaries = ratingsService.getSummariesForPropertyIds(ratingIds);
+        modelMap.addAttribute("propertyRatingSummaries", ratingSummaries);
+        modelMap.addAttribute("propertyCommentCounts", commentService.getCommentCountsForPropertyIds(ratingIds));
+        modelMap.addAttribute("propertyReviews", ratingsService.listReviewsForProperty(propertyId));
+        modelMap.addAttribute("propertyComments", commentService.listPublicCommentsForProperty(propertyId));
+
+        Map<Integer, LocationDto> locationMap = locationService.getAll()
+                .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
+        modelMap.addAttribute("locationMap", locationMap);
+
+        String sellerPhone = userService.getSellerPhoneMap(List.of(property.getUserId()))
+                .get(property.getUserId());
+        modelMap.addAttribute("sellerPhone", sellerPhone);
+        modelMap.addAttribute("view360", property360Service.getByPropertyId(propertyId).orElse(null));
+
+        String selectedCurrency = resolveCurrency(null, session);
+        modelMap.addAttribute("selectedCurrency", selectedCurrency);
+        modelMap.addAttribute("availableCurrencies", currencyRatesService.getSupportedCurrencies());
+        if (!"USD".equals(selectedCurrency)) {
+            double rate = currencyRatesService.getRate(selectedCurrency);
+            BigDecimal convertedPrice = property.getPrice()
+                    .multiply(BigDecimal.valueOf(rate))
+                    .setScale(0, RoundingMode.HALF_UP);
+            modelMap.addAttribute("convertedPrice", convertedPrice);
+        }
+
+        User user = userPrincipal != null ? userPrincipal.getUser() : null;
+        if (user != null) {
+            modelMap.addAttribute("myPropertyReview", ratingsService.findReviewByUser(propertyId, user.getId()).orElse(null));
+            modelMap.addAttribute("canRateProperty", property.getUserId() != user.getId());
+        } else {
+            modelMap.addAttribute("myPropertyReview", null);
+            modelMap.addAttribute("canRateProperty", Boolean.FALSE);
+        }
+
+        return "property/propertyDetails";
     }
 
     @GetMapping("/home")
-    public String homePage(@AuthenticationPrincipal SpringUser userPrincipal, ModelMap modelMap) {
+    public String homePage(@AuthenticationPrincipal SpringUser userPrincipal,
+                           @ModelAttribute PropertyFilterDto filter,
+                           @RequestParam(required = false) String currency,
+                           HttpSession session,
+                           ModelMap modelMap) {
         User user = userPrincipal != null ? userPrincipal.getUser() : null;
-        if (user == null) {
-            modelMap.addAttribute("properties", propertyService.findAll());
-            return "home";
-        }
-        if(user.isBlocked()){
+
+        if (user != null && user.isBlocked()) {
             return "redirect:/loginPage?msg=" + ErrorCode.PROFILE_IS_BLOCKED.format(user.getEmail());
         }
-        switch (user.getRole()){
-            case ADMIN: return "redirect:/admin/home";
-            case USER: return "redirect:/user/home";
-            case MANAGER: return "redirect:/manager/home";
-            case CUSTOMER: return "redirect:/customer/home";
-            default: return "home";
+
+        String selectedCurrency = resolveCurrency(currency, session);
+
+        List<PropertyResponseDto> properties = propertyService.findAllFiltered(filter);
+        modelMap.addAttribute("properties", properties);
+        List<Integer> propertyIds = properties.stream().map(PropertyResponseDto::getId).toList();
+        modelMap.addAttribute("propertyRatingSummaries", ratingsService.getSummariesForPropertyIds(propertyIds));
+        modelMap.addAttribute("propertyCommentCounts", commentService.getCommentCountsForPropertyIds(propertyIds));
+        modelMap.addAttribute("filter", filter);
+        modelMap.addAttribute("propertyTypes", PropertyType.values());
+        modelMap.addAttribute("propertyStatuses", new PropertyStatus[]{PropertyStatus.FOR_SALE, PropertyStatus.FOR_RENT});
+        modelMap.addAttribute("regions", Region.values());
+        Map<Integer, LocationDto> locationMap = locationService.getAll()
+                .stream().collect(Collectors.toMap(LocationDto::getId, l -> l));
+        modelMap.addAttribute("locationMap", locationMap);
+        modelMap.addAttribute("urgentPropertyIds", paymentService.getActiveUrgentPropertyIds());
+        addCurrencyAttributes(modelMap, selectedCurrency, properties);
+
+        if (user != null) {
+            List<Integer> sellerIds = properties.stream()
+                    .filter(p -> p.getStatus() == PropertyStatus.FOR_SALE)
+                    .map(PropertyResponseDto::getUserId)
+                    .distinct()
+                    .toList();
+            modelMap.addAttribute("sellerPhoneMap", userService.getSellerPhoneMap(sellerIds));
+
+            modelMap.addAttribute("currentUser", user);
+            String dashboardUrl = switch (user.getRole()) {
+                case ADMIN    -> "/admin/home";
+                case USER     -> "/user/home";
+                case MANAGER  -> "/manager/home";
+            };
+            modelMap.addAttribute("dashboardUrl", dashboardUrl);
         }
 
+        return "home";
+    }
+
+    private String resolveCurrency(String currencyParam, HttpSession session) {
+        List<String> supported = currencyRatesService.getSupportedCurrencies();
+        if (currencyParam != null && supported.contains(currencyParam)) {
+            session.setAttribute("currency", currencyParam);
+            return currencyParam;
+        }
+        String fromSession = (String) session.getAttribute("currency");
+        return fromSession != null && supported.contains(fromSession) ? fromSession : "USD";
+    }
+
+    private void addCurrencyAttributes(ModelMap modelMap, String selectedCurrency,
+                                       List<PropertyResponseDto> properties) {
+        modelMap.addAttribute("selectedCurrency", selectedCurrency);
+        modelMap.addAttribute("availableCurrencies", currencyRatesService.getSupportedCurrencies());
+        if (!"USD".equals(selectedCurrency)) {
+            double rate = currencyRatesService.getRate(selectedCurrency);
+            Map<Integer, BigDecimal> convertedPriceMap = new LinkedHashMap<>();
+            for (PropertyResponseDto p : properties) {
+                BigDecimal converted = p.getPrice()
+                        .multiply(BigDecimal.valueOf(rate))
+                        .setScale(0, RoundingMode.HALF_UP);
+                convertedPriceMap.put(p.getId(), converted);
+            }
+            modelMap.addAttribute("convertedPriceMap", convertedPriceMap);
+        }
     }
 
     @GetMapping("/image/get")
-    public @ResponseBody ResponseEntity<byte[]> getImage(@RequestParam("pic") String picName) {
+    public @ResponseBody ResponseEntity<byte[]> getImage(
+            @RequestParam("pic") String picName,
+            @AuthenticationPrincipal SpringUser springUser) {
         Path basePath = Paths.get(imageDirectoryPath).normalize();
         Path requestedPath = basePath.resolve(picName).normalize();
         if (!requestedPath.startsWith(basePath)) {
@@ -77,6 +220,7 @@ public class MainController {
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
                         .body(FileUtils.readFileToByteArray(file));
             } catch (IOException e) {
+                log.error("Failed to read image file: {} user email: {}", e.getMessage(), springUser.getUser().getEmail());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }

@@ -17,4 +17,6 @@ public interface BookingService {
     void deleteById(int id);
 
     List<Booking> findByPropertyId(int propertyId);
+
+    List<Booking> findByUserId(int userId);
 }

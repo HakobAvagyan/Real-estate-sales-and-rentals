@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.favorite.title}">Favorite Properties</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
+</head>
+<body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<main class="layout">
+    <section class="panel wide" data-reveal>
+        <div class="page-header">
+            <div>
+                <h1 class="headline" th:text="#{favorite.headline}">Favorite Properties</h1>
+                <p class="subline mb-0" th:text="#{favorite.subline}">Properties you have saved.</p>
+            </div>
+            <div class="actions mt-0">
+                <a class="btn btn-ghost btn-sm" th:href="@{/home}" th:text="#{btn.back}">Back</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="listings-area">
+        <div th:if="${favoritePageData.properties == null or #lists.isEmpty(favoritePageData.properties)}" class="empty-state">
+            <span class="empty-icon">🏠</span>
+            <p th:text="#{home.empty}">No properties found at the moment.</p>
+        </div>
+
+        <div class="prop-grid" data-reveal-stagger
+             th:if="${favoritePageData.properties != null and !#lists.isEmpty(favoritePageData.properties)}">
+            <div class="prop-card" th:each="property : ${favoritePageData.properties}">
+                <a class="prop-card-overlay-link" th:href="@{/property/details(propertyId=${property.id})}"></a>
+
+                <div class="prop-card-img-wrap">
+                    <img class="prop-card-img"
+                         th:if="${!#lists.isEmpty(property.imageUrls)}"
+                         th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                         th:alt="#{home.card.alt}">
+                    <div class="prop-card-img-placeholder"
+                         th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
+                    <span class="prop-card-status"
+                          th:classappend="${property.status.name() == 'FOR_SALE' ? ' sale' : ' rent'}"
+                          th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                          th:text="#{__${statusKey}__}"></span>
+                    <div class="prop-card-urgent-ribbon"
+                         th:if="${favoritePageData.urgentPropertyIds != null and #lists.contains(favoritePageData.urgentPropertyIds, property.id)}"
+                         th:text="#{home.urgent.badge}">URGENT</div>
+                </div>
+
+                <div class="prop-card-body">
+                    <div class="prop-card-type"
+                         th:with="typeKey=|enum.propertyType.${property.propertyType}|"
+                         th:text="#{__${typeKey}__}"></div>
+
+                    <div class="prop-card-location"
+                         th:if="${favoritePageData.locationMap != null and favoritePageData.locationMap[property.locationId] != null}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span th:text="${favoritePageData.locationMap[property.locationId].city
+                            + (favoritePageData.locationMap[property.locationId].district != null
+                               ? ', ' + favoritePageData.locationMap[property.locationId].district : '')}"></span>
+                    </div>
+
+                    <div class="prop-card-price"
+                         th:text="'$' + ${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}"></div>
+
+                    <div class="prop-card-meta">
+                        <span class="prop-card-meta-item" th:if="${property.roomsCount != null}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            <span th:text="${property.roomsCount} + ' rm.'"></span>
+                        </span>
+                        <span class="prop-card-meta-item" th:if="${property.surface > 0}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            </svg>
+                            <span th:text="${property.surface} + ' sq.m.'"></span>
+                        </span>
+                        <span class="prop-card-meta-item"
+                              th:if="${property.floorCount != null and property.floorCount > 0}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="2" x2="12" y2="22"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                            <span th:text="${property.floor} + '/' + ${property.floorCount} + ' fl.'"></span>
+                        </span>
+                    </div>
+
+                    <th:block th:if="${property.status.name() == 'FOR_RENT'}">
+                        <a class="prop-card-book-btn" th:if="${currentUser == null}" th:href="@{/loginPage}" th:text="#{btn.book}">BOOK</a>
+                        <a class="prop-card-book-btn" href="#"
+                           th:if="${currentUser != null and property.userId == currentUser.id}"
+                           onclick="showOwnListing(event)" th:text="#{btn.book}">BOOK</a>
+                        <a class="prop-card-book-btn"
+                           th:if="${currentUser != null and property.userId != currentUser.id}"
+                           th:href="@{/booking/form(propertyId=${property.id})}" th:text="#{btn.book}">BOOK</a>
+                    </th:block>
+
+                    <th:block th:if="${property.status.name() == 'FOR_SALE'}">
+                        <div class="prop-card-actions">
+                            <a class="prop-card-write-btn" th:if="${currentUser == null}" th:href="@{/loginPage}" th:text="#{btn.write}">WRITE</a>
+                            <a class="prop-card-phone-btn" th:if="${currentUser == null}" th:href="@{/loginPage}" th:text="#{btn.phone}">PHONE</a>
+
+                            <a class="prop-card-write-btn" href="#"
+                               th:if="${currentUser != null and property.userId == currentUser.id}"
+                               onclick="showOwnListing(event)" th:text="#{btn.write}">WRITE</a>
+                            <button class="prop-card-phone-btn" type="button"
+                                    th:if="${currentUser != null and property.userId == currentUser.id}"
+                                    onclick="showOwnListing(event)" th:text="#{btn.phone}">PHONE</button>
+
+                            <a class="prop-card-write-btn"
+                               th:if="${currentUser != null and property.userId != currentUser.id}"
+                               th:href="@{/messages/open/direct(otherUserId=${property.userId},propertyId=${property.id})}"
+                               th:text="#{btn.write}">WRITE</a>
+                            <button class="prop-card-phone-btn" type="button"
+                                    th:if="${currentUser != null and property.userId != currentUser.id}"
+                                    th:data-phone="${sellerPhoneMap != null and sellerPhoneMap[property.userId] != null ? sellerPhoneMap[property.userId] : ''}"
+                                    onclick="openPhonePopup(this)" th:text="#{btn.phone}">PHONE</button>
+
+                            <form th:if="${currentUser != null}" th:action="@{/favorite/action}" method="post">
+                                <input type="hidden" name="propertyId" th:value="${property.id}">
+                                <button type="submit">❤️</button>
+                            </form>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="ownListingToast" class="own-listing-toast" th:text="#{home.toast.ownListing}"></div>
+
+<div id="phonePopup" class="phone-popup">
+    <div class="phone-popup-card">
+        <p class="phone-popup-label" th:text="#{home.phone.title}">Seller's phone</p>
+        <p id="phonePopupNumber" class="phone-popup-number"></p>
+        <button class="btn btn-ghost btn-sm" type="button" onclick="closePhonePopup()" th:text="#{btn.close}">Close</button>
+    </div>
+</div>
+
+<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.__i18nHome = {
+        phoneNotProvided: /*[[#{home.phone.notProvided}]]*/ 'Not provided'
+    };
+    /*]]>*/
+</script>
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.booking.title}">Book Property</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
+</head>
+<body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<main class="layout">
+
+    <section class="panel welcome" data-reveal>
+        <div class="nav">
+            <div>
+                <h1 class="headline" th:text="#{booking.headline}">Book Property</h1>
+                <p class="subline mb-0" th:text="#{booking.subline}">Choose your stay dates and number of guests.</p>
+            </div>
+            <div class="actions mt-0">
+                <a class="btn btn-ghost btn-sm" th:href="@{/home}" th:text="#{btn.back}">Back</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel" data-reveal>
+        <p class="property-summary-title" th:text="${property.title}"></p>
+        <p class="property-summary-type" th:text="${property.propertyType}"></p>
+        <p class="property-summary-price">
+            <span th:text="#{booking.summary.priceLabel}">Price per night:</span>
+            <strong th:text="'$' + ${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}"></strong>
+        </p>
+    </section>
+
+    <section class="panel" data-reveal>
+        <form method="post" action="/booking/checkout">
+            <input type="hidden" name="propertyId" th:value="${property.id}">
+            <input type="hidden" name="propertyTitle" th:value="${property.title}">
+
+            <div class="grid">
+                <div class="field">
+                    <label for="startDate" th:text="#{booking.checkin}">Check-in date</label>
+                    <input id="startDate" name="startDate" type="date" required>
+                </div>
+                <div class="field">
+                    <label for="endDate" th:text="#{booking.checkout}">Check-out date</label>
+                    <input id="endDate" name="endDate" type="date" required>
+                </div>
+                <div class="field">
+                    <label for="guests" th:text="#{booking.guests}">Number of guests</label>
+                    <input id="guests" name="guests" type="number" min="1" value="1" required>
+                </div>
+                <div class="field">
+                    <label th:text="#{booking.total}">Total amount</label>
+                    <input id="totalDisplay" type="text" readonly value="—">
+                    <input id="amountHidden" name="amount" type="hidden" value="0">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit" th:text="#{booking.proceed}">Proceed to Payment</button>
+            </div>
+        </form>
+    </section>
+
+    <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+</main>
+
+<script th:inline="javascript">
+    window.__bookingPricePerNight = /*[[${property.price}]]*/ 0;
+</script>
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
+</body>
+</html>

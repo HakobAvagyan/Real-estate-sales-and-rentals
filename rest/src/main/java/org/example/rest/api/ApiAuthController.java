@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,7 +34,7 @@ public class ApiAuthController {
         try {
             var auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(body.email(), body.password()));
-            String token = jwtService.createAccessToken((UserDetails) auth.getPrincipal());
+            String token = jwtService.createAccessToken((UserDetails) Objects.requireNonNull(auth.getPrincipal()));
             return ResponseEntity.ok(Map.of("accessToken", token));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

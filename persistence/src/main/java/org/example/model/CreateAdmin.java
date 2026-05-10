@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.model.enums.Gender;
 import org.example.model.enums.Role;
 import org.example.repository.UserRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +21,7 @@ public class CreateAdmin implements CommandLineRunner {
         private final PasswordEncoder passwordEncoder;
 
         @Override
-        public void run(String... args) {
+        public void run(String @NonNull ... args) {
 
             if (userRepository.findByEmail("admin@gmail.com").isEmpty()) {
 

@@ -15,21 +15,22 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/login","/verify","/reset/password/byEmail", "/verify/password", "/verify/password/reset",  "/","/loginPage", "/home", "/register", "/css/**", "/js/**", "/image/**").permitAll()
+                                .requestMatchers("/login","/verify","/reset/password/byEmail", "/verify/password", "/verify/password/reset",  "/", "/property/details", "/loginPage", "/home", "/register", "/locale", "/css/**", "/js/**", "/image/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/manager/properties/pending", "/manager/property/approve", "/manager/property/reject")
+                                        .hasAnyAuthority("MANAGER", "ADMIN")
                                 .requestMatchers("/manager/**").hasAuthority("MANAGER")
                                 .requestMatchers("/blocked").hasAnyAuthority("ADMIN", "MANAGER")
                                 .requestMatchers("/user/**").hasAuthority("USER")
-                                .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
-                                .requestMatchers("/personalPage", "/remove/user/picture", "/change/password").hasAnyAuthority("ADMIN", "MANAGER", "USER", "CUSTOMER")
-                                .requestMatchers("/messages", "/messages/**").hasAnyAuthority("ADMIN", "MANAGER", "USER", "CUSTOMER")
+                                .requestMatchers("/personalPage", "/remove/user/picture", "/change/password","/favorite/**",
+                                        "/messages", "/messages/**","/booking/**", "/bookings/**", "/payment/**"
+                                        ).hasAnyAuthority("ADMIN", "MANAGER", "USER")
                                 .requestMatchers("/ws-chat/**").authenticated()
-                                .requestMatchers("/user/property/create").hasAuthority("USER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->

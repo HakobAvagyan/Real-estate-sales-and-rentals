@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.security.jwt.JwtService;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
-import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,7 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    protected boolean shouldNotFilter( HttpServletRequest request) {
         String path = request.getServletPath();
         return path.startsWith("/api/auth/login")
                 || path.startsWith("/ws-chat");
@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
+            HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 

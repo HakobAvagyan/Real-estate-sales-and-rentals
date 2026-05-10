@@ -48,4 +48,9 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findByPropertyId(int propertyId) {
         return bookingRepository.findAllByPropertyId(propertyId);
     }
+
+    @Override
+    public List<Booking> findByUserId(int userId) {
+        return bookingRepository.findAllByPayment_UserId(userId);
+    }
 }

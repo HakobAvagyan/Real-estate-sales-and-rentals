@@ -1,62 +1,73 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update User Details</title>
+    <title th:text="#{page.update.title}">Edit Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
-  <section class="panel">
-    <h1 class="headline">Update User Details</h1>
-    <p class="subline">Edit profile information and media for this account.</p>
+  <section class="panel" data-reveal>
+    <h1 class="headline" th:text="#{update.headline}">Update Profile</h1>
+    <p class="subline" th:text="#{update.subline}">Edit profile information and media for this account.</p>
 
     <form method="post" action="/update" enctype="multipart/form-data">
       <input type="hidden" name="id" th:value="${user.id}">
 
       <div class="grid">
         <div class="field">
-          <label for="name">Name</label>
+          <label for="name" th:text="#{register.field.name}">Name</label>
           <input id="name" type="text" name="name" th:value="${user.name}" required>
         </div>
         <div class="field">
-          <label for="surname">Surname</label>
+          <label for="surname" th:text="#{register.field.surname}">Surname</label>
           <input id="surname" type="text" name="surname" th:value="${user.surname}" required>
         </div>
         <div class="field">
-          <label for="email">Email</label>
+          <label for="email" th:text="#{pwd.email}">Email</label>
           <input id="email" type="email" name="email" th:value="${user.email}" required>
         </div>
         <div class="field">
-          <label for="phone">Phone</label>
+          <label for="phone" th:text="#{register.field.phone}">Phone</label>
           <input id="phone" type="tel" name="phone" th:value="${user.phone}">
         </div>
-        <input id="birthDate" type="date" name="birthDate" th:value="${user.birthDate}"  required>
         <div class="field">
-          <label for="passportDetails">Passport Detail</label>
+          <label for="birthDate" th:text="#{register.field.birthDate}">Birth Date</label>
+          <input id="birthDate" type="date" name="birthDate" th:value="${user.birthDate}" required>
+        </div>
+        <div class="field">
+          <label for="passportDetails" th:text="#{register.field.passport}">Passport Detail</label>
           <input id="passportDetails" type="text" name="passportDetails" th:value="${user.passportDetails}">
         </div>
         <div class="field row-full">
-          <label for="pic">Profile Picture</label>
+          <label for="pic" th:text="#{register.field.pic}">Profile Picture</label>
           <input id="pic" type="file" name="pic">
         </div>
         <div class="field row-full" th:if="${user.picName != null}">
-          <a th:href="@{/remove/user/picture(id=${user.id})}">Remove profile picture</a>
+          <a th:href="@{/remove/user/picture(id=${user.id})}" th:text="#{update.removePic}">Remove profile picture</a>
         </div>
         <div class="field row-full">
-          <label>Role</label>
+          <label th:text="#{personal.field.role}">Role</label>
           <input type="hidden" name="role" th:value="${user.role}">
           <input type="text" th:value="${user.role}" readonly>
         </div>
       </div>
 
       <div class="actions">
-        <button class="btn btn-primary" type="submit">Save Changes</button>
-        <a class="btn btn-ghost" href="/home">Back to User List</a>
+        <button class="btn btn-primary" type="submit" th:text="#{update.submit}">Save Changes</button>
+        <a class="btn btn-ghost" th:href="@{/home}" th:text="#{btn.back}">Back</a>
       </div>
     </form>
   </section>
 </main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

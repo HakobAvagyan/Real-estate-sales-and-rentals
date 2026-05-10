@@ -3,11 +3,16 @@ package org.example.app.controller.user;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.user.UserRegisterDto;
 import org.example.dto.user.UserResponseDto;
 import org.example.dto.user.UserUpdateDto;
 import org.example.exception.ErrorCode;
 import org.example.model.enums.Role;
+import org.example.dto.admin.AdminPlatformOverviewDto;
+import org.example.dto.admin.ManagerWorkloadDto;
+import org.example.dto.admin.PropertyMarketStatsDto;
+import org.example.service.AdminDashboardService;
 import org.example.service.PropertyService;
 import org.example.service.UserService;
 import org.example.service.security.SpringUser;
@@ -25,21 +30,30 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
     private final PropertyService propertyService;
+    private final AdminDashboardService adminDashboardService;
 
     @GetMapping("/admin/home")
     public String adminHomePage(ModelMap modelMap) {
         List<UserResponseDto> userList = userService.findAll();
         modelMap.addAttribute("users", userList);
+        PropertyMarketStatsDto propertyStats = adminDashboardService.getPropertyMarketStats();
+        AdminPlatformOverviewDto platformOverview = adminDashboardService.getPlatformOverview();
+        List<ManagerWorkloadDto> managerWorkloads = adminDashboardService.getManagerWorkloadsSorted();
+        modelMap.addAttribute("propertyStats", propertyStats);
+        modelMap.addAttribute("platformOverview", platformOverview);
+        modelMap.addAttribute("managerWorkloads", managerWorkloads);
         return "admin/adminHome";
     }
 
     @GetMapping("/user/home")
     public String userHomePage(@AuthenticationPrincipal SpringUser principal, ModelMap modelMap) {
         if (principal == null) {
+            log.error("Unauthorized access attempt to user home page user: {}", principal);
             return "redirect:/home";
         }
         modelMap.addAttribute("properties", propertyService.findAllByUserId(principal.getUser().getId()));
@@ -49,14 +63,10 @@ public class UserController {
     @GetMapping("/manager/home")
     public String managerHomePage(ModelMap modelMap) {
         List<UserResponseDto> userList = userService.
-                findAllByRoleIn(List.of(Role.USER, Role.CUSTOMER));
+                findUserByRole(Role.USER);
         modelMap.addAttribute("users", userList);
+        modelMap.addAttribute("pendingPropertyCount", propertyService.countPendingModeration());
         return "manager/managerHome";
-    }
-
-    @GetMapping("/customer/home")
-    public String customerHomePage() {
-        return "customer/customerHome";
     }
 
     @GetMapping("/delete")
@@ -77,6 +87,7 @@ public class UserController {
             ModelMap modelMap,
             @AuthenticationPrincipal SpringUser principal) {
         if (principal == null) {
+            log.error("Unauthorized access attempt to user update page user: {} in GetMapping", principal);
             return "redirect:/home";
         }
         if (principal.getUser().getId() != id && principal.getUser().getRole() != Role.ADMIN) {
@@ -94,9 +105,11 @@ public class UserController {
             @RequestParam(value = "pic") MultipartFile multipartFile,
             @AuthenticationPrincipal SpringUser principal) {
         if (principal == null) {
+            log.error("Unauthorized access attempt to user update page user: {} in PostMapping", principal);
             return "redirect:/home";
         }
         if (principal.getUser().getId() != id && principal.getUser().getRole() != Role.ADMIN) {
+            log.error("Unauthorized access attempt to user update page user: {}, id: {}", principal,id);
             return "redirect:/personalPage?id=" + id;
         }
         userService.update(user, multipartFile,id);
@@ -126,9 +139,11 @@ public class UserController {
 
         String email = registeredUser.getEmail();
         if (errors.hasErrors()) {
+            log.error("Invalid email address: {}", email);
             return "redirect:/register?msg=" + ErrorCode.TRY_AGAIN.format(email);
         }
         if (userService.findByEmail(email) != null) {
+            log.error("User with email {} already exists", email);
             return "redirect:/register?msg=" +
                     ErrorCode.USER_ALREADY_REGISTERED.format(email);
         }
@@ -147,13 +162,17 @@ public class UserController {
 
     @PostMapping("/admin/add/manager")
     public String addManager(@Valid @ModelAttribute UserRegisterDto manager,
-                             @RequestParam(value = "pic") MultipartFile multipartFile) {
-        if (userService.findByEmail(manager.getEmail()) != null) {
+                             @RequestParam(value = "pic") MultipartFile multipartFile,
+                             HttpSession session) {
+        String email = manager.getEmail();
+        if (userService.findByEmail(email) != null) {
+            log.error("Manager with email {} already exists", email);
             return "redirect:/admin/add/manager?msg="  +
-                    ErrorCode.USER_ALREADY_REGISTERED.format(manager.getEmail());
+                    ErrorCode.USER_ALREADY_REGISTERED.format(email);
         }
         userService.createManager(manager, multipartFile);
-        return "redirect:/verify?email=" + manager.getEmail();
+        session.setAttribute("verifyEmail", email);
+        return "redirect:/verify";
     }
 
 
@@ -161,6 +180,7 @@ public class UserController {
     public String verifyUserPage(HttpSession session, ModelMap modelMap) {
         String email = (String) session.getAttribute("verifyEmail");
         if (email == null) {
+            log.error("Invalid email address for verify : {} in GetMapping", email);
             return "redirect:/register";
         }
         modelMap.addAttribute("email", email);
@@ -172,6 +192,7 @@ public class UserController {
                              @RequestParam("verifyCode") String verifyCode) {
         String email = (String) session.getAttribute("verifyEmail");
         if (email == null) {
+            log.error("Invalid email address for verify : {} in PostMapping", email);
             return "redirect:/register";
         }
         boolean isVerified = userService.verifyUser(email, verifyCode);

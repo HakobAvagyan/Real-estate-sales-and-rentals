@@ -1,22 +1,31 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Own Notification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{page.ownNotification.title}">Notification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
 <main class="layout">
-    <section class="panel">
-        <h1 class="headline">Notification Details</h1>
-        <p class="subline">Full notification text and metadata.</p>
+    <section class="panel" data-reveal>
+        <h1 class="headline" th:text="#{notification.details.headline}">Notification Details</h1>
+        <p class="subline" th:text="#{notification.details.subline}">Full notification text and metadata.</p>
         <hr class="divider">
         <h2 class="headline" th:text="${notification.title}"></h2>
         <p th:text="${notification.message}"></p>
         <div class="actions">
-            <a class="btn btn-ghost" th:href="@{/notifications}">Back</a>
+            <a class="btn btn-ghost" th:href="@{/notifications}" th:text="#{btn.back}">Back</a>
         </div>
     </section>
 </main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

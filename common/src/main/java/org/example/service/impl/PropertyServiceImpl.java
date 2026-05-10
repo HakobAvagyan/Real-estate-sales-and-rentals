@@ -1,40 +1,48 @@
 package org.example.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.property.PropertyCreateRequestDto;
+import org.example.dto.property.PropertyFilterDto;
 import org.example.dto.property.PropertyResponseDto;
 import org.example.exception.BusinessException;
 import org.example.exception.ErrorCode;
 import org.example.mapper.property.PropertyCreateRequestMapper;
 import org.example.model.Location;
+import org.example.model.LocationName;
 import org.example.model.Property;
 import org.example.model.PropertyImage;
 import org.example.model.User;
-import org.example.model.LocationName;
-import org.example.repository.LocationRepository;
+import org.example.model.enums.PropertyModerationStatus;
+import org.example.model.enums.Role;
 import org.example.repository.LocationNameRepository;
+import org.example.repository.LocationRepository;
 import org.example.repository.PropertyImageRepository;
 import org.example.repository.PropertyRepository;
 import org.example.repository.UserRepository;
+import org.example.service.NotificationService;
 import org.example.service.PropertyService;
+import org.example.specification.PropertySpecification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PropertyServiceImpl implements PropertyService {
 
     @Value("${system.upload.images.directory.path}")
@@ -46,6 +54,7 @@ public class PropertyServiceImpl implements PropertyService {
     private final LocationRepository locationRepository;
     private final LocationNameRepository locationNameRepository;
     private final PropertyCreateRequestMapper propertyCreateRequestMapper;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -58,6 +67,11 @@ public class PropertyServiceImpl implements PropertyService {
         property.setUser(user);
         property.setLocation(location);
         property.setCreatedAt(LocalDate.now());
+        if (user.getRole() == Role.USER) {
+            property.setModerationStatus(PropertyModerationStatus.PENDING);
+        } else {
+            property.setModerationStatus(PropertyModerationStatus.APPROVED);
+        }
 
         Property savedProperty = propertyRepository.save(property);
 
@@ -68,13 +82,110 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public List<PropertyResponseDto> findAll() {
-        return propertyRepository.findAll().stream().map(property -> {
+        return propertyRepository.findAll(PropertySpecification.withFilter(new PropertyFilterDto())).stream()
+                .map(property -> {
+                    List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                            .stream()
+                            .map(PropertyImage::getImagesUrl)
+                            .toList();
+                    return toResponse(property, imageUrls);
+                }).toList();
+    }
+
+    @Override
+    public List<PropertyResponseDto> findAllFiltered(PropertyFilterDto filter) {
+        PropertyFilterDto f = filter != null ? filter : new PropertyFilterDto();
+        return propertyRepository.findAll(PropertySpecification.withFilter(f)).stream()
+                .map(property -> {
+                    List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                            .stream()
+                            .map(PropertyImage::getImagesUrl)
+                            .toList();
+                    return toResponse(property, imageUrls);
+                }).toList();
+    }
+
+    @Override
+    public Optional<PropertyResponseDto> findById(int id) {
+        return propertyRepository.findById(id).map(property -> {
             List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
                     .stream()
                     .map(PropertyImage::getImagesUrl)
                     .toList();
             return toResponse(property, imageUrls);
-        }).toList();
+        });
+    }
+
+    @Override
+    public Optional<PropertyResponseDto> findByIdForDisplay(int propertyId, Integer viewerUserId, Role viewerRole) {
+        return propertyRepository.findById(propertyId).flatMap(property -> {
+            boolean isOwner = viewerUserId != null && property.getUser().getId() == viewerUserId;
+            boolean isStaff = viewerRole == Role.MANAGER || viewerRole == Role.ADMIN;
+            boolean isPublic = property.getModerationStatus() == PropertyModerationStatus.APPROVED;
+            if (!isPublic && !isOwner && !isStaff) {
+                return Optional.empty();
+            }
+            List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                    .stream()
+                    .map(PropertyImage::getImagesUrl)
+                    .toList();
+            return Optional.of(toResponse(property, imageUrls));
+        });
+    }
+
+    @Override
+    public List<PropertyResponseDto> findPendingModeration() {
+        return propertyRepository.findAllByModerationStatusOrderByCreatedAtDesc(PropertyModerationStatus.PENDING)
+                .stream()
+                .map(property -> {
+                    List<String> imageUrls = propertyImageRepository.findAllByPropertyId(property.getId())
+                            .stream()
+                            .map(PropertyImage::getImagesUrl)
+                            .toList();
+                    return toResponse(property, imageUrls);
+                })
+                .toList();
+    }
+
+    @Override
+    public long countPendingModeration() {
+        return propertyRepository.countByModerationStatus(PropertyModerationStatus.PENDING);
+    }
+
+    @Override
+    @Transactional
+    public void approveListing(int propertyId) {
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        if (property.getModerationStatus() != PropertyModerationStatus.PENDING) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_PENDING_MODERATION);
+        }
+        property.setModerationStatus(PropertyModerationStatus.APPROVED);
+        propertyRepository.save(property);
+        int ownerId = property.getUser().getId();
+        String title = property.getTitle() != null ? property.getTitle() : ("#" + property.getId());
+        notificationService.createNotificationForUser(ownerId, "Listing approved",
+                "Your listing \"" + title + "\" has been approved and is now visible on the site.");
+    }
+
+    @Override
+    @Transactional
+    public void rejectListing(int propertyId, String reason) {
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND, propertyId));
+        if (property.getModerationStatus() != PropertyModerationStatus.PENDING) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_PENDING_MODERATION);
+        }
+        property.setModerationStatus(PropertyModerationStatus.REJECTED);
+        propertyRepository.save(property);
+        int ownerId = property.getUser().getId();
+        String title = property.getTitle() != null ? property.getTitle() : ("#" + property.getId());
+        StringBuilder msg = new StringBuilder();
+        msg.append("Your listing \"").append(title).append("\" was not approved and will not appear in the catalog.");
+        if (StringUtils.hasText(reason)) {
+            msg.append(" Details: ").append(reason.trim());
+        }
+        notificationService.createNotificationForUser(ownerId, "Listing not approved", msg.toString());
     }
 
     @Override
@@ -91,6 +202,7 @@ public class PropertyServiceImpl implements PropertyService {
     private List<String> savePropertyImages(Property property, List<MultipartFile> images) {
         List<String> imageUrls = new ArrayList<>();
         if (images == null || images.isEmpty()) {
+            log.error("No images uploaded for property {}", property.getId());
             return imageUrls;
         }
 
@@ -98,14 +210,14 @@ public class PropertyServiceImpl implements PropertyService {
         try {
             Files.createDirectories(uploadDir);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            log.error("Unable to create directory for upload images for property {}", property.getId());
         }
 
         for (MultipartFile image : images) {
             if (image == null || image.isEmpty()) {
                 continue;
             }
-            String originalFilename = StringUtils.cleanPath(image.getOriginalFilename());
+            String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
             String extension = "";
             int dotIndex = originalFilename.lastIndexOf('.');
             if (dotIndex >= 0) {
@@ -116,7 +228,7 @@ public class PropertyServiceImpl implements PropertyService {
             try {
                 image.transferTo(imagePath.toFile());
             } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                log.error("Unable to addFavoriteProperty image for property {}", property.getId());
             }
 
             String relativePath = "properties/" + storedFileName;
@@ -135,6 +247,7 @@ public class PropertyServiceImpl implements PropertyService {
 
     private List<MultipartFile> normalizeImageList(List<MultipartFile> images) {
         if (images == null) {
+            log.error("Image list is null, normalizing to empty list");
             return List.of();
         }
         return images;
@@ -149,6 +262,7 @@ public class PropertyServiceImpl implements PropertyService {
         String district = request.getDistrict();
         String street = request.getStreet();
         if (locationNameId == null || district == null || district.isBlank() || street == null || street.isBlank()) {
+            log.error("LocationName or district or street is null or blank");
             throw new BusinessException(ErrorCode.INVALID_REQUEST_BODY);
         }
         LocationName locationName = locationNameRepository.findById(locationNameId)
@@ -179,6 +293,7 @@ public class PropertyServiceImpl implements PropertyService {
                 .createdAt(property.getCreatedAt())
                 .status(property.getStatus())
                 .propertyType(property.getPropertyType())
+                .moderationStatus(property.getModerationStatus())
                 .imageUrls(imageUrls)
                 .build();
     }

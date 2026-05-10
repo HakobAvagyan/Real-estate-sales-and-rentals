@@ -1,76 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard | Real Estate Hub</title>
+    <title th:text="#{page.user.home.title}">User Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
-<main class="layout">
-    <section class="panel welcome">
-        <div class="nav">
-            <div>
-                <h1 class="headline">User Dashboard</h1>
-                <p class="subline mb-0">Your personal workspace on Real Estate Hub.</p>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+
+<main class="pd-layout">
+    <div class="pd-container" data-reveal>
+        
+        <!-- Dashboard Header -->
+        <div class="dashboard-header panel">
+            <div class="dh-info">
+                <h1 class="headline" th:text="#{user.home.welcome}">User Dashboard</h1>
+                <p class="subline mb-0" th:text="#{user.home.subline}">Your personal workspace on Real Estate Hub.</p>
             </div>
-            <div class="actions mt-0">
-                <a class="btn btn-ghost btn-sm" href="/logout">Logout</a>
-            </div>
-        </div>
-    </section>
-    <section class="panel">
-        <div class="nav-links">
-            <a class="btn btn-ghost" th:href="@{/personalPage(id=${currentUser.id})}">My Profile</a>
-            <a class="btn btn-ghost" th:href="@{/notifications}">My Notifications</a>
-            <a class="btn btn-ghost" th:href="@{/messages}">Messages</a>
-            <a class="btn btn-primary" th:href="@{/user/property/create}">Add Property</a>
-        </div>
-    </section>
-    <section class="panel wide">
-        <div class="page-header">
-            <div>
-                <h2 class="headline">My Properties</h2>
-                <p class="subline mb-0">Products added by you.</p>
+            <div class="dh-actions">
+                <a class="btn btn-primary" th:href="@{/user/property/create}">
+                    <span style="font-weight: bold; margin-right: 6px;">+</span> <span th:text="#{user.home.nav.addProperty}">Add Property</span>
+                </a>
+                <a class="btn btn-ghost" href="/logout" th:text="#{btn.logout}">Logout</a>
             </div>
         </div>
-        <div th:if="${#lists.isEmpty(properties)}">
-            <p>You have not added any properties yet.</p>
+
+        <!-- Dashboard Actions Grid -->
+        <div class="dashboard-grid">
+            <a class="dash-card" th:href="@{/home}">
+                <div class="dash-card-icon">🏠</div>
+                <div class="dash-card-title" th:text="#{user.home.nav.main}">Main Page</div>
+            </a>
+            <a class="dash-card" th:href="@{/personalPage(id=${currentUser.id})}">
+                <div class="dash-card-icon">👤</div>
+                <div class="dash-card-title" th:text="#{user.home.nav.profile}">My Profile</div>
+            </a>
+            <a class="dash-card" th:href="@{/notifications}">
+                <div class="dash-card-icon">🔔</div>
+                <div class="dash-card-title" th:text="#{user.home.nav.notifications}">My Notifications</div>
+            </a>
+            <a class="dash-card" th:href="@{/messages}">
+                <div class="dash-card-icon">💬</div>
+                <div class="dash-card-title" th:text="#{user.home.nav.messages}">Messages</div>
+            </a>
+            <a class="dash-card" th:href="@{/favorite}">
+                <div class="dash-card-icon">❤️</div>
+                <div class="dash-card-title" th:text="#{user.home.nav.favorites}">Favorite List</div>
+            </a>
+            <a class="dash-card" th:href="@{/my-bookings}">
+                <div class="dash-card-icon">📅</div>
+                <div class="dash-card-title" th:text="#{user.home.nav.bookings}">My Bookings</div>
+            </a>
         </div>
-        <div class="table-wrap" th:if="${!#lists.isEmpty(properties)}">
-            <table>
-                <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Title</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Type</th>
-                    <th>Location ID</th>
-                    <th>Surface</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="property : ${properties}">
-                    <td>
-                        <img class="avatar"
-                             th:if="${!#lists.isEmpty(property.imageUrls)}"
-                             th:src="@{/image/get(pic=${property.imageUrls[0]})}"
-                             alt="Property image">
-                        <span th:if="${#lists.isEmpty(property.imageUrls)}">No image</span>
-                    </td>
-                    <td th:text="${property.title}"></td>
-                    <td th:text="${property.price}"></td>
-                    <td><span class="badge" th:text="${property.status}"></span></td>
-                    <td th:text="${property.propertyType}"></td>
-                    <td th:text="${property.locationId}"></td>
-                    <td th:text="${property.surface}"></td>
-                </tr>
-                </tbody>
-            </table>
+
+        <!-- Properties Table Section -->
+        <div class="panel wide dashboard-table-panel">
+            <div class="page-header" style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
+                <div>
+                    <h2 class="headline" th:text="#{user.home.properties.title}">My Properties</h2>
+                    <p class="subline mb-0" th:text="#{user.home.properties.subline}">Products added by you.</p>
+                </div>
+            </div>
+            
+            <div class="empty-state" th:if="${#lists.isEmpty(properties)}" style="padding: 40px 20px;">
+                <p th:text="#{user.home.properties.empty}">You have not added any properties yet.</p>
+                <a class="btn btn-primary" style="margin-top: 15px;" th:href="@{/user/property/create}" th:text="#{user.home.nav.addProperty}">Add Property</a>
+            </div>
+            
+            <div class="table-wrap" th:if="${!#lists.isEmpty(properties)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th th:text="#{user.home.table.image}">Image</th>
+                        <th th:text="#{user.home.table.title}">Title</th>
+                        <th th:text="#{user.home.table.price}">Price</th>
+                        <th th:text="#{user.home.table.status}">Status</th>
+                        <th th:text="#{user.home.table.moderation}">Moderation</th>
+                        <th th:text="#{user.home.table.type}">Type</th>
+                        <th th:text="#{user.home.table.location}">Location ID</th>
+                        <th th:text="#{user.home.table.surface}">Surface</th>
+                        <th th:text="#{user.home.table.actions}">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="property : ${properties}">
+                        <td>
+                            <div class="dash-table-img-wrap">
+                                <img class="dash-table-img"
+                                     th:if="${!#lists.isEmpty(property.imageUrls)}"
+                                     th:src="@{/image/get(pic=${property.imageUrls[0]})}"
+                                     th:alt="#{home.card.alt}">
+                                <div class="dash-table-img-placeholder" th:if="${#lists.isEmpty(property.imageUrls)}">🏠</div>
+                            </div>
+                        </td>
+                        <td th:text="${property.title}" style="font-weight: 500;"></td>
+                        <td style="font-weight: 600; color: var(--accent);" th:text="${property.price}"></td>
+                        <td><span class="badge" th:with="statusKey=|enum.propertyStatus.${property.status}|"
+                                  th:text="#{__${statusKey}__}"></span></td>
+                        <td>
+                            <span class="badge" th:text="${property.moderationStatus}"
+                                  th:classappend="${property.moderationStatus.name() == 'APPROVED' ? ' badge-success' : (property.moderationStatus.name() == 'REJECTED' ? ' badge-danger' : ' badge-warning')}">APPROVED</span>
+                        </td>
+                        <td th:with="typeKey=|enum.propertyType.${property.propertyType}|"
+                            th:text="#{__${typeKey}__}" class="muted"></td>
+                        <td th:text="${property.locationId}" class="muted"></td>
+                        <td th:text="${property.surface}" class="muted"></td>
+                        <td>
+                            <a class="btn btn-sm btn-urgent"
+                               th:if="${property.moderationStatus != null and property.moderationStatus.name() == 'APPROVED'}"
+                               th:href="@{/payment/urgent(propertyId=${property.id})}" th:text="#{user.home.urgent}">URGENT</a>
+                            <span class="muted" th:if="${property.moderationStatus == null or property.moderationStatus.name() != 'APPROVED'}">—</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </section>
-    <div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+        
+    </div>
 </main>
+<div th:replace="~{fragments/chatWidgets :: supportFab}"></div>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>

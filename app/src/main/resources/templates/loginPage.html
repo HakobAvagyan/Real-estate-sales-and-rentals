@@ -1,37 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In | Real Estate Hub</title>
+    <title th:text="#{page.login.title}">Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/animations.css}">
 </head>
 <body>
-<main class="layout">
-    <section class="panel">
-        <h1 class="headline">Sign In</h1>
-        <p class="subline">Manage listings, clients, and team activity.</p>
+<div th:replace="~{fragments/siteHeader :: siteHeader}"></div>
+<main class="layout auth-layout">
+    <section class="panel" data-reveal="scale">
+        <h1 class="headline" th:text="#{page.login.title}">Sign In</h1>
+        <p class="subline" th:text="#{login.subline}">Manage listings, clients, and team activity.</p>
 
         <div class="alert alert-warn" th:if="${msg} != null" th:text="${msg}"></div>
 
         <form method="post" th:action="@{/login}">
             <div class="grid">
                 <div class="field row-full">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" name="email" placeholder="your@email.com" required>
+                    <label for="email" th:text="#{pwd.email}">Email</label>
+                    <input id="email" type="email" name="email" th:placeholder="#{login.placeholder.email}" required>
                 </div>
                 <div class="field row-full">
-                    <label for="password">Password</label>
-                    <input id="password" type="password" name="password" placeholder="Enter password" required>
+                    <label for="password" th:text="#{login.field.password}">Password</label>
+                    <input id="password" type="password" name="password" th:placeholder="#{login.placeholder.password}" required>
                 </div>
             </div>
             <div class="actions">
-                <button class="btn btn-primary" type="submit">Login</button>
-                <a class="btn btn-ghost" th:href="@{/home}">Back</a>
+                <button class="btn btn-primary" type="submit" th:text="#{login.submit}">Sign In</button>
+                <a class="btn btn-ghost" th:href="@{/home}" th:text="#{btn.back}">Back</a>
             </div>
         </form>
-        <a href="/reset/password/byEmail">Forgot password</a>
+        <p class="mt-1">
+            <a th:href="@{/reset/password/byEmail}" th:text="#{login.forgotPassword}">Forgot password?</a>
+        </p>
     </section>
 </main>
+
+<script defer th:src="@{/js/ui.js}"></script>
+<script defer th:src="@{/js/animations.js}"></script>
 </body>
 </html>
