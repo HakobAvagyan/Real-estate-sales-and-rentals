@@ -27,7 +27,7 @@ public class UserRegisterDto {
     @Email(message = "Email must be a valid email address")
     private String email;
 
-    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Phone must be a valid number")
+    @Pattern(regexp = "^\\+?[0-9\\s]{7,20}$", message = "Phone must be a valid number")
     private String phone;
 
     @NotBlank(message = "New password must not be blank")
